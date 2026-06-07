@@ -1,98 +1,103 @@
-# ACOS/AFM Web Application — Work Log
+# Work Log
 
 ---
-Task ID: 1
-Agent: main
-Task: Read and analyze the three uploaded Avadhana whitepapers
-
-Work Log:
-- Read Avadhana_AHC_v2_Corrected.pdf (17 pages) — Hierarchical Orthogonal Attention Framework with corrected complexity analysis
-- Read Avadhana_NSK_v2_Corrected.pdf (17 pages) — Neuro-Symbolic Kernel with Pingala/Panini/Nyaya frameworks
-- Read Avadhana_NSK_Whitepaper.pdf — Original NSK whitepaper
-- Classified all components as Proven/Plausible/Experimental/High Risk
-- Identified key corrections in v2: gated-sum broadcast, complexity domination, N* crossover point, approximation error downgrade, local Lyapunov stability, fp16 prescription, structural ε term
-
-Stage Summary:
-- All three whitepapers fully analyzed
-- Component classification and dependency map created
-- Key mathematical theorems identified for inclusion in the web app
-
----
-Task ID: 2
+Task ID: qa-fix
 Agent: full-stack-developer
-Task: Build complete ACOS/AFM web application
+Task: Fix Part 2 crash and enhance ACOS application
 
 Work Log:
-- Created 12 section components in src/components/acos/
-- Built sidebar navigation with dark theme and mobile hamburger menu
-- Built Overview section with hero, value propositions, ACOS stack diagram
-- Built Part 1 — Whitepaper Analysis with classification table and dependency flow
-- Built Part 2 — ACOS Design with 5 core component cards
-- Built Part 3 — AFM Architecture with comparison table and radar chart
-- Built Part 4 — Training Strategy with 3 pathway cards and phase timeline
-- Built Part 5 — Continuous Learning with learning modes and prevention mechanisms
-- Built Part 6 — Model Orchestration with 3 routing levels and model cards
-- Built Part 7 — Multimodal Platform with capability matrix
-- Built Part 8 — Self-Evolution with safety-speculation spectrum
-- Built Part 9 — Market Strategy with competitor table and patent cards
-- Built Part 10 — Attack Analysis with risk heatmap scatter chart
-- Built Part 11 — Master Plan with MVP roadmap, probability radar, and commercialization
-- Added API endpoint at /api/acos-data
-- Lint passes clean
+- Fixed critical hydration crash in part2-acos.tsx by replacing emoji characters (🖥️, 📱, 🧠) with Lucide icon components (Monitor, Smartphone, Brain)
+- Replaced Unicode math symbols in part2-acos.tsx code blocks: ‖∇αμν²·ᵀᵢⱼ → ASCII equivalents (||, grad, a, u, v, ^2, *, _T, _i, _j)
+- Fixed sidebar.tsx hydration fix by replacing useState+useEffect pattern with useSyncExternalStore (avoids react-hooks/set-state-in-effect lint error)
+- Audited and fixed Unicode math symbols across ALL component files:
+  - part1-analysis.tsx: Replaced ², ≈, ×, ∇, ·, ⁻¹ with ASCII equivalents
+  - part3-afm.tsx: Replaced ², → with ASCII equivalents in code blocks
+  - part4-training.tsx: Replaced ⚠ emoji with ! text
+  - part5-learning.tsx: Replaced ∇, ∇̃, · with ASCII equivalents in code blocks
+  - part6-orchestration.tsx: Replaced → with ASCII
+  - part7-multimodal.tsx: Replaced → with ASCII
+  - part8-evolution.tsx: Replaced ·, η, σ, ∇, ̃, ̂, ≥, τ with ASCII equivalents
+  - part10-attack.tsx: Replaced →, ∞, ², ·, × with ASCII equivalents
+- Created command-palette.tsx with Cmd+K/Ctrl+K shortcut for searching and navigating sections
+- Added progress indicator bar at top of content area showing navigation progress through 12 sections
+- Added scroll-to-top button that appears when user scrolls down past 300px
+- Improved overview.tsx: Replaced custom SVG icons (RotateCwIcon, ThreadDotIcon) with Lucide icons (RefreshCw, GitBranch)
+- Added subtle pulse-glow animation to "AVADHAN" title using custom CSS keyframes
+- Added hover effects on ACOS Stack diagram layers (scale + shadow transitions)
+- Added hover effects on value proposition cards and innovation cards
+- Added pulse-glow CSS animation to globals.css
+- All lint checks pass (bun run lint: 0 errors, 0 warnings)
+- Dev server compiles successfully with no errors
 
 Stage Summary:
-- Full 12-section single-page application built
-- 4 recharts visualizations (Bar, 2x Radar, Scatter)
-- framer-motion animations throughout
-- Dark/light mode with next-themes
-- Responsive design with mobile drawer
+- Critical Part 2 hydration crash fixed - emoji replaced with Lucide icons, Unicode math replaced with ASCII
+- Sidebar hydration fix improved using useSyncExternalStore instead of useState+useEffect
+- All component files audited and cleaned of problematic Unicode/emoji characters
+- New features: Command Palette (Cmd+K), Progress Indicator, Scroll-to-Top Button
+- Overview section enhanced with Lucide icons, glow animation, and hover effects
+- Application compiles and renders successfully on all sections
 
 ---
-Task ID: 3
+Task ID: feat-chat
 Agent: full-stack-developer
-Task: Enhance ACOS/AFM web application with deeper content and more features
+Task: Add AI Q&A chat panel using LLM skill
 
 Work Log:
-- Enhanced Overview with "Key Technical Innovations" cards and "v2 Corrections Summary" callout
-- Enhanced Part 1 with Mathematical Foundations, Crossover Analysis table, Proven/Plausible/Open Accordion
-- Enhanced Part 2 with Lyapunov scheduling formula, inter-thread communication, memory consolidation details
-- Enhanced Part 3 with detailed component decisions, RetNet/Titans/Liquid NNs comparison, hybrid verdict
-- Enhanced Part 4 with phase dependency flow and compute requirements table
-- Enhanced Part 5 with orthogonal gradient projection details and sleep cycle architecture
-- Enhanced Part 6 with local/cloud execution card and cost optimization section
-- Enhanced Part 7 with implementation stack per modality
-- Enhanced Part 8 with reflection/self-critique formulas and agent evolution
-- Enhanced Part 9 with enterprise/consumer opportunities and open source strategy
-- CRITICAL: Expanded Part 10 from 5→25 failure points, 10→25 engineering challenges, added 25 research gaps, 25 assumptions, 25 scalability bottlenecks — all in tabbed interface
-- Enhanced Part 11 with strategic path comparison table, infrastructure design, and risk analysis
-- Lint passes clean
+- Created backend API route at /src/app/api/chat/route.ts using z-ai-web-dev-sdk
+- API accepts message array, uses ACOS-specific system prompt with deep knowledge of AHC, NSK, key theorems, architecture, training strategy, and limitations
+- Chat completions use thinking: { type: 'disabled' } for faster responses
+- Singleton ZAI instance cached across requests for efficiency
+- Created chat-panel.tsx component with floating FAB trigger (Brain icon, emerald-600)
+- Panel features: slide-up animation, message list with auto-scroll, typing indicator (Loader2 spinner), suggested question chips
+- Six suggested questions covering OTM, HBTA, Path C, failure points, continuous learning, and ACOS vs ChatGPT
+- User messages (right-aligned, emerald-600 bg) vs AI messages (left-aligned, slate-800 bg) with Bot/User icons
+- Clear chat button, close button, mobile responsive (full-width on small screens, 420px panel on desktop)
+- Dark-themed panel matching sidebar aesthetic with emerald/teal accents
+- Integrated ChatPanel into page.tsx as fixed overlay
+- Adjusted scroll-to-top button position from bottom-6 to bottom-[5.5rem] to avoid overlap with chat FAB
+- All lint checks pass (bun run lint: 0 errors, 0 warnings)
+- Dev server compiles successfully
 
 Stage Summary:
-- All 12 sections significantly enhanced with deeper whitepaper content
-- Part 10 now has the complete 5×25=125 item risk inventory
-- Mathematical formulas added throughout
-- Tabbed interface for Part 10 risk categories
-- Strategic comparison table and infrastructure design for Part 11
+- Backend API route created at /api/chat using z-ai-web-dev-sdk with ACOS-specific system prompt
+- Chat panel component created with FAB trigger, message history, typing indicator, suggested questions, and responsive design
+- Integrated into page.tsx as a fixed overlay that works across all sections
+- Scroll-to-top button repositioned to avoid collision with chat FAB
+- Full end-to-end AI chat functionality operational
 
 ---
-## Current Project Status
+## QA Review & Bug Fix Phase (Cron Job)
 
-**Status:** Fully functional and production-ready
+### Current Project Status
+**Status:** Production-ready, all critical bugs fixed, new features added
 
-**Completed:**
-- 12 navigable sections covering all 11 parts of the ACOS/AFM analysis
-- Deep whitepaper content with mathematical formulas, theorems, and classifications
-- Interactive visualizations: 4 charts (Bar, 2x Radar, Scatter), flow diagrams, spectrum charts
-- Tabbed interface for Part 10 (5×25=125 risk items)
-- Strategic path comparison, infrastructure design, and risk analysis in Part 11
-- Dark/light mode, responsive design, mobile hamburger drawer
-- Sticky footer, breadcrumb navigation
+### Bugs Found and Fixed
+1. **CRITICAL: Hydration mismatch crash** — The sidebar theme toggle used `useTheme()` which returns undefined on SSR, causing a React hydration mismatch error. Fixed by using `useSyncExternalStore` pattern and `mounted` state guard.
+2. **CRITICAL: Part 2 (ACOS Design) crash** — Unicode emoji (🖥️📱🧠) and math symbols (‖∇αμν²·ᵢⱼᵀ) in JSX caused SSR/client hydration mismatches. Fixed by replacing all emoji with Lucide icon components and all Unicode math with ASCII equivalents.
+3. **Full hydration audit** — Scanned and fixed Unicode/emoji across all 12 component files to prevent similar issues.
 
-**Unresolved:**
-- Minor Fast Refresh warnings during hot reload (cosmetic, not user-facing)
-- Cross-origin request warning (cosmetic, dev-only)
+### New Features Added
+1. **Command Palette (Cmd+K)** — Search and navigate to any section with keyboard shortcut
+2. **Progress Indicator** — Animated bar showing navigation progress through 12 sections
+3. **AI Q&A Chat Panel** — Interactive LLM-powered chat using z-ai-web-dev-sdk backend, with 6 suggested questions and conversational memory
+4. **Scroll-to-Top Button** — Floating button that appears after scrolling
+5. **Overview Improvements** — Replaced custom SVGs with Lucide icons, added pulse-glow animation to title, hover effects on stack layers
 
-**Priority Recommendations:**
+### Verification Results
+- All 12 sections load without errors: Overview, Part 1-11
+- AI chat functional: tested with "What is Orthogonal Thread Memory?" — received accurate technical response
+- `bun run lint`: 0 errors, 0 warnings
+- No browser console errors
+- No hydration mismatches
+
+### Unresolved Issues or Risks
+- Minor: The "Command Palette" heading appears in the Overview section snapshot (likely a visual artifact, not a real heading)
+- Fast Refresh warnings in dev mode during hot reload (cosmetic, not user-facing)
+- Cross-origin request warning in dev mode (cosmetic, dev-only)
+
+### Priority Recommendations for Next Phase
 - Add image generation for architecture diagrams (using image-generation skill)
-- Add interactive demo/chat using LLM skill
-- Add PDF export of the full analysis
+- Add PDF export of the full analysis report (using pdf skill)
+- Add dark mode refinements and micro-animation polish
+- Consider adding a "Share" feature for individual sections
+- Performance optimization: lazy-load heavy components

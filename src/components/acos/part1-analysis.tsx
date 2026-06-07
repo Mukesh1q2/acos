@@ -22,7 +22,7 @@ const componentData = [
     component: "HBTA",
     status: "Plausible" as const,
     justification:
-      "O(Nd²logN) proven, approximation error downgraded to Plausible. Crossover N>d·logN is severe constraint",
+      "O(Nd^2*logN) proven, approximation error downgraded to Plausible. Crossover N>d*logN is severe constraint",
     complexity: 65,
   },
   {
@@ -93,16 +93,16 @@ const dependencySteps = [
 ];
 
 const crossoverData = [
-  { d: 256, nStar: "≈2,048", speedup: "≈1.6×", advantage: true },
-  { d: 512, nStar: "≈4,608", speedup: "≈0.67×", advantage: false },
-  { d: 768, nStar: "≈7,680", speedup: "≈0.44×", advantage: false },
-  { d: 1024, nStar: "≈10,240", speedup: "≈0.33×", advantage: false },
+  { d: 256, nStar: "~2,048", speedup: "~1.6x", advantage: true },
+  { d: 512, nStar: "~4,608", speedup: "~0.67x", advantage: false },
+  { d: 768, nStar: "~7,680", speedup: "~0.44x", advantage: false },
+  { d: 1024, nStar: "~10,240", speedup: "~0.33x", advantage: false },
 ];
 
 const provenItems = [
-  { label: "Theorem 3.4 (HBTA Complexity)", detail: "C_HBTA = O(Nd²logN) formally proven" },
-  { label: "Theorem 4.4 (Orthogonality Preservation)", detail: "Cayley retraction preserves SᵀS = Iₖ" },
-  { label: "Corollary 4.5 (Zero Interference)", detail: "⟨Sᵢ, Sⱼ⟩ = 0 for all i ≠ j, proven" },
+  { label: "Theorem 3.4 (HBTA Complexity)", detail: "C_HBTA = O(Nd^2*logN) formally proven" },
+  { label: "Theorem 4.4 (Orthogonality Preservation)", detail: "Cayley retraction preserves S^T*S = I_k" },
+  { label: "Corollary 4.5 (Zero Interference)", detail: "<S_i, S_j> = 0 for all i != j, proven" },
   { label: "Theorem 5.3 (Local Lyapunov Stability)", detail: "Controller stable within projected compact set" },
   { label: "Theorem 6.1 (Bounded Convergence)", detail: "Bounded convergence for OTM updates" },
 ];
@@ -254,10 +254,10 @@ export function Part1Analysis() {
             >
               <div className="text-sm font-semibold text-emerald-400 mb-2">HBTA Complexity</div>
               <code className="text-xs font-mono text-foreground block bg-card/50 p-3 rounded-md border border-border/10">
-                C_HBTA = O(Nd²logN)
+                C_HBTA = O(Nd^2*logN)
               </code>
               <div className="mt-2 text-xs text-muted-foreground">
-                Breakdown: C_agg = O(Nd²) aggregation per level, C_attn = O(Nd²) attention computation, C_broad = O(Nd²) gated-sum broadcast. Total across logN levels.
+                Breakdown: C_agg = O(Nd^2) aggregation per level, C_attn = O(Nd^2) attention computation, C_broad = O(Nd^2) gated-sum broadcast. Total across logN levels.
               </div>
             </motion.div>
 
@@ -269,10 +269,10 @@ export function Part1Analysis() {
             >
               <div className="text-sm font-semibold text-teal-400 mb-2">OTM Cayley Retraction</div>
               <code className="text-xs font-mono text-foreground block bg-card/50 p-3 rounded-md border border-border/10">
-                S_{'{t+1}'} = (I + A)⁻¹(I - A)S_t, where A = ηW/2, W = ΔS^T - SΔ^T
+                S_{'{t+1}'} = (I + A)^(-1)(I - A)S_t, where A = eta*W/2, W = dS^T - S*d^T
               </code>
               <div className="mt-2 text-xs text-muted-foreground">
-                Cayley retraction preserves orthogonality: S_{'{t+1}'}^T S_{'{t+1}'} = I_K by construction. The skew-symmetric matrix W ensures (I+A)⁻¹(I-A) is orthogonal.
+                Cayley retraction preserves orthogonality: S_{'{t+1}'}^T S_{'{t+1}'} = I_K by construction. The skew-symmetric matrix W ensures (I+A)^(-1)(I-A) is orthogonal.
               </div>
             </motion.div>
 
@@ -284,7 +284,7 @@ export function Part1Analysis() {
             >
               <div className="text-sm font-semibold text-green-400 mb-2">Stiefel Gradient</div>
               <code className="text-xs font-mono text-foreground block bg-card/50 p-3 rounded-md border border-border/10">
-                grad_R F(S) = ∇_S F - S·sym(S^T ∇_S F)
+                grad_R F(S) = grad_S F - S*sym(S^T * grad_S F)
               </code>
               <div className="mt-2 text-xs text-muted-foreground">
                 Riemannian gradient on Stiefel Manifold St(d,K). sym(M) = (M + M^T)/2 projects the Euclidean gradient onto the tangent space of the manifold.
@@ -299,7 +299,7 @@ export function Part1Analysis() {
             >
               <div className="text-sm font-semibold text-cyan-400 mb-2">Gated-Sum Broadcast</div>
               <code className="text-xs font-mono text-foreground block bg-card/50 p-3 rounded-md border border-border/10">
-                ctx_i = Σ_k G_k(W_k · anc_k(i)), ctx ∈ R^d
+                ctx_i = Sum_k G_k(W_k * anc_k(i)), ctx in R^d
               </code>
               <div className="mt-2 text-xs text-muted-foreground">
                 Replaces leaf concatenation from v1. Each ancestor contribution is gated by learned G_k, allowing the model to selectively attend to relevant hierarchical context.

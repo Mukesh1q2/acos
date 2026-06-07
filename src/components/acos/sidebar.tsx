@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Brain,
@@ -56,6 +56,12 @@ interface SidebarProps {
 export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { theme, setTheme } = useTheme();
+  // Prevent hydration mismatch — only render theme toggle after mount
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 
   const sidebarContent = (
     <div className="flex flex-col h-full">
@@ -124,21 +130,28 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
 
       {/* Theme toggle */}
       <div className="px-3 py-3">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground"
-        >
-          {theme === "dark" ? (
-            <Sun className="w-4 h-4" />
-          ) : (
-            <Moon className="w-4 h-4" />
-          )}
-          <span className="text-xs">
-            {theme === "dark" ? "Light Mode" : "Dark Mode"}
-          </span>
-        </Button>
+        {mounted ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground"
+          >
+            {theme === "dark" ? (
+              <Sun className="w-4 h-4" />
+            ) : (
+              <Moon className="w-4 h-4" />
+            )}
+            <span className="text-xs">
+              {theme === "dark" ? "Light Mode" : "Dark Mode"}
+            </span>
+          </Button>
+        ) : (
+          <div className="h-9 px-4 py-2 flex items-center gap-2">
+            <div className="w-4 h-4" />
+            <span className="text-xs text-muted-foreground">Loading...</span>
+          </div>
+        )}
       </div>
     </div>
   );

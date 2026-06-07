@@ -187,3 +187,18 @@
 .animate-glow {
   animation: glow 3s ease-in-out infinite;
 }
+
+/* Pulse glow for AVADHAN title */
+@keyframes pulse-glow {
+  0%,
+  100% {
+    filter: brightness(1) drop-shadow(0 0 2px oklch(0.696 0.17 162.48 / 0.2));
+  }
+  50% {
+    filter: brightness(1.15) drop-shadow(0 0 8px oklch(0.696 0.17 162.48 / 0.5));
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}

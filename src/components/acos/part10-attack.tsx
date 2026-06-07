@@ -35,13 +35,13 @@ const failurePoints = [
   { id: 5, name: "Distillation Loss", description: "Forcing pre-trained embeddings into orthogonal matrix", probability: 0.7, impact: 0.8, severity: "high" },
   { id: 6, name: "Distance Concentration", description: "Dot products concentrate in high dimensions, making tree routing unreliable", probability: 0.6, impact: 0.7, severity: "high" },
   { id: 7, name: "Gate Saturation", description: "Pingala gates can saturate causing gradient death", probability: 0.4, impact: 0.4, severity: "medium" },
-  { id: 8, name: "Panini Mask Collapse", description: "Constraint masks can become transparent (c→∞)", probability: 0.4, impact: 0.5, severity: "medium" },
-  { id: 9, name: "Nyaya Verifier Collapse", description: "When V_j(h)→1, gradient→0, uninformative", probability: 0.4, impact: 0.5, severity: "medium" },
+  { id: 8, name: "Panini Mask Collapse", description: "Constraint masks can become transparent (c->inf)", probability: 0.4, impact: 0.5, severity: "medium" },
+  { id: 9, name: "Nyaya Verifier Collapse", description: "When V_j(h)->1, gradient->0, uninformative", probability: 0.4, impact: 0.5, severity: "medium" },
   { id: 10, name: "Memory Bottleneck", description: "Nonlinear autoencoder may converge to worse than PCA", probability: 0.5, impact: 0.5, severity: "medium" },
   { id: 11, name: "Stiefel Retraction Overhead", description: "QR/Cayley per step adds latency", probability: 0.7, impact: 0.6, severity: "high" },
   { id: 12, name: "fp32 Master Copy", description: "Memory overhead for K=1000 impractical", probability: 0.5, impact: 0.4, severity: "medium" },
   { id: 13, name: "No Global Stability", description: "Controller only locally Lyapunov stable", probability: 0.4, impact: 0.5, severity: "medium" },
-  { id: 14, name: "Crossover Point", description: "d=512, N=4096 → HBTA slower", probability: 0.7, impact: 0.6, severity: "high" },
+  { id: 14, name: "Crossover Point", description: "d=512, N=4096 -> HBTA slower", probability: 0.7, impact: 0.6, severity: "high" },
   { id: 15, name: "Binary Tree Rigidity", description: "Non-hierarchical patterns poorly handled", probability: 0.4, impact: 0.4, severity: "medium" },
   { id: 16, name: "Scaling K>50", description: "Cayley numerically unsafe, must use QR", probability: 0.5, impact: 0.5, severity: "medium" },
   { id: 17, name: "Riemannian Optimization", description: "Notoriously difficult for large models", probability: 0.7, impact: 0.8, severity: "high" },
@@ -57,7 +57,7 @@ const failurePoints = [
 
 const engineeringChallenges = [
   "Custom CUDA kernels for QR/Cayley transforms",
-  "fp16→fp32 casting overhead on consumer GPUs",
+  "fp16->fp32 casting overhead on consumer GPUs",
   "Memory-mapped vector stores at billion-scale",
   "Thread deadlock prevention in multi-agent scenarios",
   "Latency budget for real-time chat (<200ms)",
@@ -141,18 +141,18 @@ const assumptions = [
 
 const scalabilityBottlenecks = [
   "HBTA tree depth grows as O(logN), memory per level grows",
-  "OTM Cayley retraction: O(K²d) per step",
-  "QR retraction: O(Kd²) for K>50",
-  "Episodic memory ANN search: O(d·logM_E) per retrieval",
+  "OTM Cayley retraction: O(K^2*d) per step",
+  "QR retraction: O(Kd^2) for K>50",
+  "Episodic memory ANN search: O(d*logM_E) per retrieval",
   "Semantic memory graph traversal: O(V+E) worst case",
   "Multi-thread context: K simultaneous forward passes",
-  "fp32 Stiefel buffer: Kd·4 bytes per layer",
-  "Knowledge graph updates: O(V·E) for consistency",
-  "Vector store index rebuild: O(M·logM·d)",
+  "fp32 Stiefel buffer: Kd*4 bytes per layer",
+  "Knowledge graph updates: O(V*E) for consistency",
+  "Vector store index rebuild: O(M*logM*d)",
   "Model loading time for multi-model orchestration",
   "Gated-sum broadcast: K matrix-vector products per token",
   "Panini constraint masking: O(vocabulary) per token",
-  "Nyaya MLP verification: O(d·d_v) per output token",
+  "Nyaya MLP verification: O(d*d_v) per output token",
   "Sleep cycle consolidation: Full backward pass on M_E samples",
   "Multi-model consensus: 2-3× compute per query",
   "Thread synchronization overhead for real-time",
@@ -208,7 +208,7 @@ function CustomScatterTooltip({ active, payload }: ScatterTooltipProps) {
     <div className="bg-card border border-border/50 rounded-lg p-2 text-xs shadow-lg">
       <div className="font-semibold">{data.name}</div>
       <div className="text-muted-foreground">
-        Probability: {data.x}% · Impact: {data.y}%
+        Probability: {data.x}% * Impact: {data.y}%
       </div>
       <Badge
         variant="outline"

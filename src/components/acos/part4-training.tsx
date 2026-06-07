@@ -298,7 +298,7 @@ export function Part4Training() {
                   <div className="text-[10px] text-muted-foreground">{step.sub}</div>
                   {step.note && (
                     <div className="mt-1 text-[9px] text-amber-400 font-mono">
-                      ⚠ {step.note}
+                      ! {step.note}
                     </div>
                   )}
                 </motion.div>

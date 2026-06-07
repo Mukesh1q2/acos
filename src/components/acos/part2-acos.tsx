@@ -20,6 +20,8 @@ import {
   Sparkles,
   MessageSquare,
   ArrowRight,
+  Monitor,
+  Smartphone,
 } from "lucide-react";
 
 const coreComponents = [
@@ -57,11 +59,11 @@ const coreComponents = [
     color: "green",
     description: "5-tier memory system inspired by human cognition",
     items: [
-      { name: "Working Memory", desc: "8K tokens · Instant", speed: 100 },
-      { name: "Episodic Memory", desc: "100K tokens · Fast", speed: 80 },
-      { name: "Semantic Memory", desc: "1M+ vectors · Medium", speed: 50 },
-      { name: "Long-Term Memory", desc: "10M+ vectors · Slow", speed: 25 },
-      { name: "Procedural Memory", desc: "Unlimited · Compiled", speed: 90 },
+      { name: "Working Memory", desc: "8K tokens - Instant", speed: 100 },
+      { name: "Episodic Memory", desc: "100K tokens - Fast", speed: 80 },
+      { name: "Semantic Memory", desc: "1M+ vectors - Medium", speed: 50 },
+      { name: "Long-Term Memory", desc: "10M+ vectors - Slow", speed: 25 },
+      { name: "Procedural Memory", desc: "Unlimited - Compiled", speed: 90 },
     ],
     isMemory: true,
   },
@@ -127,6 +129,12 @@ const colorMap: Record<string, { bg: string; border: string; icon: string; badge
   },
 };
 
+const osAnalogyItems = [
+  { os: "Windows", desc: "OS for Computers", IconComponent: Monitor },
+  { os: "Android", desc: "OS for Mobile", IconComponent: Smartphone },
+  { os: "ACOS", desc: "OS for Cognitive Intelligence", IconComponent: Brain, highlight: true },
+];
+
 export function Part2ACOS() {
   return (
     <div className="space-y-8">
@@ -144,29 +152,30 @@ export function Part2ACOS() {
       <Card className="border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row items-center justify-center gap-8 text-center">
-            {[
-              { os: "Windows", desc: "OS for Computers", icon: "🖥️" },
-              { os: "Android", desc: "OS for Mobile", icon: "📱" },
-              { os: "ACOS", desc: "OS for Cognitive Intelligence", icon: "🧠", highlight: true },
-            ].map((item, i) => (
-              <motion.div
-                key={item.os}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.2 }}
-                className={`p-4 rounded-xl border ${
-                  item.highlight
-                    ? "border-emerald-500/30 bg-emerald-600/10 scale-110"
-                    : "border-border/20 bg-card/30"
-                }`}
-              >
-                <div className="text-2xl mb-2">{item.icon}</div>
-                <div className={`text-lg font-bold ${item.highlight ? "text-emerald-400" : "text-foreground"}`}>
-                  {item.os}
-                </div>
-                <div className="text-xs text-muted-foreground">{item.desc}</div>
-              </motion.div>
-            ))}
+            {osAnalogyItems.map((item, i) => {
+              const IconComp = item.IconComponent;
+              return (
+                <motion.div
+                  key={item.os}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.2 }}
+                  className={`p-4 rounded-xl border ${
+                    item.highlight
+                      ? "border-emerald-500/30 bg-emerald-600/10 scale-110"
+                      : "border-border/20 bg-card/30"
+                  }`}
+                >
+                  <div className="flex justify-center mb-2">
+                    <IconComp className={`w-7 h-7 ${item.highlight ? "text-emerald-400" : "text-muted-foreground"}`} />
+                  </div>
+                  <div className={`text-lg font-bold ${item.highlight ? "text-emerald-400" : "text-foreground"}`}>
+                    {item.os}
+                  </div>
+                  <div className="text-xs text-muted-foreground">{item.desc}</div>
+                </motion.div>
+              );
+            })}
           </div>
         </CardContent>
       </Card>
@@ -280,10 +289,10 @@ export function Part2ACOS() {
             >
               <div className="text-sm font-semibold text-emerald-400 mb-2">Lyapunov-Guided Scheduling</div>
               <code className="text-xs font-mono text-foreground block bg-card/50 p-3 rounded-md border border-border/10 mb-2">
-                V(h,α) = -R(S,α) + μ/2·‖α‖² + ν/2·‖h‖²
+                V(h,a) = -R(S,a) + u/2*||a||^2 + v/2*||h||^2
               </code>
               <p className="text-xs text-muted-foreground">
-                The Lyapunov function V decreases monotonically during scheduling, guaranteeing stability. α controls thread allocation, h is hidden state.
+                The Lyapunov function V decreases monotonically during scheduling, guaranteeing stability. a controls thread allocation, h is hidden state.
               </p>
             </motion.div>
             <motion.div
@@ -297,7 +306,7 @@ export function Part2ACOS() {
                 Resources are allocated to the thread with the highest gradient of value:
               </p>
               <code className="text-xs font-mono text-foreground block bg-card/50 p-3 rounded-md border border-border/10">
-                k* = argmax_k ‖∇_{S_k} V(h,α)‖
+                k* = argmax_k ||grad_(&#123;S_k&#125;) V(h,a)||
               </code>
               <p className="text-xs text-muted-foreground mt-2">
                 This ensures compute is directed to the thread that would benefit most from additional processing.
@@ -331,7 +340,7 @@ export function Part2ACOS() {
               <div>
                 <div className="text-sm font-semibold">Thread Isolation Guarantee</div>
                 <code className="text-xs font-mono text-foreground block bg-card/50 p-2 rounded-md border border-border/10 mt-1">
-                  Sᵢ^T · Sⱼ = 0 (proven) → Contamination-free by construction
+                  S_i^T . S_j = 0 (proven) -&gt; Contamination-free by construction
                 </code>
               </div>
             </div>
@@ -352,7 +361,7 @@ export function Part2ACOS() {
             <div className="p-4 rounded-lg bg-card/50 border border-green-500/15">
               <div className="text-sm font-semibold text-green-400 mb-2">Sphota Bottleneck</div>
               <p className="text-xs text-muted-foreground">
-                Autoencoder compresses Working Memory M_W → Episodic Memory M_E during sleep phase. The Sphota bottleneck learns a compressed representation that preserves essential information while discarding noise.
+                Autoencoder compresses Working Memory M_W to Episodic Memory M_E during sleep phase. The Sphota bottleneck learns a compressed representation that preserves essential information while discarding noise.
               </p>
             </div>
             <div className="p-4 rounded-lg bg-card/50 border border-green-500/15">

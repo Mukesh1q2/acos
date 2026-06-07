@@ -239,10 +239,10 @@ export function Part5Learning() {
             >
               <div className="text-sm font-semibold text-emerald-400 mb-2">The Solution</div>
               <p className="text-xs text-muted-foreground mb-2">
-                When learning task A, compute gradients ∇L_A. Project onto orthogonal complement of important directions for task B:
+                When learning task A, compute gradients grad_L_A. Project onto orthogonal complement of important directions for task B:
               </p>
               <code className="text-xs font-mono text-foreground block bg-card/50 p-3 rounded-md border border-border/10">
-                ∇̃L_A = ∇L_A - S_B · (S_B^T · ∇L_A)
+                grad_tilde_L_A = grad_L_A - S_B * (S_B^T * grad_L_A)
               </code>
               <p className="text-xs text-muted-foreground mt-2">
                 Where S_B contains the important parameter directions for task B stored in the Stiefel matrix. Result: model learns A without degrading B. Natively supported by Stiefel Manifold geometry.

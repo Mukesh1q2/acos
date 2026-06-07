@@ -36,7 +36,7 @@ const routingLevels = [
   {
     level: 3,
     title: "Consensus Check",
-    description: "If >20% confidence margin disagreement → spawn Verification Thread",
+    description: "If >20% confidence margin disagreement -> spawn Verification Thread",
     model: "Meta-Controller",
     latency: "Variable",
     color: "amber",

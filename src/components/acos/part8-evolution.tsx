@@ -212,20 +212,20 @@ export function Part8Evolution() {
                 ACOS can evaluate its own outputs via the Nyaya Verifier energy function:
               </p>
               <code className="text-xs font-mono text-foreground block bg-card/50 p-3 rounded-md border border-border/10">
-                E(h) = -1/d_v · 1^T log V(h) ≥ 0
+                E(h) = -1/d_v * 1^T log V(h) &gt;= 0
               </code>
               <p className="text-xs text-muted-foreground mt-2">
-                When E(h) &gt; τ (exceeds the acceptance threshold), smooth rejection sampling refines the output.
+                When E(h) &gt; tau (exceeds the acceptance threshold), smooth rejection sampling refines the output.
               </p>
             </div>
 
             <div className="p-4 rounded-lg bg-card/50 border border-teal-500/15">
               <div className="text-sm font-semibold text-teal-400 mb-2">Smooth Rejection Sampling</div>
               <code className="text-xs font-mono text-foreground block bg-card/50 p-3 rounded-md border border-border/10">
-                h̃ = ĥ - η_r · σ((E(ĥ)-τ)/β_r) · ∇_h E(ĥ)
+                h_tilde = h_hat - eta_r * sigma((E(h_hat)-tau)/beta_r) * grad_h E(h_hat)
               </code>
               <p className="text-xs text-muted-foreground mt-2">
-                Unlike hard rejection (discard and retry), smooth rejection sampling gradually adjusts the output toward the acceptance region. The sigmoid σ controls the strength of correction — weak when E is near τ, strong when E far exceeds τ.
+                Unlike hard rejection (discard and retry), smooth rejection sampling gradually adjusts the output toward the acceptance region. The sigmoid sigma controls the strength of correction -- weak when E is near tau, strong when E far exceeds tau.
               </p>
             </div>
           </div>

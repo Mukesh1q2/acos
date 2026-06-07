@@ -64,7 +64,7 @@ const implementationStack = [
     icon: <Mic className="w-5 h-5" />,
     color: "teal",
     tech: "Whisper (STT) + Tortoise/Spark (TTS)",
-    integration: "Audio transcribed → processed as text thread → response synthesized back to speech. Low-latency pipeline for real-time chat.",
+    integration: "Audio transcribed -> processed as text thread -> response synthesized back to speech. Low-latency pipeline for real-time chat.",
   },
   {
     modality: "Documents",

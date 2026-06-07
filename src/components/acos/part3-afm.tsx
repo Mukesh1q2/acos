@@ -31,10 +31,10 @@ const componentEvals = [
 ];
 
 const archComparison = [
-  { name: "Transformer", time: "O(N²d)", memory: "O(N²)", isolation: "None", persistent: "None", convergence: "Empirical", timeVal: 20, memVal: 20, isoVal: 0, persVal: 0, convVal: 30 },
+  { name: "Transformer", time: "O(N^2*d)", memory: "O(N^2)", isolation: "None", persistent: "None", convergence: "Empirical", timeVal: 20, memVal: 20, isoVal: 0, persVal: 0, convVal: 30 },
   { name: "RWKV", time: "O(Nd)", memory: "O(rd)", isolation: "None", persistent: "Partial", convergence: "None", timeVal: 70, memVal: 70, isoVal: 0, persVal: 40, convVal: 0 },
   { name: "Mamba", time: "O(Nd)", memory: "O(rd)", isolation: "None", persistent: "Partial", convergence: "None", timeVal: 75, memVal: 75, isoVal: 0, persVal: 40, convVal: 0 },
-  { name: "AHC v2", time: "O(Nd²logN)", memory: "O(Nd)", isolation: "Full [proven]", persistent: "Yes", convergence: "Local [proven]", timeVal: 50, memVal: 60, isoVal: 100, persVal: 100, convVal: 70 },
+  { name: "AHC v2", time: "O(Nd^2*logN)", memory: "O(Nd)", isolation: "Full [proven]", persistent: "Yes", convergence: "Local [proven]", timeVal: 50, memVal: 60, isoVal: 100, persVal: 100, convVal: 70 },
 ];
 
 const additionalArchComparison = [
@@ -279,11 +279,11 @@ export function Part3AFM() {
                   </p>
                   <div className="flex items-center gap-2 mt-2">
                     <code className="text-[10px] font-mono bg-card/50 px-2 py-1 rounded border border-border/10">
-                      N &lt; 4096 → FlashAttention (O(N²d) but optimized)
+                      N &lt; 4096 -&gt; FlashAttention (O(N^2*d) but optimized)
                     </code>
                     <ArrowRight className="w-3 h-3 text-muted-foreground" />
                     <code className="text-[10px] font-mono bg-card/50 px-2 py-1 rounded border border-border/10">
-                      N &gt; 4096 → HBTA (O(Nd²logN))
+                      N &gt; 4096 -&gt; HBTA (O(Nd^2*logN))
                     </code>
                   </div>
                 </div>
