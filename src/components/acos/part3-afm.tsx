@@ -23,6 +23,7 @@ import {
   Legend,
 } from "recharts";
 import { Zap, CheckCircle2, Layers, ArrowRight, Brain, Cpu, Network } from "lucide-react";
+import { SectionHeader } from "./section-header";
 
 const componentEvals = [
   { component: "HBTA", decision: "Keep but Modify", rationale: "Hybrid Attention: FlashAttention < 4096 tokens, HBTA > 4096 tokens" },
@@ -54,18 +55,14 @@ const radarData = [
 export function Part3AFM() {
   return (
     <div className="space-y-8">
-      <div>
-        <h2 id="afm-architecture" className="text-2xl font-bold text-foreground mb-2">
-          Part 3 — AFM Architecture
-        </h2>
-        <p className="text-muted-foreground">
-          The Avadhan Foundation Model — architecture decisions, hybrid approach,
-          and comparison with existing architectures.
-        </p>
-        <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-400 border-emerald-500/20 font-mono mt-2">
-          MAMBA-OTM HYBRID
-        </Badge>
-      </div>
+      <SectionHeader
+        sectionNumber={3}
+        title="AFM Architecture"
+        subtitle="The Avadhan Foundation Model backbone design"
+        badge="HYBRID SSM"
+        icon={<Cpu className="w-5 h-5" />}
+        id="afm-architecture"
+      />
 
       {/* Component Evaluation — Gradient Header Card */}
       <Card className="card-hover-lift border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">

@@ -15,6 +15,7 @@ import {
   RefreshCw,
   DollarSign,
 } from "lucide-react";
+import { SectionHeader } from "./section-header";
 
 const routingLevels = [
   {
@@ -99,18 +100,14 @@ const costOptimization = [
 export function Part6Orchestration() {
   return (
     <div className="space-y-8">
-      <div>
-        <h2 id="model-orchestration" className="text-2xl font-bold text-foreground mb-2">
-          Part 6 — Model Orchestration
-        </h2>
-        <p className="text-muted-foreground">
-          Dynamic routing strategy that selects the best model combination for
-          each task, with consensus verification and thread allocation.
-        </p>
-        <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-400 border-emerald-500/20 font-mono">
-          3-LEVEL ROUTING
-        </Badge>
-      </div>
+      <SectionHeader
+        sectionNumber={6}
+        title="Model Orchestration"
+        subtitle="3-level Pingala routing for intelligent model selection"
+        badge="3-LEVEL ROUTING"
+        icon={<Workflow className="w-5 h-5" />}
+        id="model-orchestration"
+      />
 
       {/* Routing Levels */}
       <div className="space-y-4">

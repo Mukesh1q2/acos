@@ -149,7 +149,8 @@ export function ChatPanel() {
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.2 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/25 flex items-center justify-center transition-colors duration-200 hover:shadow-emerald-500/40"
+            data-tour="chat-fab"
+            className="fixed bottom-[5rem] lg:bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/25 flex items-center justify-center transition-colors duration-200 hover:shadow-emerald-500/40"
             aria-label="Open AI chat"
           >
             <Brain className="w-6 h-6" />

@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef, lazy, Suspense } from "react";
 import { motion, useInView } from "framer-motion";
 import { Brain, ShieldCheck, Lightbulb, Zap, AlertCircle, Cpu, Network, RefreshCw, GitBranch, Activity, Database, Users, Layers } from "lucide-react";
+import { ScrollReveal } from "@/components/acos/scroll-reveal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { LoadingSkeleton } from "@/components/acos/loading-skeleton";
@@ -255,11 +256,7 @@ export function OverviewSection() {
         </motion.div>
 
         {/* Three value propositions */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16"
+        <ScrollReveal direction="up" className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16"
         >
           {valuePropositions.map((item, i) => (
             <motion.div
@@ -281,26 +278,18 @@ export function OverviewSection() {
               <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
             </motion.div>
           ))}
-        </motion.div>
+        </ScrollReveal>
 
         {/* Animated Counter Stats */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16"
+        <ScrollReveal direction="up" delay={0.2} className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16"
         >
           {metricStats.map((stat, i) => (
             <CounterStat key={stat.label} stat={stat} delay={0.7 + i * 0.12} />
           ))}
-        </motion.div>
+        </ScrollReveal>
 
         {/* Key stats row (original, kept for context) */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.9 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-16"
+        <ScrollReveal direction="up" delay={0.3} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-16"
         >
           {[
             { label: "O(N log N) Scaling", sub: "Hierarchical Binary Tree Attention", icon: <Zap className="w-5 h-5" /> },
@@ -320,13 +309,10 @@ export function OverviewSection() {
               </div>
             </div>
           ))}
-        </motion.div>
+        </ScrollReveal>
 
         {/* Interactive Architecture Stack Diagram */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.1 }}
+        <ScrollReveal direction="up" delay={0.3} data-tour="architecture-diagram"
         >
           <h2 className="text-lg font-semibold text-foreground mb-6 text-center">
             The ACOS Stack
@@ -361,14 +347,10 @@ export function OverviewSection() {
               </div>
             ))}
           </div>
-        </motion.div>
+        </ScrollReveal>
 
         {/* Key Technical Innovations */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.5 }}
-          className="mt-16"
+        <ScrollReveal direction="up" delay={0.3} className="mt-16"
         >
           <h2 className="text-lg font-semibold text-foreground mb-6 text-center">
             Key Technical Innovations
@@ -419,14 +401,10 @@ export function OverviewSection() {
               );
             })}
           </div>
-        </motion.div>
+        </ScrollReveal>
 
         {/* v2 Corrections Summary */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 2 }}
-          className="mt-8"
+        <ScrollReveal direction="up" delay={0.4} className="mt-8"
         >
           <Card className="border-amber-500/20 bg-gradient-to-r from-amber-900/10 to-amber-950/5">
             <CardHeader>
@@ -460,7 +438,7 @@ export function OverviewSection() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </ScrollReveal>
       </div>
     </div>
   );

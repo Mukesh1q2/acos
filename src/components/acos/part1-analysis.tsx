@@ -15,7 +15,8 @@ import { FlowChart } from "./flow-chart";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { AlertTriangle, Sigma, TrendingDown } from "lucide-react";
+import { AlertTriangle, Sigma, TrendingDown, FileText } from "lucide-react";
+import { SectionHeader } from "./section-header";
 
 const componentData = [
   {
@@ -122,15 +123,14 @@ const openItems = [
 export function Part1Analysis() {
   return (
     <div className="space-y-8">
-      <div>
-        <h2 id="part1-whitepaper-analysis" className="text-2xl font-bold text-foreground mb-2">
-          Part 1 — Whitepaper Analysis
-        </h2>
-        <p className="text-muted-foreground">
-          Critical assessment of each component in the Avadhan architecture, with
-          mathematical justification and risk classification.
-        </p>
-      </div>
+      <SectionHeader
+        sectionNumber={1}
+        title="Whitepaper Analysis"
+        subtitle="Critical examination of the Avadhan Hierarchical Cognition paper"
+        badge="7 CORRECTIONS"
+        icon={<FileText className="w-5 h-5" />}
+        id="part1-whitepaper-analysis"
+      />
 
       {/* Component Classification Table */}
       <Card className="border-border/30">

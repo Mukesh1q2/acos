@@ -32,6 +32,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useBookmarks } from "@/components/acos/bookmarks";
 import { HistoryIndicator } from "@/components/acos/reading-history";
+import { TourHelpButton } from "@/components/acos/onboarding-tour";
 
 export interface NavItem {
   id: string;
@@ -95,7 +96,7 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
       <Separator className="bg-border/50" />
 
       {/* Navigation */}
-      <ScrollArea className="flex-1 px-2 py-3">
+      <ScrollArea data-tour="sidebar-nav" className="flex-1 px-2 py-3">
         <div className="space-y-1">
           {navItems.map((item) => {
             const isActive = activeSection === item.id;
@@ -157,11 +158,16 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
         </div>
       </ScrollArea>
 
-      {/* Gradient line above theme toggle */}
+      {/* Gradient line above footer */}
       <div className="mx-3 sidebar-gradient-line" />
 
+      {/* Help tour button */}
+      <div className="px-3 pt-3">
+        <TourHelpButton />
+      </div>
+
       {/* Theme toggle */}
-      <div className="px-3 py-3">
+      <div className="px-3 pb-3 pt-1">
         {mounted ? (
           <Button
             variant="ghost"
@@ -227,7 +233,7 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
       </AnimatePresence>
 
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex w-[220px] flex-col border-r border-border/30 glass-sidebar flex-shrink-0">
+      <aside data-tour="sidebar" className="hidden lg:flex w-[220px] flex-col border-r border-border/30 glass-sidebar flex-shrink-0">
         {sidebarContent}
       </aside>
     </>

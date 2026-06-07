@@ -28,6 +28,7 @@ import {
   HardDrive,
   Container,
 } from "lucide-react";
+import { SectionHeader } from "./section-header";
 import {
   RadarChart,
   PolarGrid,
@@ -237,15 +238,14 @@ const riskSeverityColors: Record<string, string> = {
 export function Part11MasterPlan() {
   return (
     <div className="space-y-8">
-      <div>
-        <h2 id="part11-master-plan" className="text-2xl font-bold text-foreground mb-2">
-          Part 11 — Master Plan
-        </h2>
-        <p className="text-muted-foreground">
-          The definitive roadmap: Build ACOS first as orchestrator, then AFM as
-          proprietary foundation model.
-        </p>
-      </div>
+      <SectionHeader
+        sectionNumber={11}
+        title="Master Plan"
+        subtitle="6-month MVP roadmap from prototype to beta launch"
+        badge="6-MONTH MVP"
+        icon={<Map className="w-5 h-5" />}
+        id="part11-master-plan"
+      />
 
       {/* Verdict */}
       <Card className="border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">

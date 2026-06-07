@@ -23,7 +23,9 @@ import {
   Server,
   AlertCircle,
   Brain,
+  GraduationCap,
 } from "lucide-react";
+import { SectionHeader } from "./section-header";
 
 const pathways = [
   {
@@ -108,18 +110,14 @@ const colorStyles: Record<string, { bg: string; border: string; text: string; ba
 export function Part4Training() {
   return (
     <div className="space-y-8">
-      <div>
-        <h2 id="training-strategy" className="text-2xl font-bold text-foreground mb-2">
-          Part 4 — Training Strategy
-        </h2>
-        <p className="text-muted-foreground">
-          Three possible training pathways for AFM, with the recommended hybrid
-          strategy broken into three incremental phases.
-        </p>
-        <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-400 border-emerald-500/20 font-mono mt-2">
-          PATH C: HYBRID STRATEGY
-        </Badge>
-      </div>
+      <SectionHeader
+        sectionNumber={4}
+        title="Training Strategy"
+        subtitle="Path C: Build ACOS first, AFM later"
+        badge="PATH C"
+        icon={<GraduationCap className="w-5 h-5" />}
+        id="training-strategy"
+      />
 
       {/* Pathway Cards — Gradient Header on first (emerald) card */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

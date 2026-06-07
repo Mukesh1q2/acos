@@ -21,7 +21,9 @@ import {
   Globe,
   Code,
   Server,
+  TrendingUp,
 } from "lucide-react";
+import { SectionHeader } from "./section-header";
 
 const competitors = [
   { company: "OpenAI", approach: "Black box, cloud-only", limitation: "No local deployment, no persistent learning", logo: "O" },
@@ -81,17 +83,14 @@ const openSourceStrategy = [
 export function Part9Market() {
   return (
     <div className="space-y-8">
-      <div>
-        <h2 id="market-strategy" className="text-2xl font-bold text-foreground mb-2">
-          Part 9 — Market Strategy
-        </h2>
-        <p className="text-muted-foreground">
-          Competitive landscape analysis and ACOS differentiation strategy.
-        </p>
-        <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-400 border-emerald-500/20 font-mono">
-          DUAL-TRACK GTM
-        </Badge>
-      </div>
+      <SectionHeader
+        sectionNumber={9}
+        title="Market Strategy"
+        subtitle="Dual-track go-to-market with open source + enterprise"
+        badge="DUAL-TRACK GTM"
+        icon={<TrendingUp className="w-5 h-5" />}
+        id="market-strategy"
+      />
 
       {/* Competitor Table */}
       <Card className="card-hover-lift border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">

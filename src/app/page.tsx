@@ -25,6 +25,8 @@ import { ReadingProgress } from "@/components/acos/reading-progress";
 import { ShareButton } from "@/components/acos/share-button";
 import { ReadingTime } from "@/components/acos/reading-time";
 import { LoadingSkeleton } from "@/components/acos/loading-skeleton";
+import { MobileBottomNav } from "@/components/acos/mobile-bottom-nav";
+import { OnboardingTour } from "@/components/acos/onboarding-tour";
 
 // Lazy-loaded heavy components (charts, diagrams, interactive sections)
 const TheoremExplorer = lazy(() =>
@@ -153,20 +155,29 @@ export default function Home() {
         {/* Top bar for mobile offset */}
         <div className="h-14 lg:hidden flex-shrink-0" />
 
-        {/* Navigation progress bar */}
-        <div className="relative h-1 bg-muted/30 flex-shrink-0">
-          <motion.div
-            className="absolute top-0 left-0 h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400"
-            initial={{ width: 0 }}
-            animate={{ width: `${progressPercent}%` }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
-          />
-          {/* Shimmer on progress */}
-          <motion.div
-            className="absolute top-0 left-0 h-full animate-shimmer"
-            style={{ width: `${progressPercent}%` }}
-            transition={{ duration: 0.4 }}
-          />
+        {/* Navigation progress bar wrapper */}
+        <div data-tour="bookmark-progress" className="relative flex-shrink-0">
+          <div className="relative h-1 bg-muted/30">
+            <motion.div
+              className="absolute top-0 left-0 h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400"
+              initial={{ width: 0 }}
+              animate={{ width: `${progressPercent}%` }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+            />
+            {/* Shimmer on progress */}
+            <motion.div
+              className="absolute top-0 left-0 h-full animate-shimmer"
+              style={{ width: `${progressPercent}%` }}
+              transition={{ duration: 0.4 }}
+            />
+          </div>
+        </div>
+
+        {/* Ctrl+K command palette hint */}
+        <div data-tour="command-palette-hint" className="fixed top-16 right-4 z-30 hidden lg:flex items-center gap-1.5 px-2 py-1 rounded-md bg-card/60 border border-border/30 text-[10px] text-muted-foreground pointer-events-none">
+          <kbd className="px-1 py-0.5 rounded bg-muted/40 font-mono text-[9px]">Ctrl</kbd>
+          <span>+</span>
+          <kbd className="px-1 py-0.5 rounded bg-muted/40 font-mono text-[9px]">K</kbd>
         </div>
 
         {/* Section reading progress */}
@@ -221,7 +232,7 @@ export default function Home() {
           </AnimatePresence>
 
           {/* Sticky Footer */}
-          <footer className="mt-auto bg-gradient-to-r from-card/50 via-card/30 to-card/50 backdrop-blur-md footer-gradient-border">
+          <footer className="mt-auto pb-14 lg:pb-0 bg-gradient-to-r from-card/50 via-card/30 to-card/50 backdrop-blur-md footer-gradient-border">
             <div className="max-w-5xl mx-auto px-4 md:px-6 lg:px-8 py-5">
               <div className="flex flex-col md:flex-row items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
@@ -282,6 +293,12 @@ export default function Home() {
         </main>
       </div>
 
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNav
+        activeSection={activeSection}
+        onSectionChange={handleSectionChange}
+      />
+
       {/* Scroll to top button */}
       <AnimatePresence>
         {showScrollTop && (
@@ -291,7 +308,7 @@ export default function Home() {
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.2 }}
             onClick={scrollToTop}
-            className="fixed bottom-[5.5rem] right-6 z-40 w-10 h-10 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 flex items-center justify-center transition-colors duration-200"
+            className="fixed bottom-[9rem] lg:bottom-[5.5rem] right-6 z-40 w-10 h-10 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 flex items-center justify-center transition-colors duration-200"
             aria-label="Scroll to top"
           >
             <ArrowUp className="w-4 h-4" />
@@ -307,6 +324,9 @@ export default function Home() {
 
       {/* AI Chat Panel */}
       <ChatPanel />
+
+      {/* Onboarding Tour */}
+      <OnboardingTour />
     </div>
   );
 }

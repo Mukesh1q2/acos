@@ -13,7 +13,9 @@ import {
   Search,
   HelpCircle,
   TrendingUp,
+  ShieldAlert,
 } from "lucide-react";
+import { SectionHeader } from "./section-header";
 import {
   ScatterChart,
   Scatter,
@@ -223,18 +225,14 @@ function CustomScatterTooltip({ active, payload }: ScatterTooltipProps) {
 export function Part10Attack() {
   return (
     <div className="space-y-8">
-      <div>
-        <h2 id="attack-analysis" className="text-2xl font-bold text-foreground mb-2">
-          Part 10 — Attack Analysis
-        </h2>
-        <p className="text-muted-foreground">
-          Comprehensive risk analysis: 25 failure points, 25 engineering challenges,
-          25 research gaps, 25 assumptions, and 25 scalability bottlenecks.
-        </p>
-        <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-400 border-emerald-500/20 font-mono">
-          5 CRITICAL RISKS
-        </Badge>
-      </div>
+      <SectionHeader
+        sectionNumber={10}
+        title="Attack Analysis"
+        subtitle="5 critical risk vectors and mitigation strategies"
+        badge="5 CRITICAL RISKS"
+        icon={<ShieldAlert className="w-5 h-5" />}
+        id="attack-analysis"
+      />
 
       {/* Risk Heatmap */}
       <Card className="card-hover-lift border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">

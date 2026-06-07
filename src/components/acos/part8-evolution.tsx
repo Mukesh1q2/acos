@@ -15,6 +15,7 @@ import {
   RefreshCw,
   Users,
 } from "lucide-react";
+import { SectionHeader } from "./section-header";
 
 const capabilities = [
   {
@@ -81,18 +82,14 @@ const spectrumPositions = [
 export function Part8Evolution() {
   return (
     <div className="space-y-8">
-      <div>
-        <h2 id="self-evolution" className="text-2xl font-bold text-foreground mb-2">
-          Part 8 — Self-Evolution
-        </h2>
-        <p className="text-muted-foreground">
-          Classification of self-evolution capabilities from realistic
-          near-term features to speculative long-term possibilities.
-        </p>
-        <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-400 border-emerald-500/20 font-mono">
-          SELF-MODIFYING SYSTEM
-        </Badge>
-      </div>
+      <SectionHeader
+        sectionNumber={8}
+        title="Self-Evolution"
+        subtitle="Self-modifying system with prompt evolution and reflection"
+        badge="SELF-MODIFYING"
+        icon={<Sparkles className="w-5 h-5" />}
+        id="self-evolution"
+      />
 
       {/* Capability Cards */}
       <div className="space-y-4">

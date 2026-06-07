@@ -23,6 +23,7 @@ import {
   Monitor,
   Smartphone,
 } from "lucide-react";
+import { SectionHeader } from "./section-header";
 
 const coreComponents = [
   {
@@ -138,15 +139,14 @@ const osAnalogyItems = [
 export function Part2ACOS() {
   return (
     <div className="space-y-8">
-      <div>
-        <h2 id="part2-acos-design" className="text-2xl font-bold text-foreground mb-2">
-          Part 2 — ACOS Design
-        </h2>
-        <p className="text-muted-foreground">
-          The Avadhan Cognitive Operating System — 5 core components forming the
-          complete OS for cognitive intelligence.
-        </p>
-      </div>
+      <SectionHeader
+        sectionNumber={2}
+        title="ACOS Design"
+        subtitle="The Cognitive Operating System architecture"
+        badge="6 LAYERS"
+        icon={<Layers className="w-5 h-5" />}
+        id="part2-acos-design"
+      />
 
       {/* OS Analogy */}
       <Card className="border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">

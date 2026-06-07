@@ -994,3 +994,339 @@ Stage Summary:
 - Performance audit: consider virtualizing long lists in Glossary
 - Add tooltip previews on sidebar hover (show section summary)
 - Consider adding a "dark/neon" theme variant
+
+---
+Task ID: 5-c
+Agent: full-stack-developer
+Task: Enhance Command Palette with full-text search capabilities across all section content
+
+Work Log:
+- **Replaced** existing `contentIndex` with new `sectionSearchIndex` data structure containing all specified keywords per section (overview through glossary, including roadmap, theorems, performance)
+- **Enhanced Search Logic:**
+  - Fuzzy matching (case-insensitive partial match) across section names (navItem labels) and keyword index
+  - Section names filtered when query exists (only matching sections shown)
+  - Content keywords searched with deduplication
+  - Search triggers on any non-empty query (lowered threshold from 2 to 1 character)
+- **Two Result Groups:** "Sections" (nav item matches with section icons) and "Content" (keyword matches with Search icon)
+- **Content results display:** matched keyword with emerald highlight, "in [SectionName]" with section icon on the right
+- **Recent Searches:** localStorage persistence under `acos-recent-searches` key (max 5)
+  - Recent search chips shown when input is empty (with Clock icon, hover-to-remove X, clear all button)
+  - Clicking a recent search chip populates the query and focuses input
+  - Searches saved to recent when user selects a result
+- **UI Enhancements:**
+  - "Search" badge with Search icon in emerald-600/20 background at top of palette
+  - "ACOS Documentation" label next to badge
+  - Ctrl+K / Cmd+K hint (auto-detected platform) in top-right corner with Command icon
+  - Dynamic placeholder text showing keyboard shortcut
+  - Section icons change color to emerald on keyboard selection (group-data-[selected=true])
+  - Keyboard shortcuts reference group at bottom (Toggle, Navigate, Select)
+- **Highlighting:** Matched text within results highlighted with `text-emerald-400 font-semibold`
+- **Fixed pre-existing lint error** in onboarding-tour.tsx: deferred `updatePositions()` call with `requestAnimationFrame` to avoid react-hooks/set-state-in-effect
+- Fixed own lint error: deferred `setRecentSearches`/`setQuery` in open effect with `queueMicrotask`
+- `bun run lint`: 0 errors, 0 warnings
+- Dev server compiles successfully
+
+Stage Summary:
+- Command Palette fully enhanced with comprehensive full-text search across all 16 sections
+- New `sectionSearchIndex` with 100+ keywords covering all ACOS topics
+- Two-group search results (Sections + Content) with emerald highlighting
+- Recent searches with localStorage persistence and chip UI
+- Polished UI with Search badge, Cmd/Ctrl+K hint, keyboard shortcut reference
+- Zero lint errors, successful compilation
+
+---
+Task ID: 5-b
+Agent: full-stack-developer
+Task: Create Mobile Bottom Navigation Bar component for ACOS application
+
+Work Log:
+- Created `/src/components/acos/mobile-bottom-nav.tsx` — a mobile bottom navigation bar with 5 primary tabs and a "More" drawer
+- **5 Primary Navigation Tabs**: Overview (Brain), ACOS Design (Layers), Learning (RotateCcw), Roadmap (Route), More (MoreHorizontal)
+- **Active Tab Indicator**: Small emerald-500 dot above active tab icon using framer-motion layoutId for smooth animation between tabs
+- **Tab Styling**: 20x20px icons, 10px labels, emerald-500 active color, muted-foreground inactive color, 56px (h-14) height
+- **"More" Drawer (vaul)**:
+  - Uses vaul Drawer component with snapPoints [0.4, 0.85] for peek and fully open states
+  - Handle bar at top for dragging (Drawer.Handle)
+  - Search input at top to filter sections by label/shortLabel/id
+  - 3-column scrollable grid showing all 16 nav items with icon + short label
+  - Current section highlighted with emerald-500 color and border
+  - Bottom safe area padding for iOS notch
+  - Overlay with bg-black/50 backdrop
+- **Bar Styling**: bg-card/95 backdrop-blur-lg with gradient top border matching footer style
+- **Safe Area**: paddingBottom: env(safe-area-inset-bottom) for iOS safe area
+- **Visibility**: Only visible below lg breakpoint (lg:hidden)
+- **Integration into page.tsx**:
+  - Imported MobileBottomNav component
+  - Added just above scroll-to-top AnimatePresence block
+  - Passes activeSection and handleSectionChange props
+- **Layout Adjustments**:
+  - Footer: Added pb-14 lg:pb-0 for bottom padding on mobile to account for nav bar height
+  - Chat FAB: Changed from bottom-6 to bottom-[5rem] lg:bottom-6 (moved up by nav bar height on mobile)
+  - Scroll-to-top button: Changed from bottom-[5.5rem] to bottom-[9rem] lg:bottom-[5.5rem] (moved up by nav bar height on mobile)
+- `bun run lint`: 0 errors, 0 warnings
+- Dev server compiles successfully
+
+Stage Summary:
+- MobileBottomNav component created with 5-tab bottom bar + vaul "More" drawer
+- All 16 sections accessible via search/filter in the More drawer
+- Layout adjusted: footer, chat FAB, and scroll-to-top button repositioned on mobile
+- Active tab has animated emerald indicator dot
+- Zero lint errors, successful compilation
+
+---
+Task ID: 5-a
+Agent: full-stack-developer
+Task: Create interactive onboarding tour component for ACOS
+
+Work Log:
+- Created `/src/components/acos/onboarding-tour.tsx` with full onboarding tour system
+  - `useOnboarding` hook using `useSyncExternalStore` for hydration-safe completion state
+  - Returns `{ isComplete, startTour, resetTour }`
+  - `OnboardingTour` component with 6 interactive steps
+  - `TourHelpButton` component for sidebar integration
+- **6 Tour Steps**:
+  - Step 1: "Welcome to ACOS" — Points to sidebar navigation hub (data-tour="sidebar")
+  - Step 2: "Explore Sections" — Highlights sidebar nav items (data-tour="sidebar-nav")
+  - Step 3: "Interactive Architecture" — Points to ACOS Stack diagram (data-tour="architecture-diagram")
+  - Step 4: "AI Assistant" — Points to floating chat FAB button (data-tour="chat-fab")
+  - Step 5: "Quick Navigation" — Points to Ctrl+K command palette hint (data-tour="command-palette-hint")
+  - Step 6: "Bookmarks & Progress" — Points to navigation progress bar (data-tour="bookmark-progress")
+- **Implementation Details**:
+  - Framer-motion AnimatePresence for smooth tooltip transitions between steps
+  - SVG-based dark overlay with spotlight mask cutout around highlighted element
+  - Pulsing emerald ring animation around highlighted element (border + box-shadow pulse)
+  - Tooltip card with arrow/pointer oriented based on step position (top/bottom/left/right)
+  - Dark-themed tooltip (bg-slate-900) with emerald-500 border accent
+  - Step number badge in emerald-500 circle
+  - "Next", "Back", "Skip" buttons; "Finish" on last step
+  - Progress dots (active = wide emerald-400, completed = emerald-600, upcoming = slate-700)
+  - Step counter (1/6, 2/6, etc.) in footer
+  - External store pattern with localStorage persistence under `acos-onboarding-complete`
+  - Custom event `acos-start-tour` for triggering tour from sidebar button
+  - Auto-starts on first visit (1.2s delay, checks localStorage)
+  - Continuous position tracking with requestAnimationFrame for smooth spotlight
+  - Viewport clamping for tooltip position
+  - Fallback centering when target element not found
+- **Data-tour attributes added to target elements**:
+  - sidebar.tsx: `data-tour="sidebar"` on desktop aside, `data-tour="sidebar-nav"` on ScrollArea
+  - overview.tsx: `data-tour="architecture-diagram"` on ACOS Stack section
+  - chat-panel.tsx: `data-tour="chat-fab"` on floating Brain FAB button
+  - page.tsx: `data-tour="command-palette-hint"` on Ctrl+K hint badge (fixed position, lg only)
+  - page.tsx: `data-tour="bookmark-progress"` on navigation progress bar wrapper
+- **Ctrl+K hint badge**: Added subtle keyboard shortcut indicator (Ctrl+K) in top-right of content area, visible on lg screens
+- **Sidebar integration**: Added TourHelpButton (HelpCircle icon, "Help Tour" label) above theme toggle in sidebar footer
+- **page.tsx integration**: Added `<OnboardingTour />` before closing `</div>` in root flex container
+- `bun run lint`: 0 errors, 0 warnings
+- Dev server compiles successfully
+
+Stage Summary:
+- OnboardingTour component created with full 6-step interactive guided tour
+- SVG spotlight overlay with pulsing emerald ring highlights
+- Dark-themed tooltip cards with directional arrows
+- useOnboarding hook with useSyncExternalStore for hydration safety
+- localStorage persistence under acos-onboarding-complete key
+- Auto-start on first visit, re-triggerable via sidebar Help Tour button
+- 5 data-tour attributes added across 4 component files
+- Ctrl+K hint badge added to page layout
+- Zero lint errors, successful compilation
+
+---
+Task ID: 5-e + 6
+Agent: full-stack-developer
+Task: Create scroll-triggered animation system and enhance overall styling
+
+Work Log:
+
+**Part 1: ScrollReveal Component (`/src/components/acos/scroll-reveal.tsx`)**
+- Created `ScrollReveal` component: intersection-observer-based reveal animation wrapper
+  - Props: children, delay (default 0), direction ('up'|'left'|'right'|'fade', default 'up'), className, once (default true)
+  - Uses framer-motion `useInView` hook with -80px margin threshold
+  - Animation variants: up (translateY 30->0 + opacity), left (translateX -30->0), right (translateX 30->0), fade (opacity only)
+  - Spring transition: stiffness 100, damping 20, configurable delay
+  - once: true means animation plays only the first time element enters viewport
+- Created `StaggerContainer` component: wraps multiple children with staggered reveal
+  - Props: children, staggerDelay (default 0.1s), className
+  - Uses framer-motion staggerChildren variant for cascading animation
+- Created `StaggerItem` component: convenience wrapper for StaggerContainer children
+  - Props: children, direction, className
+  - Each child animates with spring transition matching direction variant
+- Created `ParallaxSection` component: subtle parallax effect on scroll
+  - Props: children, speed (default 0.1), className
+  - Uses framer-motion useScroll + useTransform
+  - Subtle translateY movement clamped to ~20px max based on speed
+- All components use 'use client' directive
+
+**Part 2: Enhanced Loading Skeleton (`/src/components/acos/loading-skeleton.tsx`)**
+- Preserved original `LoadingSkeleton` component unchanged
+- Added `CardSkeleton` variant with shimmer animation
+  - Props: count (default 3), columns (default 2), className
+  - Uses skeleton-shimmer CSS class for animated gradient effect
+  - Responsive grid: 1 col mobile, 2 col md, 3 col lg
+  - Header icon + title lines, body text lines, footer badge placeholders
+- Added `TextSkeleton` variant with varying widths
+  - Props: lines (default 3), className
+  - Cycles through 6 width patterns (w-full, w-5/6, w-4/5, w-3/4, w-2/3, w-1/2)
+  - Uses skeleton-shimmer CSS class
+- Added `ChartSkeleton` variant with placeholder chart shape
+  - Props: className
+  - Simulates a bar chart with 12 varying-height bars
+  - Includes Y-axis labels, X-axis line + labels, and legend placeholders
+  - Uses skeleton-shimmer CSS class throughout
+
+**Part 3: CSS Enhancements (`globals.css`)**
+- Added `.btn-ripple` — position relative + overflow hidden, ::after pseudo-element with radial-gradient at CSS custom properties (--ripple-x, --ripple-y), opacity transition, :active state
+- Added `.animate-text-gradient` — background-size 200% auto, text-gradient-shift animation 3s linear infinite
+- Added `@keyframes text-gradient-shift` — 0% background-position 0% center, 100% background-position 200% center
+- Added `.skeleton-shimmer` — 3-stop linear gradient with oklch colors (30%/50%/30% opacity), background-size 200% 100%, skeleton-wave animation 1.5s ease-in-out infinite
+- Added `@keyframes skeleton-wave` — background-position 200% 0 to -200% 0
+- Added `.input-focus-glow:focus` — emerald box-shadow ring (0 0 0 2px at 20% opacity) + outer glow (0 0 12px at 10% opacity)
+- Added `.stagger-1` through `.stagger-4` — animation-delay 0.1s to 0.4s
+
+**Part 4: ScrollReveal Applied to Overview (`overview.tsx`)**
+- Wrapped value propositions grid with `<ScrollReveal direction="up">`
+- Wrapped metric stats grid with `<ScrollReveal direction="up" delay={0.2}>`
+- Wrapped key stats row with `<ScrollReveal direction="up" delay={0.3}>`
+- Wrapped interactive architecture diagram with `<ScrollReveal direction="up" delay={0.3}>`
+- Wrapped key technical innovations section with `<ScrollReveal direction="up" delay={0.3}>`
+- Wrapped v2 corrections card with `<ScrollReveal direction="up" delay={0.4}>`
+- Replaced 6 motion.div wrappers (with initial/animate/transition) with ScrollReveal components
+- Added import for ScrollReveal from @/components/acos/scroll-reveal
+
+**Verification:**
+- `bun run lint`: 0 errors, 0 warnings
+- Dev server compiles successfully
+- All existing functionality preserved — ScrollReveal replaces motion.div animations with intersection-observer-based triggers
+
+Stage Summary:
+- ScrollReveal animation system created with 4 components: ScrollReveal, StaggerContainer, StaggerItem, ParallaxSection
+- Enhanced loading skeleton with 3 new variants: CardSkeleton, TextSkeleton, ChartSkeleton (all with emerald-themed shimmer)
+- 6 new CSS utility classes added: btn-ripple, animate-text-gradient, skeleton-shimmer, input-focus-glow, stagger-1 through stagger-4
+- Overview section updated to use ScrollReveal for all major content blocks, replacing page-load animations with scroll-triggered reveals
+- Zero lint errors, successful compilation
+
+---
+Task ID: 5-d
+Agent: full-stack-developer
+Task: Create reusable SectionHeader component and integrate into all Part sections (part1-part11)
+
+Work Log:
+- Created `/src/components/acos/section-header.tsx` — a reusable section header component with:
+  - Props: sectionNumber, title, subtitle, badge, icon, className, id
+  - Section number watermark: text-7xl font-bold, bg-gradient-to-r from-emerald-500/10 to-teal-500/10, bg-clip-text text-transparent, select-none pointer-events-none, positioned absolutely
+  - Title: text-2xl md:text-3xl font-bold text-foreground with emerald underline decoration (h-0.5 w-16 bg-gradient-to-r from-emerald-500 to-teal-400)
+  - Badge: inline-flex px-2.5 py-0.5 rounded-full bg-emerald-600/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono with subtle glow (shadow-[0_0_8px_rgba(16,185,129,0.1)])
+  - Subtitle: text-sm text-muted-foreground mt-2
+  - Gradient line: h-px bg-gradient-to-r from-emerald-500/30 via-teal-400/20 to-transparent mt-4
+  - Icon container: w-12 h-12 rounded-xl bg-emerald-600/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400
+  - framer-motion entrance animation: containerVariants with staggerChildren: 0.1 and delayChildren: 0.05; itemVariants with fade-in-up (opacity: 0, y: 12 -> opacity: 1, y: 0) with ease curve [0.25, 0.46, 0.45, 0.94]
+  - Optional `id` prop passed to h2 for TOC anchor linking
+  - `'use client'` directive for Next.js client component
+- Integrated SectionHeader into all 11 Part section components:
+  - part1-analysis.tsx: number=1, title="Whitepaper Analysis", subtitle="Critical examination of the Avadhan Hierarchical Cognition paper", badge="7 CORRECTIONS", icon=<FileText />, id="part1-whitepaper-analysis"
+  - part2-acos.tsx: number=2, title="ACOS Design", subtitle="The Cognitive Operating System architecture", badge="6 LAYERS", icon=<Layers />, id="part2-acos-design"
+  - part3-afm.tsx: number=3, title="AFM Architecture", subtitle="The Avadhan Foundation Model backbone design", badge="HYBRID SSM", icon=<Cpu />, id="afm-architecture"
+  - part4-training.tsx: number=4, title="Training Strategy", subtitle="Path C: Build ACOS first, AFM later", badge="PATH C", icon=<GraduationCap />, id="training-strategy"
+  - part5-learning.tsx: number=5, title="Continuous Learning", subtitle="Orthogonal gradient projection for interference-free learning", badge="ZERO FORGETTING", icon=<RotateCcw />, id="continuous-learning"
+  - part6-orchestration.tsx: number=6, title="Model Orchestration", subtitle="3-level Pingala routing for intelligent model selection", badge="3-LEVEL ROUTING", icon=<Workflow />, id="model-orchestration"
+  - part7-multimodal.tsx: number=7, title="Multimodal Platform", subtitle="Full-stack vision for multi-modal intelligence", badge="FULL-STACK VISION", icon=<Monitor />, id="multimodal-platform"
+  - part8-evolution.tsx: number=8, title="Self-Evolution", subtitle="Self-modifying system with prompt evolution and reflection", badge="SELF-MODIFYING", icon=<Sparkles />, id="self-evolution"
+  - part9-market.tsx: number=9, title="Market Strategy", subtitle="Dual-track go-to-market with open source + enterprise", badge="DUAL-TRACK GTM", icon=<TrendingUp />, id="market-strategy"
+  - part10-attack.tsx: number=10, title="Attack Analysis", subtitle="5 critical risk vectors and mitigation strategies", badge="5 CRITICAL RISKS", icon=<ShieldAlert />, id="attack-analysis"
+  - part11-masterplan.tsx: number=11, title="Master Plan", subtitle="6-month MVP roadmap from prototype to beta launch", badge="6-MONTH MVP", icon=<Map />, id="part11-master-plan"
+- Replaced old heading/badge/description divs in each Part with the new SectionHeader component
+- Preserved heading IDs for TOC navigation (passed via `id` prop)
+- Added necessary Lucide icon imports: FileText, GraduationCap, ShieldAlert, TrendingUp
+- Removed duplicate `Layers` import from part2-acos.tsx (was already imported on line 8)
+- Removed old Badge imports where no longer needed in header sections
+- `bun run lint`: 0 errors, 0 warnings
+- Dev server compiles successfully
+
+Stage Summary:
+- SectionHeader reusable component created with gradient watermark, emerald underline, badge pill, icon container, subtitle, gradient line, and staggered framer-motion entrance animation
+- All 11 Part sections now use the consistent SectionHeader component
+- Heading IDs preserved for TOC anchor navigation
+- Zero lint errors, successful compilation
+
+---
+Task ID: round4-main
+Agent: main
+Task: QA assessment, onboarding tour, mobile nav, enhanced search, section headers, scroll animations
+
+Work Log:
+- **QA Assessment**: Tested all 16 sections via agent-browser. Lint passes with 0 errors. No runtime errors. Application is stable.
+- **Onboarding Tour** (subagent Task 5-a):
+  - Created `/src/components/acos/onboarding-tour.tsx` — 6-step interactive tour
+  - Steps: Welcome, Explore Sections, Interactive Architecture, AI Assistant, Quick Navigation (Ctrl+K), Bookmarks & Progress
+  - SVG spotlight overlay with pulsing emerald ring, tooltip cards with directional arrows
+  - `useOnboarding` hook with useSyncExternalStore for hydration-safe state
+  - Auto-start on first visit, "Help Tour" button in sidebar footer
+  - Integrated into page.tsx, sidebar.tsx, chat-panel.tsx, overview.tsx with data-tour attributes
+- **Mobile Bottom Navigation** (subagent Task 5-b):
+  - Created `/src/components/acos/mobile-bottom-nav.tsx` — fixed bottom nav for mobile
+  - 5 primary tabs: Overview, ACOS Design, Learning, Roadmap, More
+  - "More" drawer using vaul with search input, 3-column grid of all 16 sections
+  - Active tab indicator with emerald dot, animated layoutId transitions
+  - Adjusted footer (pb-14 lg:pb-0), chat FAB, and scroll-to-top positions for mobile
+- **Enhanced Command Palette Search** (subagent Task 5-c):
+  - Enhanced `/src/components/acos/command-palette.tsx` with full-text search
+  - `sectionSearchIndex` with keywords for all 16 sections
+  - Two result groups: "Sections" and "Content" (keyword matches)
+  - Recent searches in localStorage (`acos-recent-searches`, max 5)
+  - Ctrl+K/Cmd+K hint in header, keyboard shortcuts reference
+- **SectionHeader Component** (subagent Task 5-d):
+  - Created `/src/components/acos/section-header.tsx` — reusable decorative header
+  - Large section number watermark, gradient title, badge pill, subtitle, icon container, gradient line
+  - Framer-motion stagger entrance animations
+  - Integrated into ALL 11 Part sections with appropriate titles, badges, icons
+- **ScrollReveal & Styling Enhancements** (subagent Task 5-e + 6):
+  - Created `/src/components/acos/scroll-reveal.tsx` with ScrollReveal, StaggerContainer, StaggerItem, ParallaxSection
+  - Enhanced LoadingSkeleton with CardSkeleton, TextSkeleton, ChartSkeleton variants
+  - Added CSS utilities: btn-ripple, animate-text-gradient, skeleton-shimmer, input-focus-glow, stagger-1 through stagger-4
+  - Applied ScrollReveal to Overview section (6 content blocks with directional animations)
+- **Final QA**:
+  - `bun run lint`: 0 errors, 0 warnings
+  - Dev server compiles successfully
+  - All 16 sections load without errors
+  - Onboarding tour triggers correctly on first visit
+  - Mobile bottom nav functional with drawer
+  - Enhanced search returns keyword matches
+  - SectionHeader renders consistently across all parts
+  - ScrollReveal animations trigger on scroll
+
+Stage Summary:
+- 5 new components: onboarding-tour.tsx, mobile-bottom-nav.tsx, section-header.tsx, scroll-reveal.tsx, enhanced command-palette.tsx
+- 4 new features: Onboarding Tour, Mobile Bottom Nav, Full-Text Search, Section Headers
+- Scroll-triggered animation system with 4 component variants
+- CSS enhancements: btn-ripple, animate-text-gradient, skeleton-shimmer, input-focus-glow
+- All Part sections now have consistent, polished headers with SectionNumber watermarks
+- Application has 16 navigable sections with comprehensive interactivity and mobile-first design
+- Zero lint errors, all features verified via agent-browser
+
+### Current Project Status
+**Status:** Production-ready, significant new features added, mobile-first experience enhanced
+
+### Completed in This Round
+1. QA assessment — all sections verified stable
+2. Onboarding Tour — 6-step guided tour with spotlight overlay
+3. Mobile Bottom Navigation — fixed bottom nav with drawer
+4. Enhanced Command Palette — full-text search across section content
+5. SectionHeader — reusable decorative header for all 11 Part sections
+6. ScrollReveal — scroll-triggered animation system
+7. CSS enhancements — ripple, shimmer, gradient text, focus glow
+8. Loading skeleton variants — Card, Text, Chart skeletons
+
+### Unresolved Issues or Risks
+- Mobile bottom nav drawer (vaul) may have z-index conflicts with chat panel on very small screens
+- Onboarding tour spotlight positions are calculated on each render — may need debouncing for resize events
+- ScrollReveal uses IntersectionObserver with -80px margin — may cause slight delay on fast scrolls
+- SectionHeader watermark number uses bg-clip-text which may not work in older Safari versions
+
+### Priority Recommendations for Next Phase
+- Add PDF export of the full analysis report (using pdf skill)
+- Add "Reading List" feature — save sections for later reading with localStorage persistence
+- Add section transition sound effects (optional, configurable)
+- Add keyboard shortcuts help modal (beyond command palette)
+- Performance audit: consider React.memo on heavy chart components
+- Add ARIA live regions for screen reader navigation announcements
+- Add print-friendly CSS stylesheet
+- Consider adding a "Dark/Light mode" preference in the tour

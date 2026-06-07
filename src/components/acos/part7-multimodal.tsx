@@ -21,6 +21,7 @@ import {
   Layers,
   Monitor,
 } from "lucide-react";
+import { SectionHeader } from "./section-header";
 
 const capabilities = [
   { name: "Chat", icon: MessageSquare, status: "planned", priority: "high", desc: "Real-time conversational AI with memory" },
@@ -92,18 +93,14 @@ const stackColorMap: Record<string, { bg: string; border: string; text: string; 
 export function Part7Multimodal() {
   return (
     <div className="space-y-8">
-      <div>
-        <h2 id="multimodal-platform" className="text-2xl font-bold text-foreground mb-2">
-          Part 7 — Multimodal Platform
-        </h2>
-        <p className="text-muted-foreground">
-          Comprehensive multimodal capabilities across text, voice, vision, code,
-          and knowledge workspaces. Feature matrix with implementation status.
-        </p>
-        <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-400 border-emerald-500/20 font-mono">
-          FULL-STACK VISION
-        </Badge>
-      </div>
+      <SectionHeader
+        sectionNumber={7}
+        title="Multimodal Platform"
+        subtitle="Full-stack vision for multi-modal intelligence"
+        badge="FULL-STACK VISION"
+        icon={<Monitor className="w-5 h-5" />}
+        id="multimodal-platform"
+      />
 
       {/* Capability Matrix */}
       <Card className="card-hover-lift border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
