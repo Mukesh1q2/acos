@@ -19,7 +19,7 @@ import { Part11MasterPlan } from "@/components/acos/part11-masterplan";
 import { CommandPalette } from "@/components/acos/command-palette";
 import { ChatPanel } from "@/components/acos/chat-panel";
 import { SectionToc } from "@/components/acos/section-toc";
-import { BookmarkButton, BookmarkedSections } from "@/components/acos/bookmarks";
+import { BookmarkButton, BookmarkedSections, useBookmarks } from "@/components/acos/bookmarks";
 import { useReadingHistory, RecentSections } from "@/components/acos/reading-history";
 import { ReadingProgress } from "@/components/acos/reading-progress";
 import { ShareButton } from "@/components/acos/share-button";
@@ -27,6 +27,8 @@ import { ReadingTime } from "@/components/acos/reading-time";
 import { LoadingSkeleton } from "@/components/acos/loading-skeleton";
 import { MobileBottomNav } from "@/components/acos/mobile-bottom-nav";
 import { OnboardingTour } from "@/components/acos/onboarding-tour";
+import { KeyboardShortcuts } from "@/components/acos/keyboard-shortcuts";
+import { ReadingListButton, ReadingListPanel } from "@/components/acos/reading-list";
 
 // Lazy-loaded heavy components (charts, diagrams, interactive sections)
 const TheoremExplorer = lazy(() =>
@@ -77,6 +79,7 @@ export default function Home() {
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   const { addToHistory } = useReadingHistory();
+  const { toggleBookmark } = useBookmarks();
 
   const handleSectionChange = useCallback((id: string) => {
     setActiveSection(id);
@@ -108,9 +111,16 @@ export default function Home() {
     }
   }, []);
 
-  // Keyboard navigation with Alt+Arrow keys
+  // Keyboard navigation with Alt+Arrow keys + Ctrl+Shift+B for bookmark toggle
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl+Shift+B — Toggle Bookmark
+      if (e.ctrlKey && e.shiftKey && e.key === "B") {
+        e.preventDefault();
+        toggleBookmark(activeSection);
+        return;
+      }
+
       if (!e.altKey) return;
       if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
 
@@ -132,7 +142,7 @@ export default function Home() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [activeSection, handleSectionChange]);
+  }, [activeSection, handleSectionChange, toggleBookmark]);
 
   const ActiveComponent = sectionComponents[activeSection] || OverviewSection;
   const activeNav = navItems.find((n) => n.id === activeSection);
@@ -211,6 +221,7 @@ export default function Home() {
                   <ReadingTime contentRef={contentRef} />
                   <div className="ml-auto flex items-center gap-2">
                     <ShareButton sectionId={activeSection} />
+                    <ReadingListButton sectionId={activeSection} />
                     <BookmarkButton sectionId={activeSection} />
                   </div>
                 </div>
@@ -225,6 +236,7 @@ export default function Home() {
                   <div className="mt-10 space-y-4">
                     <BookmarkedSections onNavigate={handleSectionChange} />
                     <RecentSections onNavigate={handleSectionChange} />
+                    <ReadingListPanel onNavigate={handleSectionChange} />
                   </div>
                 )}
               </div>
@@ -327,6 +339,9 @@ export default function Home() {
 
       {/* Onboarding Tour */}
       <OnboardingTour />
+
+      {/* Keyboard Shortcuts Help Modal */}
+      <KeyboardShortcuts />
     </div>
   );
 }

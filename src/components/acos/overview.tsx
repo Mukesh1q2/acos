@@ -179,6 +179,8 @@ export function OverviewSection() {
       <HeroParticles />
       {/* Animated gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/30 via-slate-950 to-teal-900/20 animate-gradient" />
+      {/* Mesh gradient overlay for depth */}
+      <div className="absolute inset-0 animate-mesh-gradient" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_oklch(0.696_0.17_162.48/0.1),_transparent_50%)]" />
       {/* Dot grid pattern */}
       <div className="absolute inset-0 bg-dot-grid" />
@@ -287,6 +289,9 @@ export function OverviewSection() {
             <CounterStat key={stat.label} stat={stat} delay={0.7 + i * 0.12} />
           ))}
         </ScrollReveal>
+
+        {/* Section divider */}
+        <div className="section-divider my-12" />
 
         {/* Key stats row (original, kept for context) */}
         <ScrollReveal direction="up" delay={0.3} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-16"

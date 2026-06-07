@@ -1330,3 +1330,225 @@ Stage Summary:
 - Add ARIA live regions for screen reader navigation announcements
 - Add print-friendly CSS stylesheet
 - Consider adding a "Dark/Light mode" preference in the tour
+
+---
+Task ID: 5-d + 6
+Agent: full-stack-developer
+Task: Enhance Chat Panel with Export and Context-Aware Follow-ups + Major Styling Improvements
+
+Work Log:
+
+**Part 1: Chat Panel Enhancements (chat-panel.tsx)**
+
+1. **Export Conversation Button**:
+   - Added `Download` icon button next to the Clear chat button in the header
+   - Exports conversation as Markdown file with format: `# ACOS Assistant Chat\n\n## User\n{message}\n\n## Assistant\n{message}\n\n...`
+   - Creates a Blob with `text/markdown` MIME type, triggers download via `URL.createObjectURL`
+   - Filename: `acos-chat-${new Date().toISOString().slice(0,10)}.md`
+   - Only shows when there are messages
+   - Shows sonner toast "Chat exported" on success
+
+2. **Context-Aware Follow-up Suggestions**:
+   - After each AI response, shows 2-3 dynamic follow-up questions as small chips below the last assistant message
+   - Defined `FOLLOW_UP_MAP` with keyword-to-question mappings:
+     - "OTM" | "thread memory" -> ["How does OTM prevent interference?", "What is the Stiefel Manifold?"]
+     - "HBTA" | "attention" -> ["What is the crossover point for HBTA?", "How does hybrid attention work?"]
+     - "Lyapunov" | "stability" -> ["Is Lyapunov stability global or local?", "How does the scheduler use it?"]
+     - "training" | "Path C" -> ["What hardware is needed for training?", "How long is the MVP timeline?"]
+     - "NSK" | "Panini" | "Nyaya" -> ["How do Panini constraints work?", "What does Nyaya verify?"]
+     - "Mamba" | "SSM" -> ["Why Mamba over Transformer?", "How does the Mamba-OTM hybrid work?"]
+   - `getFollowUpSuggestions()` scans AI response for key terms, collects unique questions, filters out already-asked questions, returns max 3
+   - Follow-ups shown using `useMemo` that computes from last assistant message and asked questions
+   - Chips styled identically to existing suggested question chips, positioned with `ml-9` to align with assistant message bubbles
+   - Original "few messages" suggested questions area hidden when follow-up suggestions are active to avoid duplication
+
+3. **Copy Message Button**:
+   - Added `Copy` icon button that appears on hover over each assistant message (group-hover pattern)
+   - Positioned at bottom-right of message bubble with `absolute -bottom-1 right-1`
+   - Copies raw text content to clipboard via `navigator.clipboard.writeText`
+   - Shows `Check` icon (emerald-400) for 2 seconds after copying, then reverts to `Copy` icon
+   - Uses sonner toast "Copied!" for feedback, or "Failed to copy" on error
+   - Styled with slate-700/80 background, border, and hover:bg-slate-600
+
+**Part 2: Major CSS Styling Enhancements (globals.css)**
+
+1. **Animated gradient mesh background** (`.animate-mesh-gradient`):
+   - Three radial gradients with oklch emerald/teal colors at 8%, 6%, 5% opacity
+   - `mesh-shift` keyframe animates background-position over 10s infinite alternate
+
+2. **Magnetic hover effect** (`.magnetic-hover`):
+   - Spring cubic-bezier (0.34, 1.56, 0.64, 1) transition
+   - Hover: translateY(-3px) scale(1.015) for magnetic lift effect
+
+3. **Enhanced tooltip styling** (`.enhanced-tooltip`):
+   - Pure CSS tooltip via `::after` pseudo-element with `attr(data-tooltip)` content
+   - Positioned above element, dark background with border, 11px font
+   - Fade + scale animation on hover (opacity 0->1, scale 0.9->1)
+
+4. **Animated counter text** (`.animate-count-up`):
+   - `count-pop` keyframe: scale(0.5) opacity(0) -> scale(1.1) -> scale(1) opacity(1)
+   - Spring cubic-bezier timing, 0.6s duration, forwards fill
+
+5. **Print-friendly styles** (`@media print`):
+   - Hides: glass-sidebar, footer-gradient-border, bg-dot-grid, data-tour elements, shimmer/glow animations, fixed elements, chat FAB, scroll-to-top button
+   - Resets main to overflow:visible, height:auto
+   - Removes card-hover-lift transform/shadow on hover
+   - Forces body to white background, black text
+
+6. **Section divider decoration** (`.section-divider`):
+   - 1px height with horizontal gradient: transparent -> emerald/20% -> teal/30% -> emerald/20% -> transparent
+   - `::after` pseudo-element: 6px circular dot centered on divider with emerald/40% background
+
+**Verification**:
+- `bun run lint`: 0 errors, 0 warnings
+- Dev server compiles successfully
+- All new features are backward-compatible (no existing functionality changed)
+
+Stage Summary:
+- Chat panel enhanced with export, context-aware follow-ups, and copy message features
+- 6 new CSS utility classes added for animations, interactions, tooltips, print, and decorative dividers
+- Zero lint errors, successful compilation
+
+---
+Task ID: 5-a + 5-b
+Agent: full-stack-developer
+Task: Create Keyboard Shortcuts Help Modal and Reading List feature components
+
+Work Log:
+
+**Component 1: Keyboard Shortcuts Help Modal** (`/src/components/acos/keyboard-shortcuts.tsx`)
+- Created component with `?` key trigger (only when no input/textarea is focused)
+- Uses shadcn/ui Dialog component for modal
+- 7 keyboard shortcuts displayed in 3 categories:
+  - Navigation: Ctrl+K/Cmd+K (Command Palette), Alt+Arrow Down (Next Section), Alt+Arrow Up (Previous Section)
+  - Actions: Ctrl+Shift+B (Toggle Bookmark), Ctrl+Shift+E (Export Current Section)
+  - Help: ? (Show Keyboard Shortcuts), Escape (Close Modal/Panel)
+- Design: Two columns on desktop (md:grid-cols-2), single on mobile
+- Each shortcut: styled `<kbd>` badge (`px-2 py-1 rounded bg-muted/40 border border-border/30 font-mono text-xs`) + description
+- Group headers in emerald-400 uppercase with tracking-wider
+- Keyboard icon in title
+- Escape closes the dialog naturally via Dialog component
+
+**Component 2: Reading List Feature** (`/src/components/acos/reading-list.tsx`)
+- `useReadingList` hook using `useSyncExternalStore` for hydration-safe state
+- Persists to localStorage under `acos-reading-list`
+- Store format: `{ sectionId: string; addedAt: number; note?: string }[]`
+- Functions: `addToList(sectionId, note?)`, `removeFromList(sectionId)`, `isInList(sectionId)`, `readingList` (sorted by addedAt desc), `clearList()`
+- `ReadingListProvider`: listens for storage events from other tabs, invalidates cache on change
+- `ReadingListButton`: Small button for breadcrumb area (next to BookmarkButton), uses ListTodo icon, filled emerald when in list, outline when not, toast notification on add
+- `ReadingListPanel`: Shown on Overview page (after RecentSections)
+  - Title: "Reading List" with ListTodo icon and count badge
+  - Each item: section icon + name + relative date added + optional note
+  - Remove button (X icon) on hover per item
+  - "Clear All" button at bottom with ListX icon
+  - Empty state: "No items in your reading list. Add sections to read later." with ListTodo icon
+  - Clickable items navigate to that section
+  - max-h-64 overflow-y-auto for long lists
+
+**Integration:**
+- page.tsx:
+  - Imported `KeyboardShortcuts`, `ReadingListButton`, `ReadingListPanel`
+  - Imported `useBookmarks` to get `toggleBookmark` for Ctrl+Shift+B handler
+  - Added Ctrl+Shift+B keyboard handler in existing useEffect (alongside Alt+Arrow handlers)
+  - Added `<ReadingListButton sectionId={activeSection} />` in breadcrumb area after ShareButton, before BookmarkButton
+  - Added `<ReadingListPanel onNavigate={handleSectionChange} />` in Overview section after RecentSections
+  - Added `<KeyboardShortcuts />` before closing `</div>` (after OnboardingTour)
+- layout.tsx:
+  - Imported `ReadingListProvider` from reading-list module
+  - Added `ReadingListProvider` inside BookmarksProvider, wrapping ReadingHistoryProvider
+
+**Verification:**
+- `bun run lint`: 0 errors, 0 warnings
+- Dev server compiles successfully
+- All components use `'use client'` directive
+- No emoji or Unicode math symbols used
+
+Stage Summary:
+- Keyboard Shortcuts Help Modal: 7 shortcuts in 3 categories, ? key trigger, shadcn Dialog, responsive 2-col layout
+- Reading List: Full CRUD with useSyncExternalStore + localStorage, ReadingListButton for breadcrumb, ReadingListPanel for Overview
+- Both components integrated into page.tsx and layout.tsx
+- Zero lint errors, successful compilation
+
+---
+Task ID: round5-main
+Agent: main
+Task: QA assessment, keyboard shortcuts, reading list, chat export, major styling improvements
+
+Work Log:
+- **QA Assessment**: Tested all 16 sections via agent-browser. Lint passes with 0 errors. No runtime errors. Application is stable.
+- **Keyboard Shortcuts Help Modal** (subagent Task 5-a):
+  - Created `/src/components/acos/keyboard-shortcuts.tsx` — dialog modal triggered by `?` key
+  - 7 shortcuts in 3 categories: Navigation (Ctrl+K, Alt+Arrows), Actions (Ctrl+Shift+B bookmark, Ctrl+Shift+E export), Help (?, Escape)
+  - Two-column grid on desktop, single on mobile, styled `<kbd>` badges
+  - Added Ctrl+Shift+B handler in page.tsx for bookmark toggle
+  - Integrated into page.tsx
+- **Reading List Feature** (subagent Task 5-b):
+  - Created `/src/components/acos/reading-list.tsx` with full reading list management
+  - `useReadingList` hook with `useSyncExternalStore`, localStorage persistence (`acos-reading-list`)
+  - `ReadingListButton` in breadcrumb area (ListTodo icon, toast on add)
+  - `ReadingListPanel` on Overview page (items with icon + name + date, hover remove, Clear All, empty state)
+  - `ReadingListProvider` added to layout.tsx inside BookmarksProvider
+- **Chat Panel Enhancements** (subagent Task 5-d):
+  - Export Conversation: Download button exports chat as Markdown file
+  - Context-Aware Follow-ups: Dynamic follow-up question chips after AI responses based on keyword scanning
+  - Copy Message Button: Hover-to-reveal copy button on assistant messages with toast feedback
+- **Major CSS Enhancements** (subagent Task 6):
+  - `.animate-mesh-gradient` — Animated radial gradient mesh background (10s infinite alternate)
+  - `.magnetic-hover` — Spring-physics lift on hover (translateY -3px, scale 1.015)
+  - `.enhanced-tooltip` — Pure CSS tooltip via `data-tooltip` attribute with fade+scale animation
+  - `.animate-count-up` — Pop-in animation for stat numbers (scale 0.5 -> 1.1 -> 1)
+  - `@media print` — Print-friendly: hides decorative elements, resets layout, forces white bg
+  - `.section-divider` — Decorative gradient line with centered emerald dot
+- **Direct Styling Improvements**:
+  - Applied `animate-mesh-gradient` to Overview hero section for depth
+  - Added `section-divider` between content blocks in Overview
+- **Final QA**:
+  - `bun run lint`: 0 errors, 0 warnings
+  - Dev server compiles successfully
+  - All 16 sections load without errors
+  - Keyboard shortcuts modal accessible via ? key
+  - Reading List button visible in breadcrumb area
+  - Chat export and copy buttons functional
+  - Mesh gradient and section dividers render on Overview
+  - No console errors
+
+Stage Summary:
+- 2 new components: keyboard-shortcuts.tsx, reading-list.tsx
+- 4 new features: Keyboard Shortcuts Modal, Reading List, Chat Export/Copy, Context-Aware Follow-ups
+- 6 new CSS utilities: mesh gradient, magnetic hover, enhanced tooltip, count-up animation, print styles, section divider
+- Overview enhanced with mesh gradient and section dividers
+- Chat panel has export, copy, and dynamic follow-up suggestions
+- Application has comprehensive keyboard navigation and reading management
+- Zero lint errors, all features verified via agent-browser
+
+### Current Project Status
+**Status:** Production-ready, significant new features added, comprehensive keyboard and reading management
+
+### Completed in This Round
+1. QA assessment — all 16 sections verified stable, no bugs
+2. Keyboard Shortcuts Help Modal — ? key with 7 shortcuts in 3 categories
+3. Reading List Feature — full CRUD with localStorage, panel on Overview, button in breadcrumb
+4. Chat Export — Markdown file download of conversation history
+5. Chat Copy Message — per-message copy button with toast feedback
+6. Context-Aware Follow-ups — dynamic suggestions based on AI response content
+7. Mesh gradient background on Overview hero
+8. Section dividers between Overview content blocks
+9. Print-friendly CSS stylesheet
+10. 6 new CSS utility classes for visual effects
+
+### Unresolved Issues or Risks
+- Print CSS may need refinement for specific card components
+- Keyboard shortcut `?` may conflict with some international keyboard layouts
+- Context-aware follow-up suggestions use simple keyword matching — could be improved with semantic similarity
+- Reading List and Bookmarks have similar UX patterns — could be consolidated in the future
+- The `animate-mesh-gradient` uses multiple radial gradients which may affect performance on very low-end devices
+
+### Priority Recommendations for Next Phase
+- Add PDF export of the full analysis report (using pdf skill)
+- Add "Section Comparison" feature — side-by-side view of two sections
+- Add reading progress persistence across sessions (save scroll position)
+- Add ARIA live regions for screen reader navigation announcements
+- Consider adding a "Presentation Mode" — full-screen view optimized for projectors
+- Add voice navigation support (speech-to-text for section navigation)
+- Performance audit: consider React.memo on heavy chart components
+- Add lazy-loading for chat markdown rendering

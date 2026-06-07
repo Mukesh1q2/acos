@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { BookmarksProvider } from "@/components/acos/bookmarks";
 import { ReadingHistoryProvider } from "@/components/acos/reading-history";
+import { ReadingListProvider } from "@/components/acos/reading-list";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -50,11 +51,13 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <BookmarksProvider>
-            <ReadingHistoryProvider>
-              {children}
-              <Toaster />
-              <SonnerToaster />
-            </ReadingHistoryProvider>
+            <ReadingListProvider>
+              <ReadingHistoryProvider>
+                {children}
+                <Toaster />
+                <SonnerToaster />
+              </ReadingHistoryProvider>
+            </ReadingListProvider>
           </BookmarksProvider>
         </ThemeProvider>
       </body>

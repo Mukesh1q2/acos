@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Brain,
@@ -11,10 +11,14 @@ import {
   Loader2,
   Bot,
   User,
+  Download,
+  Copy,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatMarkdown } from "./chat-markdown";
+import { toast } from "sonner";
 
 interface Message {
   id: string;
@@ -32,11 +36,62 @@ const SUGGESTED_QUESTIONS = [
   "What makes ACOS different from ChatGPT?",
 ];
 
+/* ------------------------------------------------------------------ */
+/*  Context-aware follow-up question map                               */
+/* ------------------------------------------------------------------ */
+
+const FOLLOW_UP_MAP: Record<string, string[]> = {
+  "OTM": ["How does OTM prevent interference?", "What is the Stiefel Manifold?"],
+  "thread memory": ["How does OTM prevent interference?", "What is the Stiefel Manifold?"],
+  "HBTA": ["What is the crossover point for HBTA?", "How does hybrid attention work?"],
+  "attention": ["What is the crossover point for HBTA?", "How does hybrid attention work?"],
+  "Lyapunov": ["Is Lyapunov stability global or local?", "How does the scheduler use it?"],
+  "stability": ["Is Lyapunov stability global or local?", "How does the scheduler use it?"],
+  "training": ["What hardware is needed for training?", "How long is the MVP timeline?"],
+  "Path C": ["What hardware is needed for training?", "How long is the MVP timeline?"],
+  "NSK": ["How do Panini constraints work?", "What does Nyaya verify?"],
+  "Panini": ["How do Panini constraints work?", "What does Nyaya verify?"],
+  "Nyaya": ["How do Panini constraints work?", "What does Nyaya verify?"],
+  "Mamba": ["Why Mamba over Transformer?", "How does the Mamba-OTM hybrid work?"],
+  "SSM": ["Why Mamba over Transformer?", "How does the Mamba-OTM hybrid work?"],
+};
+
+function getFollowUpSuggestions(
+  lastAssistantContent: string,
+  askedQuestions: string[]
+): string[] {
+  const lower = lastAssistantContent.toLowerCase();
+  const candidates: string[] = [];
+
+  for (const [keyword, questions] of Object.entries(FOLLOW_UP_MAP)) {
+    if (lower.includes(keyword.toLowerCase())) {
+      for (const q of questions) {
+        if (!candidates.includes(q)) {
+          candidates.push(q);
+        }
+      }
+    }
+  }
+
+  // Filter out questions that have already been asked
+  const askedSet = new Set(askedQuestions.map((q) => q.toLowerCase().trim()));
+  const filtered = candidates.filter(
+    (q) => !askedSet.has(q.toLowerCase().trim())
+  );
+
+  return filtered.slice(0, 3);
+}
+
+/* ------------------------------------------------------------------ */
+/*  ChatPanel Component                                                */
+/* ------------------------------------------------------------------ */
+
 export function ChatPanel() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -53,6 +108,14 @@ export function ChatPanel() {
       inputRef.current.focus();
     }
   }, [isOpen]);
+
+  // Clear copied state after 2 seconds
+  useEffect(() => {
+    if (copiedId) {
+      const timer = setTimeout(() => setCopiedId(null), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [copiedId]);
 
   const sendMessage = useCallback(
     async (content: string) => {
@@ -138,6 +201,60 @@ export function ChatPanel() {
     setInput("");
   }, []);
 
+  /* ---- Export conversation as Markdown ---- */
+  const exportChat = useCallback(() => {
+    if (messages.length === 0) return;
+
+    const lines: string[] = ["# ACOS Assistant Chat", ""];
+    for (const msg of messages) {
+      const heading = msg.role === "user" ? "## User" : "## Assistant";
+      lines.push(heading, "", msg.content, "");
+    }
+
+    const markdown = lines.join("\n");
+    const blob = new Blob([markdown], { type: "text/markdown;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `acos-chat-${new Date().toISOString().slice(0, 10)}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    toast.success("Chat exported", {
+      description: "Markdown file downloaded successfully.",
+      duration: 3000,
+    });
+  }, [messages]);
+
+  /* ---- Copy message content ---- */
+  const copyMessage = useCallback((id: string, content: string) => {
+    navigator.clipboard.writeText(content).then(
+      () => {
+        setCopiedId(id);
+        toast.success("Copied!", { duration: 2000 });
+      },
+      () => {
+        toast.error("Failed to copy", { duration: 2000 });
+      }
+    );
+  }, []);
+
+  /* ---- Context-aware follow-ups ---- */
+  const followUpSuggestions = useMemo(() => {
+    // Only show after the last assistant message and when not loading
+    if (isLoading || messages.length === 0) return [];
+    const lastMsg = messages[messages.length - 1];
+    if (lastMsg.role !== "assistant") return [];
+
+    const askedQuestions = messages
+      .filter((m) => m.role === "user")
+      .map((m) => m.content);
+
+    return getFollowUpSuggestions(lastMsg.content, askedQuestions);
+  }, [messages, isLoading]);
+
   return (
     <>
       {/* FAB Trigger Button */}
@@ -185,15 +302,26 @@ export function ChatPanel() {
               </div>
               <div className="flex items-center gap-1">
                 {messages.length > 0 && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={clearChat}
-                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                    aria-label="Clear chat"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                  <>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={exportChat}
+                      className="h-8 w-8 text-muted-foreground hover:text-emerald-400"
+                      aria-label="Export chat as Markdown"
+                    >
+                      <Download className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={clearChat}
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                      aria-label="Clear chat"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </>
                 )}
                 <Button
                   variant="ghost"
@@ -237,38 +365,79 @@ export function ChatPanel() {
                   </div>
                 )}
 
-                {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex gap-2.5 ${
-                      message.role === "user" ? "justify-end" : "justify-start"
-                    }`}
-                  >
-                    {message.role === "assistant" && (
-                      <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-emerald-600/20 flex items-center justify-center mt-0.5">
-                        <Bot className="w-3.5 h-3.5 text-emerald-400" />
+                {messages.map((message, idx) => {
+                  const isLastAssistant =
+                    message.role === "assistant" &&
+                    idx === messages.length - 1;
+
+                  return (
+                    <div key={message.id}>
+                      <div
+                        className={`flex gap-2.5 ${
+                          message.role === "user"
+                            ? "justify-end"
+                            : "justify-start"
+                        }`}
+                      >
+                        {message.role === "assistant" && (
+                          <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-emerald-600/20 flex items-center justify-center mt-0.5">
+                            <Bot className="w-3.5 h-3.5 text-emerald-400" />
+                          </div>
+                        )}
+                        <div
+                          className={`group relative max-w-[80%] rounded-xl px-3.5 py-2.5 text-sm leading-relaxed ${
+                            message.role === "user"
+                              ? "bg-emerald-600 text-white rounded-br-sm"
+                              : "bg-slate-800/80 text-slate-200 border border-border/20 rounded-bl-sm max-h-[400px] overflow-y-auto"
+                          }`}
+                        >
+                          {message.role === "user" ? (
+                            message.content
+                          ) : (
+                            <ChatMarkdown content={message.content} />
+                          )}
+
+                          {/* Copy button for assistant messages */}
+                          {message.role === "assistant" && (
+                            <button
+                              onClick={() => copyMessage(message.id, message.content)}
+                              className="absolute -bottom-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150 h-6 w-6 rounded-md bg-slate-700/80 hover:bg-slate-600 flex items-center justify-center border border-border/20"
+                              aria-label="Copy message"
+                            >
+                              {copiedId === message.id ? (
+                                <Check className="w-3 h-3 text-emerald-400" />
+                              ) : (
+                                <Copy className="w-3 h-3 text-slate-400" />
+                              )}
+                            </button>
+                          )}
+                        </div>
+                        {message.role === "user" && (
+                          <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-slate-700 flex items-center justify-center mt-0.5">
+                            <User className="w-3.5 h-3.5 text-slate-300" />
+                          </div>
+                        )}
                       </div>
-                    )}
-                    <div
-                      className={`max-w-[80%] rounded-xl px-3.5 py-2.5 text-sm leading-relaxed ${
-                        message.role === "user"
-                          ? "bg-emerald-600 text-white rounded-br-sm"
-                          : "bg-slate-800/80 text-slate-200 border border-border/20 rounded-bl-sm max-h-[400px] overflow-y-auto"
-                      }`}
-                    >
-                      {message.role === "user" ? (
-                        message.content
-                      ) : (
-                        <ChatMarkdown content={message.content} />
-                      )}
+
+                      {/* Context-aware follow-up suggestions after the last assistant message */}
+                      {isLastAssistant &&
+                        followUpSuggestions.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mt-2 ml-9">
+                            {followUpSuggestions.map((q) => (
+                              <button
+                                key={q}
+                                onClick={() => handleSuggestedQuestion(q)}
+                                className="text-[10px] px-2.5 py-1 rounded-full border border-emerald-600/25 text-emerald-400 hover:bg-emerald-600/10 transition-colors duration-150 truncate max-w-[200px]"
+                                title={q}
+                              >
+                                {q}
+                              </button>
+                            ))}
+                          </div>
+                        )}
                     </div>
-                    {message.role === "user" && (
-                      <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-slate-700 flex items-center justify-center mt-0.5">
-                        <User className="w-3.5 h-3.5 text-slate-300" />
-                      </div>
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
 
                 {isLoading && (
                   <div className="flex gap-2.5 justify-start">
@@ -291,29 +460,32 @@ export function ChatPanel() {
             </ScrollArea>
 
             {/* Suggested Questions (shown when there are messages but few) */}
-            {messages.length > 0 && messages.length < 3 && !isLoading && (
-              <div className="px-4 pb-2 flex-shrink-0">
-                <div className="flex flex-wrap gap-1.5">
-                  {SUGGESTED_QUESTIONS.filter(
-                    (q) =>
-                      !messages.some(
-                        (m) => m.role === "user" && m.content === q
-                      )
-                  )
-                    .slice(0, 3)
-                    .map((q) => (
-                      <button
-                        key={q}
-                        onClick={() => handleSuggestedQuestion(q)}
-                        className="text-[10px] px-2.5 py-1 rounded-full border border-emerald-600/25 text-emerald-400 hover:bg-emerald-600/10 transition-colors duration-150 truncate max-w-[180px]"
-                        title={q}
-                      >
-                        {q}
-                      </button>
-                    ))}
+            {messages.length > 0 &&
+              messages.length < 3 &&
+              !isLoading &&
+              followUpSuggestions.length === 0 && (
+                <div className="px-4 pb-2 flex-shrink-0">
+                  <div className="flex flex-wrap gap-1.5">
+                    {SUGGESTED_QUESTIONS.filter(
+                      (q) =>
+                        !messages.some(
+                          (m) => m.role === "user" && m.content === q
+                        )
+                    )
+                      .slice(0, 3)
+                      .map((q) => (
+                        <button
+                          key={q}
+                          onClick={() => handleSuggestedQuestion(q)}
+                          className="text-[10px] px-2.5 py-1 rounded-full border border-emerald-600/25 text-emerald-400 hover:bg-emerald-600/10 transition-colors duration-150 truncate max-w-[180px]"
+                          title={q}
+                        >
+                          {q}
+                        </button>
+                      ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
             {/* Input Area */}
             <form
