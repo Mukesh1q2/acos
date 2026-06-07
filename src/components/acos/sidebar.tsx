@@ -20,6 +20,9 @@ import {
   ChevronRight,
   Sun,
   Moon,
+  Sigma,
+  Route,
+  BarChart3,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
@@ -46,6 +49,9 @@ export const navItems: NavItem[] = [
   { id: "part9", label: "Part 9 — Market Strategy", shortLabel: "Market", icon: <TrendingUp className="w-4 h-4" /> },
   { id: "part10", label: "Part 10 — Attack Analysis", shortLabel: "Attack", icon: <ShieldAlert className="w-4 h-4" /> },
   { id: "part11", label: "Part 11 — Master Plan", shortLabel: "Master Plan", icon: <Map className="w-4 h-4" /> },
+  { id: "roadmap", label: "Roadmap Timeline", shortLabel: "Roadmap", icon: <Route className="w-4 h-4" /> },
+  { id: "theorems", label: "Theorem Explorer", shortLabel: "Theorems", icon: <Sigma className="w-4 h-4" /> },
+  { id: "performance", label: "Performance Comparison", shortLabel: "Performance", icon: <BarChart3 className="w-4 h-4" /> },
 ];
 
 interface SidebarProps {
@@ -67,7 +73,7 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="px-4 py-5 flex items-center gap-3">
-        <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center">
+        <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-md shadow-emerald-500/20">
           <Brain className="w-5 h-5 text-white" />
         </div>
         <div>
@@ -84,43 +90,55 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
 
       {/* Navigation */}
       <ScrollArea className="flex-1 px-2 py-3">
-        <div className="space-y-0.5">
+        <div className="space-y-1">
           {navItems.map((item) => {
             const isActive = activeSection === item.id;
+            // Add section dividers
+            const showDividerBefore = item.id === "part1" || item.id === "roadmap";
             return (
-              <button
-                key={item.id}
-                onClick={() => {
-                  onSectionChange(item.id);
-                  setMobileOpen(false);
-                }}
-                className={`
-                  w-full flex items-center gap-3 px-3 py-2 rounded-md text-left
-                  transition-all duration-200 group relative
-                  ${
-                    isActive
-                      ? "bg-emerald-600/15 text-emerald-400"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                  }
-                `}
-              >
-                {isActive && (
-                  <motion.div
-                    layoutId="activeIndicator"
-                    className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-emerald-500 rounded-r"
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  />
+              <div key={item.id}>
+                {showDividerBefore && (
+                  <div className="flex items-center gap-2 px-3 py-2 mt-1">
+                    <div className="flex-1 h-px bg-border/30" />
+                    <span className="text-[9px] text-muted-foreground/50 uppercase tracking-wider font-mono">
+                      {item.id === "part1" ? "Analysis" : "Interactive"}
+                    </span>
+                    <div className="flex-1 h-px bg-border/30" />
+                  </div>
                 )}
-                <span
-                  className={`flex-shrink-0 ${isActive ? "text-emerald-400" : "text-muted-foreground group-hover:text-foreground"}`}
+                <button
+                  onClick={() => {
+                    onSectionChange(item.id);
+                    setMobileOpen(false);
+                  }}
+                  className={`
+                    w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left
+                    transition-all duration-200 group relative
+                    ${
+                      isActive
+                        ? "bg-emerald-600/15 text-emerald-400"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    }
+                  `}
                 >
-                  {item.icon}
-                </span>
-                <span className="text-sm truncate">{item.shortLabel}</span>
-                {isActive && (
-                  <ChevronRight className="w-3 h-3 ml-auto text-emerald-500" />
-                )}
-              </button>
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeIndicator"
+                      className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-emerald-500 rounded-r"
+                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    />
+                  )}
+                  <span
+                    className={`flex-shrink-0 ${isActive ? "text-emerald-400" : "text-muted-foreground group-hover:text-foreground"}`}
+                  >
+                    {item.icon}
+                  </span>
+                  <span className="text-sm truncate">{item.shortLabel}</span>
+                  {isActive && (
+                    <ChevronRight className="w-3 h-3 ml-auto text-emerald-500" />
+                  )}
+                </button>
+              </div>
             );
           })}
         </div>
@@ -195,7 +213,7 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
       </AnimatePresence>
 
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex w-[220px] flex-col border-r border-border/30 bg-slate-950 flex-shrink-0">
+      <aside className="hidden lg:flex w-[220px] flex-col border-r border-border/30 glass-sidebar flex-shrink-0">
         {sidebarContent}
       </aside>
     </>

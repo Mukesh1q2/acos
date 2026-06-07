@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowUp } from "lucide-react";
+import { ArrowUp, Brain } from "lucide-react";
 import { Sidebar, navItems } from "@/components/acos/sidebar";
 import { OverviewSection } from "@/components/acos/overview";
 import { Part1Analysis } from "@/components/acos/part1-analysis";
@@ -16,6 +16,9 @@ import { Part8Evolution } from "@/components/acos/part8-evolution";
 import { Part9Market } from "@/components/acos/part9-market";
 import { Part10Attack } from "@/components/acos/part10-attack";
 import { Part11MasterPlan } from "@/components/acos/part11-masterplan";
+import { TheoremExplorer } from "@/components/acos/theorem-explorer";
+import { RoadmapTimeline } from "@/components/acos/roadmap-timeline";
+import { PerformanceComparison } from "@/components/acos/performance-comparison";
 import { CommandPalette } from "@/components/acos/command-palette";
 import { ChatPanel } from "@/components/acos/chat-panel";
 import { Progress } from "@/components/ui/progress";
@@ -33,6 +36,9 @@ const sectionComponents: Record<string, React.ComponentType> = {
   part9: Part9Market,
   part10: Part10Attack,
   part11: Part11MasterPlan,
+  roadmap: RoadmapTimeline,
+  theorems: TheoremExplorer,
+  performance: PerformanceComparison,
 };
 
   // Read initial section from URL hash (only on first render)
@@ -99,17 +105,23 @@ export default function Home() {
         {/* Progress bar */}
         <div className="relative h-1 bg-muted/30 flex-shrink-0">
           <motion.div
-            className="absolute top-0 left-0 h-full bg-gradient-to-r from-emerald-500 to-teal-400"
+            className="absolute top-0 left-0 h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400"
             initial={{ width: 0 }}
             animate={{ width: `${progressPercent}%` }}
             transition={{ duration: 0.4, ease: "easeOut" }}
+          />
+          {/* Shimmer on progress */}
+          <motion.div
+            className="absolute top-0 left-0 h-full animate-shimmer"
+            style={{ width: `${progressPercent}%` }}
+            transition={{ duration: 0.4 }}
           />
         </div>
 
         {/* Content area */}
         <main
           ref={contentRef}
-          className="flex-1 overflow-y-auto relative"
+          className="flex-1 overflow-y-auto relative bg-dot-grid"
         >
           <AnimatePresence mode="wait">
             <motion.div
@@ -139,19 +151,32 @@ export default function Home() {
           </AnimatePresence>
 
           {/* Sticky Footer */}
-          <footer className="mt-auto border-t border-border/20 bg-card/30 backdrop-blur-sm">
-            <div className="max-w-5xl mx-auto px-4 md:px-6 lg:px-8 py-4">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-2">
-                <div className="text-xs text-muted-foreground">
-                  Avadhan Cognitive Operating System &copy; 2026 | Built by{" "}
-                  <span className="text-emerald-400 font-semibold">
-                    Brahm AI Research Initiative
-                  </span>
+          <footer className="mt-auto border-t border-border/20 bg-gradient-to-r from-card/50 via-card/30 to-card/50 backdrop-blur-md">
+            <div className="max-w-5xl mx-auto px-4 md:px-6 lg:px-8 py-5">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-6 h-6 rounded-md bg-emerald-600/20 flex items-center justify-center">
+                    <Brain className="w-3.5 h-3.5 text-emerald-400" />
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Avadhan Cognitive Operating System &copy; 2026 | Built by{" "}
+                    <span className="text-emerald-400 font-semibold">
+                      Brahm AI Research Initiative
+                    </span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-4 text-[10px] text-muted-foreground">
-                  <span className="font-mono">ACOS v0.1.0-alpha</span>
-                  <span className="opacity-50">|</span>
-                  <span>Next.js 16 + TypeScript</span>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-600/10 border border-emerald-500/15">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-[10px] font-mono text-emerald-400">v0.1.0-alpha</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                    <span>Next.js 16</span>
+                    <span className="opacity-30">|</span>
+                    <span>TypeScript</span>
+                    <span className="opacity-30">|</span>
+                    <span>Prisma</span>
+                  </div>
                 </div>
               </div>
             </div>

@@ -289,7 +289,7 @@ export function Part11MasterPlan() {
                     <div className="text-[10px] text-muted-foreground font-mono">Month</div>
                     <div className={`text-2xl font-bold ${colors.text}`}>{month.month}</div>
                   </div>
-                  <div className="flex-1 p-3 rounded-lg bg-muted/20 border border-border/20">
+                  <div className="flex-1 p-3 rounded-lg bg-muted/20 border border-border/20 card-hover-lift">
                     <div className="text-sm font-semibold text-foreground mb-1">
                       {month.title}
                     </div>

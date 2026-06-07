@@ -250,7 +250,7 @@ export function Part1Analysis() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="p-4 rounded-lg bg-muted/20 border border-border/20"
+              className="p-4 rounded-lg bg-muted/20 border border-border/20 card-hover-lift"
             >
               <div className="text-sm font-semibold text-emerald-400 mb-2">HBTA Complexity</div>
               <code className="text-xs font-mono text-foreground block bg-card/50 p-3 rounded-md border border-border/10">
@@ -265,7 +265,7 @@ export function Part1Analysis() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="p-4 rounded-lg bg-muted/20 border border-border/20"
+              className="p-4 rounded-lg bg-muted/20 border border-border/20 card-hover-lift"
             >
               <div className="text-sm font-semibold text-teal-400 mb-2">OTM Cayley Retraction</div>
               <code className="text-xs font-mono text-foreground block bg-card/50 p-3 rounded-md border border-border/10">
@@ -280,7 +280,7 @@ export function Part1Analysis() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="p-4 rounded-lg bg-muted/20 border border-border/20"
+              className="p-4 rounded-lg bg-muted/20 border border-border/20 card-hover-lift"
             >
               <div className="text-sm font-semibold text-green-400 mb-2">Stiefel Gradient</div>
               <code className="text-xs font-mono text-foreground block bg-card/50 p-3 rounded-md border border-border/10">
@@ -295,7 +295,7 @@ export function Part1Analysis() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="p-4 rounded-lg bg-muted/20 border border-border/20"
+              className="p-4 rounded-lg bg-muted/20 border border-border/20 card-hover-lift"
             >
               <div className="text-sm font-semibold text-cyan-400 mb-2">Gated-Sum Broadcast</div>
               <code className="text-xs font-mono text-foreground block bg-card/50 p-3 rounded-md border border-border/10">

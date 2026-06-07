@@ -1,9 +1,47 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Brain, ShieldCheck, Lightbulb, Zap, AlertCircle, Cpu, Network, RefreshCw, GitBranch } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
+import { motion, useInView } from "framer-motion";
+import { Brain, ShieldCheck, Lightbulb, Zap, AlertCircle, Cpu, Network, RefreshCw, GitBranch, Activity, Database, Users, Layers } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { InteractiveArchitecture } from "@/components/acos/interactive-architecture";
+
+/* ------------------------------------------------------------------ */
+/*  Animated Counter Hook                                              */
+/* ------------------------------------------------------------------ */
+
+function useAnimatedCounter(target: number, duration: number = 2000, startOnView: boolean = true) {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true });
+  const hasStarted = useRef(false);
+
+  useEffect(() => {
+    if (startOnView && !isInView) return;
+    if (hasStarted.current) return;
+    hasStarted.current = true;
+
+    const startTime = Date.now();
+    const step = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      // Ease-out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.round(eased * target));
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      }
+    };
+    requestAnimationFrame(step);
+  }, [isInView, startOnView, target, duration]);
+
+  return { count, ref };
+}
+
+/* ------------------------------------------------------------------ */
+/*  Data                                                               */
+/* ------------------------------------------------------------------ */
 
 const keyInnovations = [
   {
@@ -42,21 +80,12 @@ const v2Corrections = [
   { num: 7, correction: "epsilon term identified as structural, not noise-based" },
 ];
 
-const innovationColorMap: Record<string, { bg: string; border: string; icon: string }> = {
-  emerald: { bg: "bg-emerald-500/10", border: "border-emerald-500/20", icon: "text-emerald-400" },
-  teal: { bg: "bg-teal-500/10", border: "border-teal-500/20", icon: "text-teal-400" },
-  green: { bg: "bg-green-500/10", border: "border-green-500/20", icon: "text-green-400" },
-  cyan: { bg: "bg-cyan-500/10", border: "border-cyan-500/20", icon: "text-cyan-400" },
+const innovationColorMap: Record<string, { bg: string; border: string; icon: string; hoverBg: string }> = {
+  emerald: { bg: "bg-emerald-500/10", border: "border-emerald-500/20", icon: "text-emerald-400", hoverBg: "hover:border-emerald-500/40" },
+  teal: { bg: "bg-teal-500/10", border: "border-teal-500/20", icon: "text-teal-400", hoverBg: "hover:border-teal-500/40" },
+  green: { bg: "bg-green-500/10", border: "border-green-500/20", icon: "text-green-400", hoverBg: "hover:border-green-500/40" },
+  cyan: { bg: "bg-cyan-500/10", border: "border-cyan-500/20", icon: "text-cyan-400", hoverBg: "hover:border-cyan-500/40" },
 };
-
-const stackLayers = [
-  { name: "Cognitive Agent Framework", color: "bg-emerald-700", textColor: "text-white" },
-  { name: "Knowledge Fabric", color: "bg-emerald-600", textColor: "text-white" },
-  { name: "Hierarchical Memory", color: "bg-teal-600", textColor: "text-white" },
-  { name: "Multi-Thread Reasoning Engine", color: "bg-teal-700", textColor: "text-white" },
-  { name: "AFM (Avadhan Foundation Model)", color: "bg-slate-700", textColor: "text-white" },
-  { name: "Cognitive Kernel (OS Layer)", color: "bg-slate-800 border border-slate-600", textColor: "text-slate-200" },
-];
 
 const valuePropositions = [
   {
@@ -65,6 +94,7 @@ const valuePropositions = [
     desc: "The system that never forgets — orthogonal gradient projection preserves all prior knowledge",
     gradient: "from-emerald-500/20 to-emerald-600/5",
     border: "border-emerald-500/20",
+    hoverBorder: "hover:border-emerald-500/40",
   },
   {
     icon: <GitBranch className="w-6 h-6" />,
@@ -72,6 +102,7 @@ const valuePropositions = [
     desc: "Zero interference reasoning — mathematically proven thread isolation via Stiefel Manifold",
     gradient: "from-teal-500/20 to-teal-600/5",
     border: "border-teal-500/20",
+    hoverBorder: "hover:border-teal-500/40",
   },
   {
     icon: <Brain className="w-6 h-6" />,
@@ -79,8 +110,60 @@ const valuePropositions = [
     desc: "Logic meets learning — Panini constraints and Nyaya verification integrated with neural reasoning",
     gradient: "from-green-500/20 to-green-600/5",
     border: "border-green-500/20",
+    hoverBorder: "hover:border-green-500/40",
   },
 ];
+
+/* Stats with animated counters */
+const metricStats = [
+  { value: 77, suffix: "x", label: "Attention Speedup", sub: "at N=32K tokens", icon: <Activity className="w-5 h-5" /> },
+  { value: 250, suffix: "x", label: "Memory Reduction", sub: "vs KV Cache", icon: <Database className="w-5 h-5" /> },
+  { value: 86, suffix: "%", label: "Knowledge Retention", sub: "after 10 tasks", icon: <Users className="w-5 h-5" /> },
+  { value: 0, suffix: "", label: "Thread Interference", sub: "proven by construction", icon: <Layers className="w-5 h-5" /> },
+];
+
+/* ------------------------------------------------------------------ */
+/*  Counter Stat Card                                                  */
+/* ------------------------------------------------------------------ */
+
+function CounterStat({ stat, delay }: { stat: typeof metricStats[0]; delay: number }) {
+  const { count, ref } = useAnimatedCounter(stat.value, 1800);
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay }}
+      className="relative p-5 rounded-xl bg-card/50 border border-border/30 card-hover-lift group overflow-hidden"
+    >
+      {/* Shimmer on hover */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 animate-shimmer transition-opacity duration-500" />
+
+      <div className="relative z-10">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-9 h-9 rounded-lg bg-emerald-600/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+            {stat.icon}
+          </div>
+          <div className="text-xs text-muted-foreground font-mono uppercase tracking-wider">{stat.label}</div>
+        </div>
+        <div className="flex items-baseline gap-1">
+          <span className="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+            {stat.value === 0 ? "0" : count}
+          </span>
+          {stat.suffix && (
+            <span className="text-lg font-semibold text-emerald-400">{stat.suffix}</span>
+          )}
+        </div>
+        <div className="text-xs text-muted-foreground mt-1">{stat.sub}</div>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Main Component                                                     */
+/* ------------------------------------------------------------------ */
 
 export function OverviewSection() {
   return (
@@ -88,6 +171,28 @@ export function OverviewSection() {
       {/* Animated gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/30 via-slate-950 to-teal-900/20 animate-gradient" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_oklch(0.696_0.17_162.48/0.1),_transparent_50%)]" />
+      {/* Dot grid pattern */}
+      <div className="absolute inset-0 bg-dot-grid" />
+
+      {/* Decorative rotating circle */}
+      <div className="absolute top-20 right-10 w-64 h-64 opacity-[0.03] animate-spin-slow pointer-events-none">
+        <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="100" cy="100" r="90" stroke="currentColor" strokeWidth="0.5" className="text-emerald-400" />
+          <circle cx="100" cy="100" r="70" stroke="currentColor" strokeWidth="0.5" className="text-emerald-400" />
+          <circle cx="100" cy="100" r="50" stroke="currentColor" strokeWidth="0.5" className="text-emerald-400" />
+          <line x1="10" y1="100" x2="190" y2="100" stroke="currentColor" strokeWidth="0.3" className="text-emerald-400" />
+          <line x1="100" y1="10" x2="100" y2="190" stroke="currentColor" strokeWidth="0.3" className="text-emerald-400" />
+        </svg>
+      </div>
+
+      {/* Second decorative element */}
+      <div className="absolute bottom-40 left-5 w-48 h-48 opacity-[0.02] animate-spin-slow pointer-events-none" style={{ animationDirection: "reverse" }}>
+        <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="20" y="20" width="160" height="160" stroke="currentColor" strokeWidth="0.5" className="text-teal-400" rx="20" />
+          <rect x="40" y="40" width="120" height="120" stroke="currentColor" strokeWidth="0.5" className="text-teal-400" rx="15" />
+          <rect x="60" y="60" width="80" height="80" stroke="currentColor" strokeWidth="0.5" className="text-teal-400" rx="10" />
+        </svg>
+      </div>
 
       <div className="relative z-10 px-6 py-16 md:py-24 max-w-5xl mx-auto">
         {/* Title */}
@@ -97,7 +202,7 @@ export function OverviewSection() {
           transition={{ duration: 0.7 }}
           className="text-center mb-12"
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-600/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono mb-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-600/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono mb-6">
             <Zap className="w-3 h-3" />
             BRAHM AI RESEARCH INITIATIVE
           </div>
@@ -111,9 +216,17 @@ export function OverviewSection() {
             <br />
             <span className="text-foreground">COGNITIVE OPERATING SYSTEM</span>
           </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             The Operating System for Cognitive Intelligence
           </p>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="text-sm text-muted-foreground/60 max-w-xl mx-auto mt-3"
+          >
+            Not another chatbot. A complete cognitive infrastructure for reasoning, memory, and continuous learning.
+          </motion.p>
         </motion.div>
 
         {/* Three value propositions */}
@@ -129,22 +242,39 @@ export function OverviewSection() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 + i * 0.15 }}
-              className={`relative p-6 rounded-xl bg-gradient-to-br ${item.gradient} border ${item.border} backdrop-blur-sm group hover:scale-[1.02] hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-300`}
+              className={`relative p-6 rounded-xl bg-gradient-to-br ${item.gradient} border ${item.border} ${item.hoverBorder} backdrop-blur-sm group hover:scale-[1.02] hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-300 card-hover-lift`}
             >
+              {/* Corner accent */}
+              <div className="absolute top-0 right-0 w-16 h-16 overflow-hidden rounded-tr-xl">
+                <div className="absolute -top-8 -right-8 w-16 h-16 bg-gradient-to-bl from-emerald-500/10 to-transparent rotate-45" />
+              </div>
+
               <div className="text-emerald-400 mb-3 group-hover:text-emerald-300 transition-colors duration-300">{item.icon}</div>
               <h3 className="text-lg font-semibold text-foreground mb-2">
                 {item.title}
               </h3>
-              <p className="text-sm text-muted-foreground">{item.desc}</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
             </motion.div>
           ))}
         </motion.div>
 
-        {/* Key stats */}
+        {/* Animated Counter Stats */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.7 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
+          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16"
+        >
+          {metricStats.map((stat, i) => (
+            <CounterStat key={stat.label} stat={stat} delay={0.7 + i * 0.12} />
+          ))}
+        </motion.div>
+
+        {/* Key stats row (original, kept for context) */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.9 }}
           className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-16"
         >
           {[
@@ -154,7 +284,7 @@ export function OverviewSection() {
           ].map((stat) => (
             <div
               key={stat.label}
-              className="flex items-center gap-4 p-4 rounded-lg bg-card/50 border border-border/30"
+              className="flex items-center gap-4 p-4 rounded-lg bg-card/50 border border-border/30 card-hover-lift"
             >
               <div className="w-10 h-10 rounded-lg bg-emerald-600/10 flex items-center justify-center text-emerald-400 flex-shrink-0">
                 {stat.icon}
@@ -167,28 +297,16 @@ export function OverviewSection() {
           ))}
         </motion.div>
 
-        {/* Architecture Stack Diagram */}
+        {/* Interactive Architecture Stack Diagram */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.9 }}
+          transition={{ duration: 0.6, delay: 1.1 }}
         >
           <h2 className="text-lg font-semibold text-foreground mb-6 text-center">
             The ACOS Stack
           </h2>
-          <div className="max-w-lg mx-auto space-y-2">
-            {stackLayers.map((layer, i) => (
-              <motion.div
-                key={layer.name}
-                initial={{ opacity: 0, scaleX: 0.5 }}
-                animate={{ opacity: 1, scaleX: 1 }}
-                transition={{ duration: 0.4, delay: 1 + i * 0.1 }}
-                className={`${layer.color} ${layer.textColor} text-center py-3 px-4 rounded-lg text-sm font-medium cursor-default hover:scale-[1.03] hover:shadow-lg hover:shadow-emerald-500/10 transition-all duration-200`}
-              >
-                {layer.name}
-              </motion.div>
-            ))}
-          </div>
+          <InteractiveArchitecture />
 
           {/* OS Analogy */}
           <div className="mt-8 grid grid-cols-3 gap-4 text-center max-w-lg mx-auto">
@@ -201,7 +319,7 @@ export function OverviewSection() {
                 key={item.os}
                 className={`p-3 rounded-lg border transition-all duration-200 hover:scale-[1.03] ${
                   item.highlight
-                    ? "bg-emerald-600/10 border-emerald-500/30 hover:bg-emerald-600/15"
+                    ? "bg-emerald-600/10 border-emerald-500/30 hover:bg-emerald-600/15 hover:shadow-md hover:shadow-emerald-500/10"
                     : "bg-card/30 border-border/20 hover:bg-card/50"
                 }`}
               >
@@ -222,7 +340,7 @@ export function OverviewSection() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.3 }}
+          transition={{ duration: 0.6, delay: 1.5 }}
           className="mt-16"
         >
           <h2 className="text-lg font-semibold text-foreground mb-6 text-center">
@@ -236,10 +354,11 @@ export function OverviewSection() {
                   key={inn.title}
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 1.4 + i * 0.1 }}
+                  transition={{ duration: 0.4, delay: 1.6 + i * 0.1 }}
+                  className="card-hover-lift"
                 >
-                  <Card className={`border-border/30 h-full hover:${colors.border} hover:shadow-md hover:shadow-emerald-500/5 transition-all duration-300`}>
-                    <CardContent className="p-4">
+                  <Card className={`border-border/30 h-full ${colors.hoverBg} hover:shadow-md hover:shadow-emerald-500/5 transition-all duration-300`}>
+                    <CardContent className="p-5">
                       <div className="flex items-start gap-3">
                         <div className={`w-10 h-10 rounded-lg ${colors.bg} ${colors.border} border flex items-center justify-center ${colors.icon} flex-shrink-0`}>
                           {inn.icon}
@@ -265,7 +384,7 @@ export function OverviewSection() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.8 }}
+          transition={{ duration: 0.6, delay: 2 }}
           className="mt-8"
         >
           <Card className="border-amber-500/20 bg-gradient-to-r from-amber-900/10 to-amber-950/5">
@@ -285,8 +404,8 @@ export function OverviewSection() {
                     key={corr.num}
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 2 + corr.num * 0.05 }}
-                    className="flex items-start gap-2 p-2 rounded-md bg-amber-500/5 border border-amber-500/10"
+                    transition={{ delay: 2.2 + corr.num * 0.05 }}
+                    className="flex items-start gap-2 p-2.5 rounded-md bg-amber-500/5 border border-amber-500/10 hover:bg-amber-500/8 transition-colors duration-200"
                   >
                     <Badge
                       variant="outline"
@@ -294,7 +413,7 @@ export function OverviewSection() {
                     >
                       #{corr.num}
                     </Badge>
-                    <span className="text-xs text-foreground">{corr.correction}</span>
+                    <span className="text-xs text-foreground leading-relaxed">{corr.correction}</span>
                   </motion.div>
                 ))}
               </div>

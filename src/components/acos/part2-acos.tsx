@@ -191,7 +191,7 @@ export function Part2ACOS() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: i * 0.1 }}
             >
-              <Card className={`border-border/30 hover:${colors.border} transition-colors duration-300`}>
+              <Card className={`border-border/30 hover:${colors.border} transition-colors duration-300 card-hover-lift`}>
                 <CardHeader>
                   <div className="flex items-center gap-3">
                     <div className={`w-10 h-10 rounded-lg ${colors.bg} ${colors.border} border flex items-center justify-center ${colors.icon}`}>
