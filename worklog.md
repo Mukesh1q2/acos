@@ -775,3 +775,222 @@ Stage Summary:
 - Performance optimization: code splitting for individual Part components
 - Add interactive code playground for mathematical formulas
 - Consider adding a comparison table feature for side-by-side section analysis
+
+---
+Task ID: 6-a
+Agent: full-stack-developer
+Task: Create Section Reading History + Enhanced Command Palette
+
+Work Log:
+
+**Feature 1: Section Reading History Tracker**
+- Created `/src/components/acos/reading-history.tsx` with full reading history system
+- **useReadingHistory hook**: Uses useSyncExternalStore for cross-component reactivity (same pattern as bookmarks.tsx)
+  - `history` — array of HistoryEntry objects ({ id: string, visitedAt: number })
+  - `addToHistory(sectionId)` — adds section to front, removes duplicates, keeps last 10
+  - `clearHistory()` — clears all history entries
+- External store with listeners array, cached state, and localStorage persistence under key `acos-reading-history`
+- **ReadingHistoryProvider**: Wraps children, listens for storage events from other tabs, invalidates cache on change
+- **RecentSections**: Card for Overview page showing recently visited sections
+  - Teal-themed card (vs emerald for bookmarks) for visual distinction
+  - Clickable chips with section icons and relative timestamps ("just now", "2m ago", "1h ago", "1d ago")
+  - Clear history button with X icon
+  - AnimatePresence for smooth add/remove animations
+  - Placed BELOW BookmarkedSections in Overview
+- **HistoryIndicator**: Small teal dot indicator for sidebar nav items
+  - Appears next to recently visited nav items (within last 30 minutes)
+  - Shows only when item is not active and not bookmarked (avoids visual clutter)
+  - Animated scale-in entrance
+  - Title tooltip with relative time
+
+**Feature 2: Enhanced Command Palette with Content Search**
+- Updated `/src/components/acos/command-palette.tsx` with content search mode
+- **Content index**: Record<string, string[]> mapping all 16 section IDs to 3-7 key phrases each
+  - Includes terms like "Hierarchical Binary Tree Attention", "Stiefel Manifold", "Cayley Retraction", "Orthogonal Thread Memory", etc.
+  - Total of 80+ searchable content phrases across all sections
+- **Content search**: Activated when query length > 2 characters
+  - Searches through all content phrases with case-insensitive matching
+  - Groups results by section for organized display
+- **Visual design**:
+  - "Sections" group header with Brain icon per item (existing behavior)
+  - "Content" group header appears when content matches found
+  - Content results: indented (pl-8), Search icon, matched phrase with emerald-highlighted match text
+  - Section short label shown on right side of content results
+  - "Search content..." placeholder instead of "Search sections..."
+- **Interaction**: Clicking any content result navigates to its parent section (same as section results)
+- Keyboard shortcuts unchanged (Cmd+K/Ctrl+K)
+
+**Integration:**
+- **page.tsx**:
+  - Imported useReadingHistory, RecentSections from reading-history
+  - Added `const { addToHistory } = useReadingHistory()` in Home component
+  - Called `addToHistory(id)` inside handleSectionChange callback
+  - Added RecentSections below BookmarkedSections in Overview section (space-y-4 layout)
+- **layout.tsx**:
+  - Imported ReadingHistoryProvider from reading-history
+  - Wrapped ReadingHistoryProvider inside BookmarksProvider (both inside ThemeProvider)
+- **sidebar.tsx**:
+  - Imported HistoryIndicator from reading-history
+  - Added HistoryIndicator next to nav items: shows when not active AND not bookmarked
+  - Priority: bookmark star > history dot (avoids overlapping indicators)
+
+**Verification:**
+- `bun run lint`: 0 errors, 0 warnings
+- Dev server compiles successfully with no errors
+- All changes maintain emerald/teal color scheme, no indigo or blue colors used
+- getServerSnapshot returns stable EMPTY_HISTORY reference to avoid infinite loops
+
+Stage Summary:
+- Reading History system fully implemented with useSyncExternalStore pattern, localStorage persistence, and cross-component reactivity
+- RecentSections card shows on Overview with clickable chips and relative timestamps
+- HistoryIndicator shows teal dot in sidebar for recently visited sections
+- Command Palette enhanced with content search across 80+ key phrases in all 16 sections
+- Content results show highlighted matches with Search icon, grouped under "Content" header
+- All integrations complete: page.tsx, layout.tsx, sidebar.tsx
+- Zero lint errors, successful compilation
+
+---
+Task ID: 6-b
+Agent: full-stack-developer
+Task: Create Hero Particles Animation + Enhance Part 3-5 Styling
+
+Work Log:
+
+**Feature 1: Dynamic Hero Particle Background**
+- Created `/src/components/acos/hero-particles.tsx` — a canvas-based animated particle background
+- **70 small glowing particles** with emerald (#10b981) to teal (#14b8a6) color range
+- Particle properties:
+  - Random sizes (1-3px radius)
+  - Random speeds (0.2-0.8px per frame upward)
+  - Random opacity (0.2-0.6)
+  - Sinusoidal horizontal drift for organic floating motion
+  - Fade in at bottom / fade out at top (15% vertical zones)
+  - Particles reset to bottom when they float off the top
+- **4 neural node particles** (4-6px) with soft radial gradient glow effect and pulsing scale animation
+- Subtle connecting lines between close particles (< 100px distance) with 0.07 max opacity (distance-attenuated)
+- Uses requestAnimationFrame for smooth 60fps animation
+- Component is absolutely positioned, fills parent, pointer-events-none
+- Uses useEffect for canvas setup and useRef for canvas element reference
+- Cleanup: cancels animation frame and removes resize listener on unmount
+- Respects prefers-reduced-motion: if user prefers reduced motion, shows static randomly distributed particles only (no animation loop)
+- Canvas is responsive: resizes with window via resize event listener
+- aria-hidden="true" for accessibility
+
+**Integration into Overview:**
+- Imported HeroParticles in `/src/components/acos/overview.tsx`
+- Placed as FIRST child inside the `relative overflow-hidden` wrapper div (before the animated gradient background)
+- Sits behind all other content (canvas has z-index: 0)
+
+**Feature 2: Enhance Part 3 (AFM Architecture) Styling**
+- Added `card-hover-lift` class to all 7 Card components
+- Added gradient header card to Component Evaluation card (first/top card) with Cpu icon, gradient bg, and CardDescription
+- Added `id="afm-architecture"` to h2 heading for TOC anchor linking
+- Added CardDescription to 5 cards: Architecture Comparison, Radar Chart, Detailed Component Decisions, Extended Architecture Comparison, Hybrid Verdict
+- Added section summary Badge "MAMBA-OTM HYBRID" after description paragraph
+- Standardized icon backgrounds to w-10 h-10 pattern with border on: Component Evaluation card (Cpu), Proposed Hybrid card (Network), Hybrid Verdict items (Zap, Layers, CheckCircle2)
+- Added "Key Innovation" insight card at bottom with Brain icon and emerald gradient — highlighting Mamba-OTM hybrid architecture as the unique combination
+- Imported CardDescription, Brain, Cpu, Network from their respective modules
+
+**Feature 3: Enhance Part 4 (Training Strategy) Styling**
+- Added `card-hover-lift` class to all Card components (pathway cards, phase cards, dependency flow, compute requirements, key innovation)
+- Added gradient header card to Path C (emerald/recommended) pathway card with ring-1 ring-emerald-500/30
+- Added `id="training-strategy"` to h2 heading for TOC anchor linking
+- Added CardDescription to Phase Dependency Flow card and Compute Requirements card
+- Added section summary Badge "PATH C: HYBRID STRATEGY" after description paragraph
+- Standardized icon backgrounds to w-10 h-10 pattern with border on: Phase Dependency Flow (GitMerge), Compute Requirements (DollarSign)
+- Added "Key Innovation" insight card at bottom with Brain icon and emerald gradient — highlighting gated incremental training approach
+- Imported Brain icon
+
+**Feature 4: Enhance Part 5 (Continuous Learning) Styling**
+- Added `card-hover-lift` class to all 6 Card components
+- Added gradient header card to Learning Modes card (first/top card) with Brain icon, gradient bg, and CardDescription
+- Added `id="continuous-learning"` to h2 heading for TOC anchor linking
+- Added CardDescription to: Learning Pipeline, Prevention Mechanisms, Orthogonal Gradient Projection — Detailed, Sleep Cycle Architecture
+- Added section summary Badge "ZERO FORGETTING" after description paragraph
+- Standardized icon backgrounds from w-8 to w-10 h-10 pattern with border on: Sleep Cycle steps icons, Memory Consolidation icon, Sleep icon
+- Key Innovation card already existed with Brain icon and emerald gradient — preserved and enhanced with w-10 h-10 icon background
+- Imported CardDescription from @/components/ui/card
+
+**Verification:**
+- `bun run lint`: 0 errors, 0 warnings
+- Dev server compiles successfully with no errors
+- All changes maintain emerald/teal color scheme, no indigo or blue colors used
+- Canvas animation is performant (requestAnimationFrame, minimal draw calls)
+- prefers-reduced-motion accessibility respected
+
+Stage Summary:
+- HeroParticles component created with 70 floating particles + 4 neural nodes + connection lines
+- Canvas-based animation at 60fps with prefers-reduced-motion support
+- Part 3 AFM Architecture: 7 cards enhanced with card-hover-lift, gradient header, id anchor, CardDescriptions, summary badge, w-10 icons, key innovation card
+- Part 4 Training Strategy: all cards enhanced with card-hover-lift, gradient header, id anchor, CardDescriptions, summary badge, w-10 icons, key innovation card
+- Part 5 Continuous Learning: 6 cards enhanced with card-hover-lift, gradient header, id anchor, CardDescriptions, summary badge, w-10 icons
+- Zero lint errors, successful compilation
+
+---
+Task ID: round6-main
+Agent: main
+Task: QA assessment, new features (Reading History, Enhanced Command Palette, Hero Particles, Part 3-5 Styling)
+
+Work Log:
+- **QA Assessment**: All 16 sections navigate cleanly with zero console errors. Lint passes clean. Both light and dark modes verified.
+- **No bugs found** during QA testing - app is stable from previous round.
+- **New Feature: Section Reading History** (`reading-history.tsx`)
+  - useSyncExternalStore-based hook with localStorage persistence
+  - Tracks last 10 visited sections with timestamps
+  - RecentSections card on Overview with clickable chips and relative timestamps ("2m ago", "1h ago")
+  - HistoryIndicator teal dot in sidebar for recently visited items (within 30 min)
+  - ReadingHistoryProvider in layout.tsx for cross-tab sync
+  - addToHistory called in handleSectionChange in page.tsx
+- **New Feature: Enhanced Command Palette** (updated `command-palette.tsx`)
+  - Content search mode activates for queries > 2 characters
+  - 80+ key phrases indexed across all 16 sections
+  - Results grouped under "Sections" (Brain icon) and "Content" (Search icon) headers
+  - Content matches show matched text highlighted in emerald with section label
+  - Placeholder changed to "Search content..."
+- **New Feature: Hero Particles Animation** (`hero-particles.tsx`)
+  - Canvas-based particle background for Overview hero
+  - 70 small emerald/teal particles with sinusoidal drift, fade in/out
+  - 4 larger "neural node" particles with soft glow and pulsing
+  - Connection lines between close particles with distance-attenuated opacity
+  - 60fps via requestAnimationFrame, prefers-reduced-motion support
+  - Integrated into overview.tsx behind all content
+- **Part 3 (AFM Architecture) Styling Enhancement**
+  - card-hover-lift on all 7 cards, gradient header on Component Evaluation
+  - id="afm-architecture" for TOC, CardDescription on 5 cards
+  - "MAMBA-OTM HYBRID" summary badge, w-10 h-10 icon backgrounds
+  - Key Innovation insight card at bottom
+- **Part 4 (Training Strategy) Styling Enhancement**
+  - card-hover-lift on all cards, gradient header on Path C card
+  - id="training-strategy" for TOC, CardDescription on Phase Dependency + Compute
+  - "PATH C: HYBRID STRATEGY" summary badge, w-10 h-10 icon backgrounds
+  - Key Innovation insight card at bottom
+- **Part 5 (Continuous Learning) Styling Enhancement**
+  - card-hover-lift on all 6 cards, gradient header on Learning Modes
+  - id="continuous-learning" for TOC, CardDescription on 4 cards
+  - "ZERO FORGETTING" summary badge, w-10 h-10 icon backgrounds
+- **Final QA**: All 16 sections navigate with zero console errors. Command palette content search works (tested "stiefel" query). Reading history records visits. Particles render on Overview. Light and dark modes verified. `bun run lint`: 0 errors.
+
+Stage Summary:
+- 0 bugs found (app stable from previous round)
+- 3 new features: Reading History, Enhanced Command Palette, Hero Particles
+- 3 Part sections enhanced (Parts 3-5) with consistent styling patterns
+- 2 new components: reading-history.tsx, hero-particles.tsx
+- Application has 16 navigable sections with comprehensive interactivity
+- Zero lint errors, zero console errors across all sections
+
+### Current Project Status
+**Status:** Production-ready, all features stable, significant new interactivity added
+
+### Unresolved Issues or Risks
+- Minor: Hero particles canvas may impact performance on very low-end devices (mitigated by prefers-reduced-motion)
+- Minor: Command palette content index is static — would need updating when section content changes
+- Minor: Reading history timestamps are per-device (localStorage)
+- Minor: Theorem Explorer gradient border uses CSS @property (older browser compat)
+
+### Priority Recommendations for Next Phase
+- Add PDF export of the full analysis report (using pdf skill)
+- Add interactive code playground for mathematical formulas
+- Add section comparison table for side-by-side analysis
+- Performance audit: consider virtualizing long lists in Glossary
+- Add tooltip previews on sidebar hover (show section summary)
+- Consider adding a "dark/neon" theme variant

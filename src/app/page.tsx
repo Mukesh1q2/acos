@@ -20,6 +20,7 @@ import { CommandPalette } from "@/components/acos/command-palette";
 import { ChatPanel } from "@/components/acos/chat-panel";
 import { SectionToc } from "@/components/acos/section-toc";
 import { BookmarkButton, BookmarkedSections } from "@/components/acos/bookmarks";
+import { useReadingHistory, RecentSections } from "@/components/acos/reading-history";
 import { ReadingProgress } from "@/components/acos/reading-progress";
 import { ShareButton } from "@/components/acos/share-button";
 import { ReadingTime } from "@/components/acos/reading-time";
@@ -73,8 +74,11 @@ export default function Home() {
   const contentRef = useRef<HTMLDivElement>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
+  const { addToHistory } = useReadingHistory();
+
   const handleSectionChange = useCallback((id: string) => {
     setActiveSection(id);
+    addToHistory(id);
     // Update URL hash
     if (typeof window !== "undefined") {
       window.location.hash = id;
@@ -83,7 +87,7 @@ export default function Home() {
     if (contentRef.current) {
       contentRef.current.scrollTo({ top: 0, behavior: "smooth" });
     }
-  }, []);
+  }, [addToHistory]);
 
   // Scroll-to-top visibility tracking
   useEffect(() => {
@@ -207,8 +211,9 @@ export default function Home() {
                 </Suspense>
                 {/* Bookmarked Sections in Overview */}
                 {activeSection === "overview" && (
-                  <div className="mt-10">
+                  <div className="mt-10 space-y-4">
                     <BookmarkedSections onNavigate={handleSectionChange} />
+                    <RecentSections onNavigate={handleSectionChange} />
                   </div>
                 )}
               </div>

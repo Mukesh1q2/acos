@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   BookOpen,
@@ -82,7 +82,7 @@ export function Part5Learning() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">
+        <h2 id="continuous-learning" className="text-2xl font-bold text-foreground mb-2">
           Part 5 — Continuous Learning
         </h2>
         <p className="text-muted-foreground">
@@ -90,19 +90,34 @@ export function Part5Learning() {
           forgetting, with built-in prevention mechanisms against common failure
           modes.
         </p>
+        <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-400 border-emerald-500/20 font-mono mt-2">
+          ZERO FORGETTING
+        </Badge>
       </div>
 
-      {/* Learning Modes */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {learningModes.map((mode, i) => (
-          <motion.div
-            key={mode.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-          >
-            <Card className={`border-border/30 h-full`}>
-              <CardContent className="p-4">
+      {/* Learning Modes — Gradient Header Card */}
+      <Card className="card-hover-lift border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
+              <Brain className="w-5 h-5" />
+            </div>
+            <div>
+              <CardTitle className="text-lg">Learning Modes</CardTitle>
+              <CardDescription>Four distinct modes of continuous knowledge acquisition</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {learningModes.map((mode, i) => (
+              <motion.div
+                key={mode.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                className="p-4 rounded-lg bg-card/50 border border-border/20"
+              >
                 <div className="flex items-start gap-3">
                   <div className={`w-10 h-10 rounded-lg ${mode.color} border flex items-center justify-center text-emerald-400 flex-shrink-0`}>
                     {mode.icon}
@@ -116,16 +131,17 @@ export function Part5Learning() {
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
-      </div>
+              </motion.div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Learning Flow Diagram */}
-      <Card className="border-border/30">
+      <Card className="card-hover-lift border-border/30">
         <CardHeader>
           <CardTitle className="text-lg">Learning Pipeline</CardTitle>
+          <CardDescription>End-to-end knowledge processing and consolidation workflow</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto pb-2">
@@ -133,7 +149,9 @@ export function Part5Learning() {
           </div>
           <div className="mt-4 p-3 rounded-lg bg-muted/20 border border-border/20">
             <div className="flex items-center gap-2 mb-2">
-              <RotateCcw className="w-4 h-4 text-emerald-400" />
+              <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
+                <RotateCcw className="w-4 h-4" />
+              </div>
               <span className="text-sm font-semibold">Memory Consolidation (Sleep Phase)</span>
             </div>
             <p className="text-xs text-muted-foreground">
@@ -147,9 +165,10 @@ export function Part5Learning() {
       </Card>
 
       {/* Prevention Mechanisms */}
-      <Card className="border-border/30">
+      <Card className="card-hover-lift border-border/30">
         <CardHeader>
           <CardTitle className="text-lg">Prevention Mechanisms</CardTitle>
+          <CardDescription>Built-in safeguards against common continuous learning failure modes</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -189,10 +208,12 @@ export function Part5Learning() {
       </Card>
 
       {/* Key Insight */}
-      <Card className="border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
+      <Card className="card-hover-lift border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
         <CardContent className="p-6">
           <div className="flex items-start gap-3">
-            <Brain className="w-6 h-6 text-emerald-400 flex-shrink-0 mt-0.5" />
+            <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
+              <Brain className="w-5 h-5" />
+            </div>
             <div>
               <div className="text-sm font-semibold text-foreground mb-1">
                 Key Innovation: Orthogonal Gradient Projection
@@ -210,11 +231,16 @@ export function Part5Learning() {
       </Card>
 
       {/* Orthogonal Gradient Projection — Detailed */}
-      <Card className="border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
+      <Card className="card-hover-lift border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
         <CardHeader>
-          <div className="flex items-center gap-2">
-            <Brain className="w-5 h-5 text-emerald-400" />
-            <CardTitle className="text-lg text-emerald-400">Orthogonal Gradient Projection — Detailed</CardTitle>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
+              <Brain className="w-5 h-5" />
+            </div>
+            <div>
+              <CardTitle className="text-lg text-emerald-400">Orthogonal Gradient Projection — Detailed</CardTitle>
+              <CardDescription className="text-emerald-400/70">Mathematical foundations of zero-forgetting learning</CardDescription>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -265,11 +291,16 @@ export function Part5Learning() {
       </Card>
 
       {/* Sleep Cycle Architecture */}
-      <Card className="border-teal-500/20 bg-gradient-to-r from-teal-900/10 to-green-900/10">
+      <Card className="card-hover-lift border-teal-500/20 bg-gradient-to-r from-teal-900/10 to-green-900/10">
         <CardHeader>
-          <div className="flex items-center gap-2">
-            <Moon className="w-5 h-5 text-teal-400" />
-            <CardTitle className="text-lg text-teal-400">Sleep Cycle Architecture</CardTitle>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 flex-shrink-0">
+              <Moon className="w-5 h-5" />
+            </div>
+            <div>
+              <CardTitle className="text-lg text-teal-400">Sleep Cycle Architecture</CardTitle>
+              <CardDescription className="text-teal-400/70">Idle-time consolidation inspired by human sleep</CardDescription>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -282,7 +313,7 @@ export function Part5Learning() {
                 transition={{ delay: i * 0.1 }}
                 className="flex items-center gap-3 p-3 rounded-lg bg-card/50 border border-teal-500/15"
               >
-                <div className="w-8 h-8 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 flex-shrink-0">
+                <div className="w-10 h-10 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 flex-shrink-0">
                   {step.icon}
                 </div>
                 <div className="flex-1">
@@ -298,7 +329,9 @@ export function Part5Learning() {
 
           <div className="mt-4 p-3 rounded-lg bg-muted/20 border border-border/20">
             <div className="flex items-center gap-2 mb-2">
-              <Moon className="w-4 h-4 text-teal-400" />
+              <div className="w-10 h-10 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 flex-shrink-0">
+                <Moon className="w-4 h-4" />
+              </div>
               <span className="text-sm font-semibold">Analogous to Human Sleep</span>
             </div>
             <p className="text-xs text-muted-foreground">

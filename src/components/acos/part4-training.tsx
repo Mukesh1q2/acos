@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -22,6 +22,7 @@ import {
   DollarSign,
   Server,
   AlertCircle,
+  Brain,
 } from "lucide-react";
 
 const pathways = [
@@ -108,16 +109,19 @@ export function Part4Training() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">
+        <h2 id="training-strategy" className="text-2xl font-bold text-foreground mb-2">
           Part 4 — Training Strategy
         </h2>
         <p className="text-muted-foreground">
           Three possible training pathways for AFM, with the recommended hybrid
           strategy broken into three incremental phases.
         </p>
+        <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-400 border-emerald-500/20 font-mono mt-2">
+          PATH C: HYBRID STRATEGY
+        </Badge>
       </div>
 
-      {/* Pathway Cards */}
+      {/* Pathway Cards — Gradient Header on first (emerald) card */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {pathways.map((path, i) => {
           const colors = colorStyles[path.color];
@@ -128,7 +132,7 @@ export function Part4Training() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.15 }}
             >
-              <Card className={`border-border/30 h-full ${path.color === "emerald" ? "ring-1 ring-emerald-500/30" : ""}`}>
+              <Card className={`card-hover-lift h-full ${path.color === "emerald" ? "border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10 ring-1 ring-emerald-500/30" : "border-border/30"}`}>
                 <CardHeader>
                   <div className="flex items-center gap-3">
                     <div className={`w-10 h-10 rounded-lg ${colors.bg} ${colors.border} border flex items-center justify-center ${colors.text}`}>
@@ -211,7 +215,7 @@ export function Part4Training() {
                   <div className={`w-10 h-10 rounded-full ${colors.bg} border ${colors.border} flex items-center justify-center ${colors.text} font-bold text-sm flex-shrink-0 z-10`}>
                     {phase.phase}
                   </div>
-                  <Card className={`flex-1 border-border/30`}>
+                  <Card className="card-hover-lift flex-1 border-border/30">
                     <CardContent className="p-4">
                       <div className="flex flex-col md:flex-row md:items-center justify-between mb-2">
                         <div>
@@ -246,11 +250,16 @@ export function Part4Training() {
       </div>
 
       {/* Phase Dependency Flow */}
-      <Card className="border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
+      <Card className="card-hover-lift border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
         <CardHeader>
-          <div className="flex items-center gap-2">
-            <GitMerge className="w-5 h-5 text-emerald-400" />
-            <CardTitle className="text-lg text-emerald-400">Phase Dependency Flow</CardTitle>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
+              <GitMerge className="w-5 h-5" />
+            </div>
+            <div>
+              <CardTitle className="text-lg text-emerald-400">Phase Dependency Flow</CardTitle>
+              <CardDescription className="text-emerald-400/70">Gated progression with go/no-go decision points</CardDescription>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -312,11 +321,16 @@ export function Part4Training() {
       </Card>
 
       {/* Compute Requirements */}
-      <Card className="border-border/30">
+      <Card className="card-hover-lift border-border/30">
         <CardHeader>
-          <div className="flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-emerald-400" />
-            <CardTitle className="text-lg">Compute Requirements</CardTitle>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
+              <DollarSign className="w-5 h-5" />
+            </div>
+            <div>
+              <CardTitle className="text-lg">Compute Requirements</CardTitle>
+              <CardDescription>Hardware and cost estimates per training phase</CardDescription>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -359,6 +373,31 @@ export function Part4Training() {
               <span className="text-emerald-400 font-semibold">Total estimated cost:</span> Phase 1-2 can be completed for ~$25,000, making initial validation affordable. Phase 3 ($200K-$500K) is only pursued if Phase 1 validates, minimizing risk.
             </p>
           </motion.div>
+        </CardContent>
+      </Card>
+
+      {/* Key Innovation Insight Card */}
+      <Card className="card-hover-lift border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
+        <CardContent className="p-6">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
+              <Brain className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-sm font-semibold text-foreground mb-1">
+                Key Innovation: Gated Incremental Training
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Path C&apos;s gated approach is uniquely suited for a startup: Phase 1 costs only ~$5,000
+                and validates the core OTM/NSK hypothesis before committing further resources. This
+                de-risks the entire training pipeline — if thread isolation doesn&apos;t show 20%+ gains,
+                the project pivots without having spent $500K. The connective tissue strategy (training
+                only new layers while freezing the backbone) is analogous to surgical precision: modify
+                only what&apos;s necessary, validate empirically, then scale. This is the path that makes
+                ACOS economically viable while preserving all theoretical innovations.
+              </p>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>

@@ -31,6 +31,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useBookmarks } from "@/components/acos/bookmarks";
+import { HistoryIndicator } from "@/components/acos/reading-history";
 
 export interface NavItem {
   id: string;
@@ -142,6 +143,9 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
                   <span className="text-sm truncate">{item.shortLabel}</span>
                   {isBookmarked(item.id) && !isActive && (
                     <Star className="w-3 h-3 ml-1 text-emerald-400 fill-emerald-400 flex-shrink-0 opacity-60" />
+                  )}
+                  {!isActive && !isBookmarked(item.id) && (
+                    <HistoryIndicator sectionId={item.id} />
                   )}
                   {isActive && (
                     <ChevronRight className="w-3 h-3 ml-auto text-emerald-500" />

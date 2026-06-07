@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -22,7 +22,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import { Zap, CheckCircle2, Layers, ArrowRight } from "lucide-react";
+import { Zap, CheckCircle2, Layers, ArrowRight, Brain, Cpu, Network } from "lucide-react";
 
 const componentEvals = [
   { component: "HBTA", decision: "Keep but Modify", rationale: "Hybrid Attention: FlashAttention < 4096 tokens, HBTA > 4096 tokens" },
@@ -55,19 +55,30 @@ export function Part3AFM() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">
+        <h2 id="afm-architecture" className="text-2xl font-bold text-foreground mb-2">
           Part 3 — AFM Architecture
         </h2>
         <p className="text-muted-foreground">
           The Avadhan Foundation Model — architecture decisions, hybrid approach,
           and comparison with existing architectures.
         </p>
+        <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-400 border-emerald-500/20 font-mono mt-2">
+          MAMBA-OTM HYBRID
+        </Badge>
       </div>
 
-      {/* Component Evaluation */}
-      <Card className="border-border/30">
+      {/* Component Evaluation — Gradient Header Card */}
+      <Card className="card-hover-lift border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
         <CardHeader>
-          <CardTitle className="text-lg">Component Evaluation & Decision</CardTitle>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
+              <Cpu className="w-5 h-5" />
+            </div>
+            <div>
+              <CardTitle className="text-lg">Component Evaluation & Decision</CardTitle>
+              <CardDescription>Core architectural components and their implementation verdicts</CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -106,9 +117,10 @@ export function Part3AFM() {
       </Card>
 
       {/* Architecture Comparison Table */}
-      <Card className="border-border/30">
+      <Card className="card-hover-lift border-border/30">
         <CardHeader>
           <CardTitle className="text-lg">Architecture Comparison</CardTitle>
+          <CardDescription>Side-by-side comparison of leading architectures across key metrics</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -175,9 +187,10 @@ export function Part3AFM() {
       </Card>
 
       {/* Radar Chart */}
-      <Card className="border-border/30">
+      <Card className="card-hover-lift border-border/30">
         <CardHeader>
           <CardTitle className="text-lg">Architecture Comparison Radar</CardTitle>
+          <CardDescription>Visual comparison of architecture capabilities across five dimensions</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-[400px]">
@@ -232,9 +245,17 @@ export function Part3AFM() {
       </Card>
 
       {/* Proposed Hybrid */}
-      <Card className="border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
+      <Card className="card-hover-lift border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
         <CardHeader>
-          <CardTitle className="text-lg">Proposed Hybrid: Mamba-OTM</CardTitle>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
+              <Network className="w-5 h-5" />
+            </div>
+            <div>
+              <CardTitle className="text-lg">Proposed Hybrid: Mamba-OTM</CardTitle>
+              <CardDescription>Combining Mamba speed with OTM thread isolation</CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -257,9 +278,10 @@ export function Part3AFM() {
       </Card>
 
       {/* Detailed Component Decisions */}
-      <Card className="border-border/30">
+      <Card className="card-hover-lift border-border/30">
         <CardHeader>
           <CardTitle className="text-lg">Detailed Component Decisions</CardTitle>
+          <CardDescription>In-depth rationale for each component implementation strategy</CardDescription>
         </CardHeader>
         <CardContent>
           <Accordion type="multiple" className="w-full">
@@ -330,9 +352,10 @@ export function Part3AFM() {
       </Card>
 
       {/* Additional Architecture Comparison */}
-      <Card className="border-border/30">
+      <Card className="card-hover-lift border-border/30">
         <CardHeader>
           <CardTitle className="text-lg">Extended Architecture Comparison</CardTitle>
+          <CardDescription>Broader landscape of alternative architecture approaches</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -367,11 +390,12 @@ export function Part3AFM() {
       </Card>
 
       {/* Hybrid Verdict */}
-      <Card className="border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
+      <Card className="card-hover-lift border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
         <CardHeader>
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-5 h-5 text-emerald-400" />
             <CardTitle className="text-lg text-emerald-400">Hybrid Verdict: Why Hybrid Outperforms Pure Avadhan</CardTitle>
+            <CardDescription className="text-emerald-400/70">The case for combining architectures</CardDescription>
           </div>
         </CardHeader>
         <CardContent>
@@ -418,12 +442,43 @@ export function Part3AFM() {
                   item.color === "teal" ? "text-teal-400" :
                   "text-green-400"
                 }`}>
-                  {item.icon}
+                  <div className={`w-10 h-10 rounded-lg ${
+                    item.color === "emerald" ? "bg-emerald-500/10 border border-emerald-500/20" :
+                    item.color === "teal" ? "bg-teal-500/10 border border-teal-500/20" :
+                    "bg-green-500/10 border border-green-500/20"
+                  } flex items-center justify-center`}>
+                    {item.icon}
+                  </div>
                   <span className="text-sm font-semibold">{item.title}</span>
                 </div>
                 <p className="text-xs text-muted-foreground">{item.desc}</p>
               </motion.div>
             ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Key Innovation Insight Card */}
+      <Card className="card-hover-lift border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
+        <CardContent className="p-6">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
+              <Brain className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-sm font-semibold text-foreground mb-1">
+                Key Innovation: Mamba-OTM Hybrid Architecture
+              </div>
+              <p className="text-xs text-muted-foreground">
+                The Mamba-OTM hybrid is the only architecture that simultaneously achieves linear-time
+                processing (from Mamba&apos;s state-space model) and mathematically proven thread isolation
+                (from OTM&apos;s Stiefel Manifold parameterization). Every 4th layer is replaced with OTM,
+                creating a cognitive backbone that scales efficiently while preserving zero-interference
+                guarantees. This hybrid approach reduces compute requirements by 250x compared to pure
+                transformer architectures while enabling multi-threaded reasoning impossible in any
+                existing alternative.
+              </p>
+            </div>
           </div>
         </CardContent>
       </Card>

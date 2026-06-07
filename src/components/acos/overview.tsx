@@ -6,6 +6,7 @@ import { Brain, ShieldCheck, Lightbulb, Zap, AlertCircle, Cpu, Network, RefreshC
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { LoadingSkeleton } from "@/components/acos/loading-skeleton";
+import { HeroParticles } from "@/components/acos/hero-particles";
 
 // Lazy-load the heavy InteractiveArchitecture component
 const InteractiveArchitecture = lazy(() =>
@@ -173,6 +174,8 @@ function CounterStat({ stat, delay }: { stat: typeof metricStats[0]; delay: numb
 export function OverviewSection() {
   return (
     <div className="relative overflow-hidden">
+      {/* Hero particle animation */}
+      <HeroParticles />
       {/* Animated gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/30 via-slate-950 to-teal-900/20 animate-gradient" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_oklch(0.696_0.17_162.48/0.1),_transparent_50%)]" />
