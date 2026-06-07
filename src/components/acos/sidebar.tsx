@@ -167,23 +167,46 @@ export function Sidebar({ activeSection, onSectionChange, hidden }: SidebarProps
         <TourHelpButton />
       </div>
 
-      {/* Theme toggle */}
+      {/* Theme toggle with animated transition */}
       <div className="px-3 pb-3 pt-1">
         {mounted ? (
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground"
+            className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground group/theme relative overflow-hidden"
           >
-            {theme === "dark" ? (
-              <Sun className="w-4 h-4" />
-            ) : (
-              <Moon className="w-4 h-4" />
-            )}
+            <span className="relative w-4 h-4 flex-shrink-0">
+              <motion.span
+                initial={false}
+                animate={{
+                  rotate: theme === "dark" ? 0 : 180,
+                  scale: theme === "dark" ? 1 : 0,
+                  opacity: theme === "dark" ? 1 : 0,
+                }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="absolute inset-0 flex items-center justify-center"
+              >
+                <Sun className="w-4 h-4" />
+              </motion.span>
+              <motion.span
+                initial={false}
+                animate={{
+                  rotate: theme === "dark" ? -180 : 0,
+                  scale: theme === "dark" ? 0 : 1,
+                  opacity: theme === "dark" ? 0 : 1,
+                }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="absolute inset-0 flex items-center justify-center"
+              >
+                <Moon className="w-4 h-4" />
+              </motion.span>
+            </span>
             <span className="text-xs">
               {theme === "dark" ? "Light Mode" : "Dark Mode"}
             </span>
+            {/* Background glow on hover */}
+            <span className="absolute inset-0 rounded-md bg-gradient-to-r from-emerald-500/0 via-emerald-500/5 to-teal-500/0 opacity-0 group-hover/theme:opacity-100 transition-opacity duration-300" />
           </Button>
         ) : (
           <div className="h-9 px-4 py-2 flex items-center gap-2">

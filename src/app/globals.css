@@ -831,3 +831,139 @@ pre code {
   height: 2px;
   background: linear-gradient(90deg, oklch(0.696 0.17 162.48 / 0.3), oklch(0.7 0.15 180 / 0.5), oklch(0.696 0.17 162.48 / 0.3));
 }
+
+/* ------------------------------------------------------------------ */
+/*  Theme transition — smooth color changes on theme toggle           */
+/* ------------------------------------------------------------------ */
+
+html {
+  transition: color-scheme 0.3s ease;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+/* Smooth background color transition for body and main elements */
+body,
+.glass-sidebar,
+.glass-card-premium,
+.card-hover-lift,
+.bg-dot-grid,
+footer,
+aside {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Enhanced button focus ring with emerald glow                      */
+/* ------------------------------------------------------------------ */
+
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid oklch(0.696 0.17 162.48 / 0.5);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Smooth scale press for all interactive buttons                     */
+/* ------------------------------------------------------------------ */
+
+button:active:not(:disabled) {
+  transform: scale(0.97);
+  transition: transform 0.1s ease;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Glow pulse for active/important cards                              */
+/* ------------------------------------------------------------------ */
+
+.glow-pulse {
+  animation: glow-pulse-anim 2.5s ease-in-out infinite;
+}
+
+@keyframes glow-pulse-anim {
+  0%, 100% {
+    box-shadow: 0 0 0 0 oklch(0.696 0.17 162.48 / 0);
+  }
+  50% {
+    box-shadow: 0 0 12px 2px oklch(0.696 0.17 162.48 / 0.15);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Animated gradient text for headings (hover effect)                 */
+/* ------------------------------------------------------------------ */
+
+.gradient-text-hover {
+  transition: background-size 0.3s ease, filter 0.3s ease;
+  background-size: 100% 100%;
+}
+
+.gradient-text-hover:hover {
+  background-size: 200% 200%;
+  filter: brightness(1.2);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Subtle border glow on card hover                                   */
+/* ------------------------------------------------------------------ */
+
+.border-glow-hover {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.border-glow-hover:hover {
+  border-color: oklch(0.696 0.17 162.48 / 0.35);
+  box-shadow: 0 0 16px oklch(0.696 0.17 162.48 / 0.08);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Smooth skeleton loading with emerald tint                          */
+/* ------------------------------------------------------------------ */
+
+.skeleton-emerald {
+  background: linear-gradient(
+    90deg,
+    oklch(0.269 0 0 / 20%) 25%,
+    oklch(0.696 0.17 162.48 / 8%) 50%,
+    oklch(0.269 0 0 / 20%) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-wave 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Typing cursor animation for AI chat                                */
+/* ------------------------------------------------------------------ */
+
+@keyframes blink-cursor {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.typing-cursor::after {
+  content: "|";
+  animation: blink-cursor 1s step-end infinite;
+  color: oklch(0.696 0.17 162.48);
+  margin-left: 1px;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Orbital ring decoration for section headers                        */
+/* ------------------------------------------------------------------ */
+
+@keyframes orbital-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.orbital-ring {
+  animation: orbital-spin 30s linear infinite;
+}
+
+.orbital-ring-reverse {
+  animation: orbital-spin 25s linear infinite reverse;
+}

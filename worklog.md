@@ -1913,3 +1913,254 @@ Stage Summary:
 - Add "Reading Progress" persistence across sessions (save scroll position)
 - Add Section Comparison diff view (highlight differences between sections)
 - Add more achievement types: "First Chat", "Bookmark 5", "Complete Tour"
+
+---
+Task ID: 6
+Agent: full-stack-developer
+Task: Create Quick Stats Dashboard widget for the Overview section with mini sparkline charts
+
+Work Log:
+- Created `/src/components/acos/quick-stats-dashboard.tsx` — a visually stunning stats dashboard component
+- **6 Stat Cards** in a 2x3 grid (2 cols mobile via `grid-cols-2`, 3 cols desktop via `lg:grid-cols-3`):
+  1. "Attention Speedup" — 77x — sparkline going up (5->77) — "+77x vs Standard" — emerald
+  2. "Memory Reduction" — 250x — sparkline going up (10->250) — "250x less RAM" — teal
+  3. "Knowledge Retention" — 86% — sparkline stable high (95->86) — "+68% vs fine-tuning" — green
+  4. "Thread Isolation" — 0% — sparkline flat at 0 — "0% interference" — cyan
+  5. "Convergence Proof" — Local — sparkline stabilizing (80->15) — "Mathematically proven" — emerald
+  6. "Training Cost" — $25K — sparkline going down (120->25) — "Phase 1-2 affordable" — amber
+- **Each Stat Card features**:
+  - Lucide icon (Zap, Database, Activity, Shield, CheckCircle, DollarSign) in themed background
+  - Metric label in uppercase mono font
+  - Large animated counter value with suffix (x, %, K) and optional prefix ($)
+  - SVG sparkline chart (~80x30px) with gradient fill below the line
+  - Delta indicator with TrendingUp/TrendingDown icon and color-coded text
+  - Subtle gradient background matching the metric's color theme
+  - `card-hover-lift` class for hover micro-interaction
+- **Sparkline implementation**:
+  - SVG `<polyline>` with smooth data points, strokeLinecap="round", strokeLinejoin="round"
+  - Linear gradient fill below line (from color/20% to transparent)
+  - Animated end dot that appears after sparkline draws
+  - `pathLength` animation via framer-motion for line drawing effect
+  - Gradient fill fades in with delay after line draws
+  - Each sparkline has staggered animation delay (index * 100 + 300ms)
+- **Animated counter**:
+  - Custom `useAnimatedCounter` hook with ease-out cubic timing (1 - (1-t)^3)
+  - Duration: 1500ms
+  - Starts on view (useInView with once: true)
+  - Returns both count and ref for intersection observation
+  - Handles special case: "Convergence Proof" uses displayOverride="Local" instead of counter
+- **Section heading**:
+  - "Performance Dashboard" with Activity icon and emerald gradient line extending right
+  - Staggered entrance animation
+- **Bottom insight bar**:
+  - Small info bar explaining HBTA and OTM abbreviations
+  - Zap icon with emerald color
+- **Integration**:
+  - Imported QuickStatsDashboard in `/src/components/acos/overview.tsx`
+  - Added AFTER "Key Technical Innovations" section and BEFORE "v2 Corrections Summary" section
+  - Wrapped in ScrollReveal with direction="up" and mt-12 spacing
+- `bun run lint`: 0 errors, 0 warnings
+- Dev server compiles successfully
+
+Stage Summary:
+- QuickStatsDashboard component created with 6 themed stat cards, animated sparklines, and animated counters
+- Responsive 2x3 grid layout with color-coded themes (emerald, teal, green, cyan, amber)
+- SVG sparklines with pathLength animation and gradient fills
+- useAnimatedCounter hook with ease-out cubic timing and view-triggered start
+- Integrated into Overview section between Key Technical Innovations and v2 Corrections
+- Zero lint errors, successful compilation
+
+---
+Task ID: 2
+Agent: full-stack-developer
+Task: Create Interactive ACOS Architecture Flow Chart component for the Part 2 ACOS Design section
+
+Work Log:
+- Created `/src/components/acos/acos-flow-chart.tsx` — an interactive ACOS Cognitive Stack flow chart
+- **6 Layers**: Cognitive Agent Framework (Users), Knowledge Fabric (Network), Hierarchical Memory (Database), Multi-Thread Reasoning (GitBranch), AFM (Brain), Cognitive Kernel (Cpu)
+- **Each layer**: id, name, Lucide icon, description, color scheme (emerald/teal/green/cyan/slate), subComponents array
+- **Layer cards**: shadcn/ui Card with CardContent, icon container with bgClass/borderClass/iconClass, name with layer index badge (L1-L6), description text, expand chevron
+- **Hover effects**: icon scales to 1.15 + emerald glow boxShadow via framer-motion animate, title color transitions to emerald-400, gradient overlay appears on card, uses `card-hover-lift` CSS class
+- **Click to expand**: AnimatePresence-powered ExpandedPanel slides open below clicked layer, shows sub-components in responsive grid (1/2/3 cols), staggered entry animation per sub-component
+- **SVG connection lines**: Between each layer pair, vertical SVG line with arrow polygons indicating direction
+  - Bidirectional connections: solid line + up+down arrows (Cognitive Agent <-> Knowledge Fabric, Knowledge Fabric <-> Memory, Memory <-> Multi-Thread, AFM <-> Kernel)
+  - Unidirectional connection: dashed line + down arrow only (Multi-Thread -> AFM)
+  - Connection labels in monospace text (Query/Response, Store/Retrieve, Context/State, Compute Requests, Schedule/Execute)
+  - Direction indicator badges (ArrowUp/ArrowDown icons) on left side of connectors
+- **Animated SVG particles**: SvgFlowParticle component using motion.circle
+  - 3 particles per connection flowing downward (0.8s stagger), 2 particles per bidirectional connection flowing upward
+  - Emerald/teal colored dots (2.5px radius), opacity fade in/out at endpoints
+  - 2.5s duration, linear easing, infinite repeat
+- **Data flow toggle button**: Eye/EyeOff icon, toggles particle visibility, emerald accent when active, muted when inactive
+- **Legend section**: Visual legend for bidirectional flow, unidirectional flow, active particles, layer index
+- **Responsive design**: Mobile-first with md: breakpoint for icon sizing (10/12) and padding (4/5), grid columns adapt (1/2/3)
+- **Integration**: Imported ACOSFlowChart into part2-acos.tsx, added after OS Analogy card and before Core Components section
+  - Added "ACOS Architecture Flow" heading with GitBranch icon and "INTERACTIVE" badge
+  - Added descriptive subtitle paragraph
+- Removed unused variables: arrowY1, arrowY2, layerCount prop from ConnectionLine
+- `bun run lint`: 0 errors, 0 warnings
+- Dev server compiles successfully
+
+Stage Summary:
+- ACOSFlowChart component created with full interactive cognitive stack visualization
+- 6 layers with expandable sub-components, SVG connections with directional arrows, animated particles
+- Data flow toggle for particle visibility control
+- Hover effects with icon scale + glow, click-to-expand with AnimatePresence
+- Integrated into Part 2 ACOS Design section between OS Analogy and Core Components
+- Zero lint errors, successful compilation
+
+---
+Task ID: 4
+Agent: full-stack-developer
+Task: Enhance Part 3 (AFM) and Part 4 (Training) sections with richer styling
+
+Work Log:
+
+**Part 3 AFM Enhancements:**
+- Added 5 heading `id` attributes for TOC anchor linking:
+  - `id="component-evaluation"` on "Component Evaluation & Decision" CardTitle
+  - `id="architecture-comparison"` on "Architecture Comparison" CardTitle
+  - `id="radar-comparison"` on "Architecture Comparison Radar" CardTitle
+  - `id="mamba-otm-hybrid"` on "Proposed Hybrid: Mamba-OTM" CardTitle
+  - `id="hybrid-verdict"` on "Hybrid Verdict" CardTitle
+- Created `MambaOTMVisualization` component — animated layer stack visualization:
+  - 8 alternating blocks: Mamba (teal) x3, OTM (emerald) x1, repeated twice
+  - Each Mamba block shows "Mamba Block" + "O(Nd)" label
+  - Each OTM block shows "OTM Layer" + "isolation" label with pulsing border animation
+  - Stagger entrance animation using framer-motion (0.1s delay per layer)
+  - 3:1 ratio indicator card with teal/emerald color-coded number badges and legend squares
+  - Data flow dashed line SVG with pathLength draw-in animation
+  - Color-coded legend at bottom explaining Mamba Block vs OTM Layer
+  - Uses `useInView` for viewport-triggered animations (once: true)
+- Placed MambaOTMVisualization INSIDE the "Proposed Hybrid: Mamba-OTM" CardContent, before the grid of sub-sections
+- Existing "HYBRID SSM" badge on SectionHeader kept intact
+
+**Part 4 Training Enhancements:**
+- Added 3 heading `id` attributes for TOC anchor linking:
+  - `id="path-comparison"` on "Path C: Hybrid Strategy Phases" h3
+  - `id="compute-requirements"` on "Compute Requirements" CardTitle
+  - `id="phase-dependency"` on "Phase Dependency Flow" CardTitle
+- Created `ComputeCostChart` component — animated horizontal bar chart:
+  - Phase 1: $5K (10% width, emerald bar)
+  - Phase 2: $20K (30% width, teal bar)
+  - Phase 3: $200K-$500K (85% width, green bar)
+  - Each bar animates from 0% width to target width on viewport entry
+  - Staggered animation with 0.25s delay between bars
+  - Total cost label "$25K-$525K" with "GATED" amber badge at bottom
+  - Uses `useInView` for viewport-triggered animations
+- Placed ComputeCostChart INSIDE "Compute Requirements" Card, after the table
+- Added "Risk Gate" indicator between Phase 1 and Phase 2 in Phase Timeline:
+  - Amber-themed card/banner with amber-500/5 background and amber-500/30 border
+  - AlertTriangle icon with "GATE:" label in amber-400
+  - Text: "Must validate 20%+ thread isolation gains before proceeding"
+  - Uses AnimatePresence with height/opacity/margin animation
+  - Positioned inline within the timeline, aligned with phase indicator dot
+  - Small amber circle dot (w-3 h-3) in the timeline connector position
+
+**Technical Details:**
+- Added `useRef` import from react to both files
+- Added `useInView` import from framer-motion to both files
+- Added `AnimatePresence` import to part4-training.tsx
+- Added `React` import to part4-training.tsx for `React.Fragment`
+- Replaced `motion` import with combined `motion, useInView, AnimatePresence` import in part4
+- All animations use framer-motion with appropriate easing curves
+- `bun run lint`: 0 errors, 0 warnings
+- Dev server compiles successfully
+
+Stage Summary:
+- Part 3 AFM: 5 heading IDs added for TOC linking, animated Mamba-OTM layer visualization created with 8 blocks, 3:1 ratio indicator, and stagger entrance animation
+- Part 4 Training: 3 heading IDs added for TOC linking, animated compute cost bar chart with 3 phase bars and total cost label, Risk Gate indicator inserted between Phase 1 and Phase 2
+- Both components enhanced with viewport-triggered animations using framer-motion useInView
+- Zero lint errors, successful compilation
+
+---
+Task ID: round5-main
+Agent: main
+Task: Round 5 — QA assessment, new features (ACOS Flow Chart, Quick Stats Dashboard, Part 3/4 enhancements), styling polish, animated theme toggle
+
+Work Log:
+- **QA Assessment**: Tested all 16 sections with agent-browser. No bugs found. Zero lint errors. Console clean.
+- **Interactive ACOS Architecture Flow Chart** (subagent Task 2):
+  - Created `/src/components/acos/acos-flow-chart.tsx` — Interactive flow chart of ACOS Cognitive Stack
+  - 6 layers: Cognitive Agent Framework, Knowledge Fabric, Hierarchical Memory, Multi-Thread Reasoning, AFM, Cognitive Kernel
+  - SVG connection lines with directional arrows (solid for bidirectional, dashed for unidirectional)
+  - Animated emerald/teal flow particles along SVG paths
+  - Data Flow toggle button (Eye/EyeOff) to show/hide particles
+  - Click-to-expand sub-components with AnimatePresence animation
+  - Hover effects: icon scales, emerald glow, title color transition
+  - Layer badges (L1-L6), connection labels (Query/Response, Store/Retrieve, etc.)
+  - Legend section with visual explanations
+  - Integrated into Part 2 ACOS Design section after OS Analogy card
+- **Quick Stats Dashboard** (subagent Task 6):
+  - Created `/src/components/acos/quick-stats-dashboard.tsx` — Performance dashboard with sparkline charts
+  - 6 stat cards: Attention Speedup (77x), Memory Reduction (250x), Knowledge Retention (86%), Thread Isolation (0%), Convergence Proof (Local), Training Cost ($25K)
+  - Each card has: icon, animated counter, SVG sparkline with gradient fill, delta indicator with color
+  - Sparkline uses SVG `<polyline>` with framer-motion pathLength animation
+  - Animated counters with ease-out cubic timing (1500ms)
+  - Responsive grid: 2 cols mobile, 3 cols desktop
+  - "Performance Dashboard" heading with Activity icon
+  - Integrated into Overview section after Key Technical Innovations
+- **Part 3 AFM Enhancements** (subagent Task 4):
+  - Added 5 heading ID attributes for TOC anchor linking
+  - Created inline MambaOTMVisualization component: alternating Mamba (teal) and OTM (emerald) blocks with 3:1 ratio
+  - Pulsing border animation on OTM blocks, stagger entrance animation, data flow dashed line
+- **Part 4 Training Enhancements** (subagent Task 4):
+  - Added 3 heading ID attributes for TOC anchor linking
+  - Created ComputeCostChart component: animated horizontal bars showing Phase 1 ($5K), Phase 2 ($20K), Phase 3 ($200K-$500K)
+  - Added Risk Gate indicator between Phase 1 and Phase 2 with amber-themed banner
+- **Animated Theme Toggle**:
+  - Enhanced sidebar theme toggle with framer-motion Sun/Moon icon rotation animation
+  - Icons rotate 180 degrees with scale/opacity transitions during theme switch
+  - Added subtle emerald gradient hover glow on the button
+- **Animated SVG Decorative Elements**:
+  - Added orbital ring decorations to Overview hero section (left and right sides)
+  - Elliptical dashed orbits with small emerald dots orbiting
+  - Added hexagonal grid decoration (bottom right) with slow spin animation
+  - New CSS utility classes: `.orbital-ring`, `.orbital-ring-reverse` (30s/25s spin)
+- **CSS Micro-animation Polish**:
+  - Theme transition: smooth `color-scheme` and `background-color` transitions on theme toggle
+  - Enhanced button focus rings with emerald glow (applies to all buttons and links)
+  - Smooth scale press on button active state (`scale(0.97)`)
+  - New `.glow-pulse` animation for important cards
+  - New `.gradient-text-hover` for animated heading hover effects
+  - New `.border-glow-hover` for subtle emerald glow on card hover
+  - New `.skeleton-emerald` for emerald-tinted skeleton loading
+  - New `.typing-cursor` animation for AI chat typing indicator
+  - New `.orbital-ring` / `.orbital-ring-reverse` for decorative SVG animations
+
+Stage Summary:
+- 4 new components created: acos-flow-chart.tsx, quick-stats-dashboard.tsx, MambaOTMVisualization (inline), ComputeCostChart (inline)
+- 5 major features implemented: Interactive ACOS Flow Chart, Quick Stats Dashboard, Part 3/4 enhancements, Animated Theme Toggle, SVG Decorative Elements
+- 8+ new CSS utility classes added for micro-animation polish
+- All 16 sections load correctly with zero lint errors
+- Application is production-ready with comprehensive interactivity
+
+### Current Project Status
+**Status:** Production-ready, Round 5 features fully implemented and verified
+
+### Current Goals/Completed Modifications/Verification Results
+- QA tested all 16 sections via agent-browser: all stable, no bugs
+- ACOS Architecture Flow Chart renders in Part 2 with interactive data flow particles
+- Quick Stats Dashboard renders in Overview with animated sparklines and counters
+- Part 3 AFM has Mamba-OTM layer visualization with 3:1 ratio display
+- Part 4 Training has animated cost bar chart and risk gate indicator
+- Theme toggle animates with Sun/Moon icon rotation and scale transitions
+- Overview has orbital ring and hexagonal grid SVG decorations
+- CSS micro-animations: focus rings, button press, glow pulse, border glow, skeleton emerald
+- `bun run lint`: 0 errors, 0 warnings
+- Dev server compiles successfully
+
+### Unresolved Issues or Risks
+- Minor: Flow chart particles may impact performance on very low-end devices with many simultaneous animations
+- Minor: Orbital ring SVG decorations are subtle (low opacity) which is intentional but may be hard to see on some displays
+- CSS `@property` used in gradient-border animation has limited older browser support
+- Quick Stats Dashboard adds recharts dependency weight to Overview page (not lazy-loaded)
+
+### Priority Recommendations for Next Phase
+- Add PDF export of the full analysis report (using pdf skill)
+- Lazy-load Quick Stats Dashboard and Performance Comparison to improve initial load
+- Add "Share" feature for individual sections (URL with hash + copy to clipboard)
+- Add comprehensive light mode theme polish (some gradient backgrounds are dark-mode optimized)
+- Performance audit: reduce bundle size with code splitting for heavy chart components
+- Consider adding a global search with full-text indexing across all section content
+- Add PWA support for offline reading capability

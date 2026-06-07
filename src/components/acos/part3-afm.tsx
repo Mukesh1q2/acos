@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useInView } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -52,6 +53,120 @@ const radarData = [
   { metric: "Convergence", Transformer: 30, RWKV: 0, Mamba: 0, "AHC v2": 70 },
 ];
 
+function MambaOTMVisualization() {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
+
+  const layers = [
+    { type: "mamba", label: "Mamba Block" },
+    { type: "mamba", label: "Mamba Block" },
+    { type: "mamba", label: "Mamba Block" },
+    { type: "otm", label: "OTM Layer" },
+    { type: "mamba", label: "Mamba Block" },
+    { type: "mamba", label: "Mamba Block" },
+    { type: "mamba", label: "Mamba Block" },
+    { type: "otm", label: "OTM Layer" },
+  ];
+
+  return (
+    <div ref={ref} className="flex flex-col items-center gap-0">
+      <div className="flex items-stretch gap-3 w-full max-w-md">
+        {/* Layer stack */}
+        <div className="flex flex-col gap-1.5 flex-1">
+          {layers.map((layer, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, x: -30 }}
+              animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
+              transition={{ delay: i * 0.1, duration: 0.4, ease: "easeOut" }}
+              className={`relative flex items-center justify-center py-2.5 px-4 rounded-md border text-xs font-semibold tracking-wide ${
+                layer.type === "mamba"
+                  ? "bg-teal-500/15 border-teal-500/30 text-teal-400"
+                  : "bg-emerald-500/20 border-emerald-500/40 text-emerald-300"
+              }`}
+            >
+              {layer.type === "otm" && (
+                <motion.div
+                  className="absolute inset-0 rounded-md border-2 border-emerald-400/40"
+                  initial={{ opacity: 0 }}
+                  animate={isInView ? { opacity: [0.3, 0.7, 0.3] } : { opacity: 0 }}
+                  transition={{ delay: i * 0.1 + 0.5, duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                />
+              )}
+              <span className="relative z-10">{layer.label}</span>
+              {layer.type === "mamba" && (
+                <span className="ml-2 text-[9px] font-mono opacity-60">O(Nd)</span>
+              )}
+              {layer.type === "otm" && (
+                <span className="ml-2 text-[9px] font-mono opacity-70">isolation</span>
+              )}
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Ratio indicator */}
+        <div className="flex flex-col items-center justify-center gap-2">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
+            transition={{ delay: 0.9, duration: 0.5, type: "spring", stiffness: 200 }}
+            className="flex flex-col items-center gap-1 px-3 py-2 rounded-lg bg-muted/30 border border-border/30"
+          >
+            <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">Ratio</span>
+            <div className="flex items-baseline gap-0.5">
+              <span className="text-lg font-bold text-teal-400">3</span>
+              <span className="text-sm text-muted-foreground">:</span>
+              <span className="text-lg font-bold text-emerald-400">1</span>
+            </div>
+            <div className="flex gap-1">
+              <div className="w-3 h-2 rounded-sm bg-teal-500/40" />
+              <div className="w-3 h-2 rounded-sm bg-emerald-500/40" />
+            </div>
+          </motion.div>
+
+          {/* Data flow arrow */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: 1 } : { opacity: 0 }}
+            transition={{ delay: 1.2, duration: 0.5 }}
+            className="flex flex-col items-center gap-1"
+          >
+            <svg width="16" height="60" viewBox="0 0 16 60" className="text-emerald-500/40">
+              <motion.line
+                x1="8" y1="0" x2="8" y2="60"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeDasharray="4 3"
+                initial={{ pathLength: 0 }}
+                animate={isInView ? { pathLength: 1 } : { pathLength: 0 }}
+                transition={{ delay: 1.3, duration: 1, ease: "easeInOut" }}
+              />
+            </svg>
+            <span className="text-[8px] font-mono text-muted-foreground uppercase tracking-widest" style={{ writingMode: "vertical-rl" }}>data flow</span>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Legend */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+        transition={{ delay: 1.4, duration: 0.4 }}
+        className="flex items-center gap-4 mt-3 text-[10px] text-muted-foreground"
+      >
+        <div className="flex items-center gap-1.5">
+          <div className="w-4 h-2.5 rounded-sm bg-teal-500/30 border border-teal-500/40" />
+          <span>Mamba Block (3x)</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-4 h-2.5 rounded-sm bg-emerald-500/30 border border-emerald-500/50" />
+          <span>OTM Layer (1x)</span>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
 export function Part3AFM() {
   return (
     <div className="space-y-10">
@@ -72,7 +187,7 @@ export function Part3AFM() {
               <Cpu className="w-5 h-5" />
             </div>
             <div>
-              <CardTitle className="text-lg">Component Evaluation & Decision</CardTitle>
+              <CardTitle className="text-lg" id="component-evaluation">Component Evaluation & Decision</CardTitle>
               <CardDescription className="mb-2">Core architectural components and their implementation verdicts</CardDescription>
             </div>
           </div>
@@ -117,7 +232,7 @@ export function Part3AFM() {
       {/* Architecture Comparison Table */}
       <Card className="card-hover-lift border-border/30">
         <CardHeader>
-          <CardTitle className="text-lg">Architecture Comparison</CardTitle>
+          <CardTitle className="text-lg" id="architecture-comparison">Architecture Comparison</CardTitle>
           <CardDescription className="mb-2">Side-by-side comparison of leading architectures across key metrics</CardDescription>
         </CardHeader>
         <CardContent>
@@ -187,7 +302,7 @@ export function Part3AFM() {
       {/* Radar Chart */}
       <Card className="card-hover-lift border-border/30">
         <CardHeader>
-          <CardTitle className="text-lg">Architecture Comparison Radar</CardTitle>
+          <CardTitle className="text-lg" id="radar-comparison">Architecture Comparison Radar</CardTitle>
           <CardDescription className="mb-2">Visual comparison of architecture capabilities across five dimensions</CardDescription>
         </CardHeader>
         <CardContent>
@@ -250,13 +365,16 @@ export function Part3AFM() {
               <Network className="w-5 h-5" />
             </div>
             <div>
-              <CardTitle className="text-lg">Proposed Hybrid: Mamba-OTM</CardTitle>
+              <CardTitle className="text-lg" id="mamba-otm-hybrid">Proposed Hybrid: Mamba-OTM</CardTitle>
               <CardDescription className="mb-2">Combining Mamba speed with OTM thread isolation</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Mamba-OTM Layer Visualization */}
+          <MambaOTMVisualization />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
             <div className="p-4 rounded-lg bg-card/50 border border-border/20">
               <div className="text-sm font-semibold text-teal-400 mb-1">Backbone: Mamba</div>
               <div className="text-xs text-muted-foreground">
@@ -392,7 +510,7 @@ export function Part3AFM() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-            <CardTitle className="text-lg text-emerald-400">Hybrid Verdict: Why Hybrid Outperforms Pure Avadhan</CardTitle>
+            <CardTitle className="text-lg text-emerald-400" id="hybrid-verdict">Hybrid Verdict: Why Hybrid Outperforms Pure Avadhan</CardTitle>
             <CardDescription className="text-emerald-400/70 mb-2">The case for combining architectures</CardDescription>
           </div>
         </CardHeader>

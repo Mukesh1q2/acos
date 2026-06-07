@@ -24,6 +24,7 @@ import {
   Smartphone,
 } from "lucide-react";
 import { SectionHeader } from "./section-header";
+import { ACOSFlowChart } from "./acos-flow-chart";
 
 const coreComponents = [
   {
@@ -180,6 +181,19 @@ export function Part2ACOS() {
           </div>
         </CardContent>
       </Card>
+
+      {/* ACOS Architecture Flow */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <GitBranch className="w-5 h-5 text-emerald-400" />
+          <h3 className="text-lg font-semibold text-foreground">ACOS Architecture Flow</h3>
+          <Badge variant="outline" className="text-[10px] font-mono border-emerald-500/30 text-emerald-400">INTERACTIVE</Badge>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Visualize the ACOS Cognitive Stack and how data flows between layers. Click any layer to explore its sub-components.
+        </p>
+        <ACOSFlowChart />
+      </div>
 
       {/* Core Components */}
       <div className="space-y-6">

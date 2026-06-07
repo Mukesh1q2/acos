@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, lazy, Suspense } from "react";
 import { motion, useInView } from "framer-motion";
 import { Brain, ShieldCheck, Lightbulb, Zap, AlertCircle, Cpu, Network, RefreshCw, GitBranch, Activity, Database, Users, Layers } from "lucide-react";
 import { ScrollReveal } from "@/components/acos/scroll-reveal";
+import { QuickStatsDashboard } from "@/components/acos/quick-stats-dashboard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { LoadingSkeleton } from "@/components/acos/loading-skeleton";
@@ -361,6 +362,35 @@ export function OverviewSection() {
         </svg>
       </div>
 
+      {/* Orbital ring decorations — left side */}
+      <div className="absolute top-1/3 left-8 w-72 h-72 pointer-events-none opacity-[0.04]">
+        <svg viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg" className="orbital-ring">
+          <ellipse cx="150" cy="150" rx="140" ry="60" stroke="oklch(0.696 0.17 162.48)" strokeWidth="0.5" strokeDasharray="4 6" />
+          <ellipse cx="150" cy="150" rx="120" ry="80" stroke="oklch(0.7 0.15 180)" strokeWidth="0.3" strokeDasharray="2 8" />
+          <circle cx="150" cy="90" r="3" fill="oklch(0.696 0.17 162.48)" opacity="0.6" />
+          <circle cx="30" cy="150" r="2" fill="oklch(0.7 0.15 180)" opacity="0.4" />
+        </svg>
+      </div>
+
+      {/* Orbital ring decorations — right side (reverse) */}
+      <div className="absolute top-1/2 right-4 w-56 h-56 pointer-events-none opacity-[0.03]">
+        <svg viewBox="0 0 250 250" fill="none" xmlns="http://www.w3.org/2000/svg" className="orbital-ring-reverse">
+          <ellipse cx="125" cy="125" rx="110" ry="50" stroke="oklch(0.7 0.15 180)" strokeWidth="0.4" strokeDasharray="3 7" />
+          <ellipse cx="125" cy="125" rx="90" ry="70" stroke="oklch(0.696 0.17 162.48)" strokeWidth="0.3" strokeDasharray="2 9" />
+          <circle cx="125" cy="75" r="2.5" fill="oklch(0.7 0.15 180)" opacity="0.5" />
+          <circle cx="235" cy="125" r="1.5" fill="oklch(0.696 0.17 162.48)" opacity="0.3" />
+        </svg>
+      </div>
+
+      {/* Hexagonal grid decoration — bottom right */}
+      <div className="absolute bottom-20 right-8 w-40 h-40 pointer-events-none opacity-[0.025]">
+        <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" className="animate-spin-slow" style={{ animationDuration: "40s" }}>
+          <polygon points="100,10 170,50 170,130 100,170 30,130 30,50" stroke="oklch(0.696 0.17 162.48)" strokeWidth="0.4" />
+          <polygon points="100,30 150,60 150,120 100,150 50,120 50,60" stroke="oklch(0.7 0.15 180)" strokeWidth="0.3" />
+          <polygon points="100,50 130,70 130,110 100,130 70,110 70,70" stroke="oklch(0.696 0.17 162.48)" strokeWidth="0.2" />
+        </svg>
+      </div>
+
       <div className="relative z-10 px-6 py-16 md:py-24 max-w-5xl mx-auto">
         {/* Title */}
         <motion.div
@@ -597,6 +627,12 @@ export function OverviewSection() {
               );
             })}
           </div>
+        </ScrollReveal>
+
+        {/* Performance Dashboard */}
+        <ScrollReveal direction="up" delay={0.3} className="mt-12"
+        >
+          <QuickStatsDashboard />
         </ScrollReveal>
 
         {/* v2 Corrections Summary */}

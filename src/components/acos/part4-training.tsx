@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -11,6 +10,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import React, { useRef } from "react";
+import { motion, useInView, AnimatePresence } from "framer-motion";
 import {
   Flame,
   Download,
@@ -107,6 +108,51 @@ const colorStyles: Record<string, { bg: string; border: string; text: string; ba
   green: { bg: "bg-green-500/10", border: "border-green-500/20", text: "text-green-400", badge: "bg-green-500/20 text-green-400 border-green-500/30" },
 };
 
+function ComputeCostChart() {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
+
+  const bars = [
+    { label: "Phase 1", cost: "$5K", color: "bg-emerald-500/60", pct: "10%", textColor: "text-emerald-400" },
+    { label: "Phase 2", cost: "$20K", color: "bg-teal-500/60", pct: "30%", textColor: "text-teal-400" },
+    { label: "Phase 3", cost: "$200K-$500K", color: "bg-green-500/50", pct: "85%", textColor: "text-green-400" },
+  ];
+
+  return (
+    <div ref={ref} className="mt-6 space-y-3">
+      <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Cost Progression</div>
+      {bars.map((bar, i) => (
+        <div key={bar.label} className="space-y-1">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-mono text-muted-foreground">{bar.label}</span>
+            <span className={`font-mono font-semibold ${bar.textColor}`}>{bar.cost}</span>
+          </div>
+          <div className="h-6 bg-muted/20 rounded-md overflow-hidden border border-border/20">
+            <motion.div
+              initial={{ width: "0%" }}
+              animate={isInView ? { width: bar.pct } : { width: "0%" }}
+              transition={{ delay: 0.2 + i * 0.25, duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
+              className={`h-full ${bar.color} rounded-md`}
+            />
+          </div>
+        </div>
+      ))}
+      <motion.div
+        initial={{ opacity: 0, y: 5 }}
+        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 5 }}
+        transition={{ delay: 1.2, duration: 0.4 }}
+        className="flex items-center justify-center gap-2 pt-2"
+      >
+        <DollarSign className="w-3.5 h-3.5 text-emerald-400" />
+        <span className="text-sm font-bold text-foreground">$25K-$525K</span>
+        <Badge variant="outline" className="text-[9px] font-mono bg-amber-500/10 text-amber-400 border-amber-500/20 ml-1">
+          GATED
+        </Badge>
+      </motion.div>
+    </div>
+  );
+}
+
 export function Part4Training() {
   return (
     <div className="space-y-10">
@@ -190,58 +236,82 @@ export function Part4Training() {
 
       {/* Phase Timeline */}
       <div>
-        <h3 className="text-lg font-semibold text-foreground mb-4">
+        <h3 className="text-lg font-semibold text-foreground mb-4" id="path-comparison">
           Path C: Hybrid Strategy Phases
         </h3>
         <div className="space-y-0">
           {phases.map((phase, i) => {
             const colors = colorStyles[phase.color];
             return (
-              <motion.div
-                key={phase.phase}
-                initial={{ opacity: 0, x: -30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 + i * 0.2 }}
-                className="relative"
-              >
-                {/* Timeline line */}
-                {i < phases.length - 1 && (
-                  <div className="absolute left-5 top-14 bottom-0 w-0.5 bg-border/30" />
-                )}
-                <div className="flex gap-4 pb-6">
-                  {/* Phase indicator */}
-                  <div className={`w-10 h-10 rounded-full ${colors.bg} border ${colors.border} flex items-center justify-center ${colors.text} font-bold text-sm flex-shrink-0 z-10`}>
-                    {phase.phase}
-                  </div>
-                  <Card className="card-hover-lift flex-1 border-border/30">
-                    <CardContent className="p-4">
-                      <div className="flex flex-col md:flex-row md:items-center justify-between mb-2">
-                        <div>
-                          <div className="text-sm font-semibold text-foreground">
-                            {phase.title}
-                          </div>
-                          <div className="flex items-center gap-3 mt-1">
-                            <Badge variant="outline" className="text-[10px] font-mono bg-muted/30">
-                              <Clock className="w-2.5 h-2.5 mr-1" />
-                              {phase.duration}
-                            </Badge>
-                            <Badge variant="outline" className="text-[10px] font-mono bg-muted/30">
-                              {phase.resources}
-                            </Badge>
+              <React.Fragment key={phase.phase}>
+                <motion.div
+                  initial={{ opacity: 0, x: -30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 + i * 0.2 }}
+                  className="relative"
+                >
+                  {/* Timeline line */}
+                  {i < phases.length - 1 && (
+                    <div className="absolute left-5 top-14 bottom-0 w-0.5 bg-border/30" />
+                  )}
+                  <div className="flex gap-4 pb-6">
+                    {/* Phase indicator */}
+                    <div className={`w-10 h-10 rounded-full ${colors.bg} border ${colors.border} flex items-center justify-center ${colors.text} font-bold text-sm flex-shrink-0 z-10`}>
+                      {phase.phase}
+                    </div>
+                    <Card className="card-hover-lift flex-1 border-border/30">
+                      <CardContent className="p-4">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between mb-2">
+                          <div>
+                            <div className="text-sm font-semibold text-foreground">
+                              {phase.title}
+                            </div>
+                            <div className="flex items-center gap-3 mt-1">
+                              <Badge variant="outline" className="text-[10px] font-mono bg-muted/30">
+                                <Clock className="w-2.5 h-2.5 mr-1" />
+                                {phase.duration}
+                              </Badge>
+                              <Badge variant="outline" className="text-[10px] font-mono bg-muted/30">
+                                {phase.resources}
+                              </Badge>
+                            </div>
                           </div>
                         </div>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          {phase.description}
+                        </p>
+                        <div className="mt-2 text-xs">
+                          <span className="text-muted-foreground">Success criterion: </span>
+                          <span className={colors.text}>{phase.success}</span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </motion.div>
+
+                {/* Risk Gate between Phase 1 and Phase 2 */}
+                {i === 0 && (
+                  <AnimatePresence>
+                    <motion.div
+                      initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+                      animate={{ opacity: 1, height: "auto", marginBottom: 24 }}
+                      transition={{ delay: 0.8, duration: 0.5, ease: "easeOut" }}
+                      className="flex gap-4"
+                    >
+                      <div className="w-10 flex-shrink-0 flex items-center justify-center">
+                        <div className="w-3 h-3 rounded-full bg-amber-500/30 border-2 border-amber-400/60" />
                       </div>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        {phase.description}
-                      </p>
-                      <div className="mt-2 text-xs">
-                        <span className="text-muted-foreground">Success criterion: </span>
-                        <span className={colors.text}>{phase.success}</span>
+                      <div className="flex-1 p-3 rounded-lg bg-amber-500/5 border border-amber-500/30 flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                        <div>
+                          <span className="text-xs font-semibold text-amber-400">GATE:</span>
+                          <span className="text-xs text-amber-400/80 ml-1">Must validate 20%+ thread isolation gains before proceeding</span>
+                        </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </motion.div>
+                    </motion.div>
+                  </AnimatePresence>
+                )}
+              </React.Fragment>
             );
           })}
         </div>
@@ -255,7 +325,7 @@ export function Part4Training() {
               <GitMerge className="w-5 h-5" />
             </div>
             <div>
-              <CardTitle className="text-lg text-emerald-400">Phase Dependency Flow</CardTitle>
+              <CardTitle className="text-lg text-emerald-400" id="phase-dependency">Phase Dependency Flow</CardTitle>
               <CardDescription className="text-emerald-400/70 mb-2">Gated progression with go/no-go decision points</CardDescription>
             </div>
           </div>
@@ -326,7 +396,7 @@ export function Part4Training() {
               <DollarSign className="w-5 h-5" />
             </div>
             <div>
-              <CardTitle className="text-lg">Compute Requirements</CardTitle>
+              <CardTitle className="text-lg" id="compute-requirements">Compute Requirements</CardTitle>
               <CardDescription className="mb-2">Hardware and cost estimates per training phase</CardDescription>
             </div>
           </div>
@@ -359,6 +429,9 @@ export function Part4Training() {
               </TableBody>
             </Table>
           </div>
+
+          {/* Compute Cost Progression Bar Chart */}
+          <ComputeCostChart />
 
           <motion.div
             initial={{ opacity: 0, y: 10 }}
