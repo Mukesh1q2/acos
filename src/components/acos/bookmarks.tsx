@@ -53,8 +53,10 @@ function getSnapshot(): string[] {
   return cachedBookmarks;
 }
 
+const EMPTY_BOOKMARKS: string[] = [];
+
 function getServerSnapshot(): string[] {
-  return [];
+  return EMPTY_BOOKMARKS;
 }
 
 function setBookmarksState(newBookmarks: string[]) {

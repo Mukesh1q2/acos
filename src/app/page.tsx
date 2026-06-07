@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, lazy, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowUp, Brain } from "lucide-react";
+import { ArrowUp, Brain, Github, FileText, Mail } from "lucide-react";
 import { Sidebar, navItems } from "@/components/acos/sidebar";
 import { OverviewSection } from "@/components/acos/overview";
 import { Part1Analysis } from "@/components/acos/part1-analysis";
@@ -16,14 +16,28 @@ import { Part8Evolution } from "@/components/acos/part8-evolution";
 import { Part9Market } from "@/components/acos/part9-market";
 import { Part10Attack } from "@/components/acos/part10-attack";
 import { Part11MasterPlan } from "@/components/acos/part11-masterplan";
-import { TheoremExplorer } from "@/components/acos/theorem-explorer";
-import { RoadmapTimeline } from "@/components/acos/roadmap-timeline";
-import { PerformanceComparison } from "@/components/acos/performance-comparison";
 import { CommandPalette } from "@/components/acos/command-palette";
 import { ChatPanel } from "@/components/acos/chat-panel";
 import { SectionToc } from "@/components/acos/section-toc";
 import { BookmarkButton, BookmarkedSections } from "@/components/acos/bookmarks";
-import { Progress } from "@/components/ui/progress";
+import { ReadingProgress } from "@/components/acos/reading-progress";
+import { ShareButton } from "@/components/acos/share-button";
+import { ReadingTime } from "@/components/acos/reading-time";
+import { LoadingSkeleton } from "@/components/acos/loading-skeleton";
+
+// Lazy-loaded heavy components (charts, diagrams, interactive sections)
+const TheoremExplorer = lazy(() =>
+  import("@/components/acos/theorem-explorer").then((m) => ({ default: m.TheoremExplorer }))
+);
+const RoadmapTimeline = lazy(() =>
+  import("@/components/acos/roadmap-timeline").then((m) => ({ default: m.RoadmapTimeline }))
+);
+const PerformanceComparison = lazy(() =>
+  import("@/components/acos/performance-comparison").then((m) => ({ default: m.PerformanceComparison }))
+);
+const Glossary = lazy(() =>
+  import("@/components/acos/glossary").then((m) => ({ default: m.Glossary }))
+);
 
 const sectionComponents: Record<string, React.ComponentType> = {
   overview: OverviewSection,
@@ -41,14 +55,18 @@ const sectionComponents: Record<string, React.ComponentType> = {
   roadmap: RoadmapTimeline,
   theorems: TheoremExplorer,
   performance: PerformanceComparison,
+  glossary: Glossary,
 };
 
-  // Read initial section from URL hash (only on first render)
-  const getInitialSection = () => {
-    if (typeof window === "undefined") return "overview";
-    const hash = window.location.hash.replace("#", "");
-    return hash && sectionComponents[hash] ? hash : "overview";
-  };
+// Set of section IDs that use lazy-loaded components
+const lazySections = new Set(["roadmap", "theorems", "performance", "glossary"]);
+
+// Read initial section from URL hash (only on first render)
+const getInitialSection = () => {
+  if (typeof window === "undefined") return "overview";
+  const hash = window.location.hash.replace("#", "");
+  return hash && sectionComponents[hash] ? hash : "overview";
+};
 
 export default function Home() {
   const [activeSection, setActiveSection] = useState(getInitialSection);
@@ -87,7 +105,6 @@ export default function Home() {
   // Keyboard navigation with Alt+Arrow keys
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Only handle Alt+Arrow for section navigation
       if (!e.altKey) return;
       if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
 
@@ -113,6 +130,7 @@ export default function Home() {
 
   const ActiveComponent = sectionComponents[activeSection] || OverviewSection;
   const activeNav = navItems.find((n) => n.id === activeSection);
+  const isLazy = lazySections.has(activeSection);
 
   // Progress calculation
   const currentIndex = navItems.findIndex((n) => n.id === activeSection);
@@ -131,7 +149,7 @@ export default function Home() {
         {/* Top bar for mobile offset */}
         <div className="h-14 lg:hidden flex-shrink-0" />
 
-        {/* Progress bar */}
+        {/* Navigation progress bar */}
         <div className="relative h-1 bg-muted/30 flex-shrink-0">
           <motion.div
             className="absolute top-0 left-0 h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400"
@@ -147,6 +165,9 @@ export default function Home() {
           />
         </div>
 
+        {/* Section reading progress */}
+        <ReadingProgress contentRef={contentRef} />
+
         {/* Content area */}
         <main
           ref={contentRef}
@@ -155,10 +176,10 @@ export default function Home() {
           <AnimatePresence mode="wait">
             <motion.div
               key={activeSection}
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.25 }}
+              exit={{ opacity: 0, y: -6, scale: 0.98, filter: "blur(4px)" }}
+              transition={{ duration: 0.285, ease: [0.25, 0.46, 0.45, 0.94] }}
               className="max-w-5xl mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-8"
             >
               {/* Section header breadcrumb */}
@@ -172,14 +193,18 @@ export default function Home() {
                   </button>
                   <span>/</span>
                   <span className="text-foreground">{activeNav.label}</span>
-                  <div className="ml-auto">
+                  <ReadingTime contentRef={contentRef} />
+                  <div className="ml-auto flex items-center gap-2">
+                    <ShareButton sectionId={activeSection} />
                     <BookmarkButton sectionId={activeSection} />
                   </div>
                 </div>
               )}
 
               <div data-section-content>
-                <ActiveComponent />
+                <Suspense fallback={<LoadingSkeleton cards={isLazy ? 4 : 3} showTitle={isLazy} />}>
+                  <ActiveComponent />
+                </Suspense>
                 {/* Bookmarked Sections in Overview */}
                 {activeSection === "overview" && (
                   <div className="mt-10">
@@ -191,7 +216,7 @@ export default function Home() {
           </AnimatePresence>
 
           {/* Sticky Footer */}
-          <footer className="mt-auto border-t border-border/20 bg-gradient-to-r from-card/50 via-card/30 to-card/50 backdrop-blur-md">
+          <footer className="mt-auto bg-gradient-to-r from-card/50 via-card/30 to-card/50 backdrop-blur-md footer-gradient-border">
             <div className="max-w-5xl mx-auto px-4 md:px-6 lg:px-8 py-5">
               <div className="flex flex-col md:flex-row items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
@@ -199,25 +224,51 @@ export default function Home() {
                     <Brain className="w-3.5 h-3.5 text-emerald-400" />
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    Avadhan Cognitive Operating System &copy; 2026 | Built by{" "}
+                    Built with <span className="text-red-400">&#9829;</span> by{" "}
                     <span className="text-emerald-400 font-semibold">
                       Brahm AI Research Initiative
                     </span>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-600/10 border border-emerald-500/15">
-                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="text-[10px] font-mono text-emerald-400">v0.1.0-alpha</span>
+                  {/* Research links */}
+                  <div className="flex items-center gap-2">
+                    <a
+                      href="#"
+                      className="text-muted-foreground hover:text-emerald-400 transition-colors duration-200"
+                      aria-label="GitHub"
+                    >
+                      <Github className="w-3.5 h-3.5" />
+                    </a>
+                    <a
+                      href="#"
+                      className="text-muted-foreground hover:text-emerald-400 transition-colors duration-200"
+                      aria-label="arXiv"
+                    >
+                      <FileText className="w-3.5 h-3.5" />
+                    </a>
+                    <a
+                      href="#"
+                      className="text-muted-foreground hover:text-emerald-400 transition-colors duration-200"
+                      aria-label="Email"
+                    >
+                      <Mail className="w-3.5 h-3.5" />
+                    </a>
                   </div>
-                  <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-                    <span>Next.js 16</span>
-                    <span className="opacity-30">|</span>
-                    <span>TypeScript</span>
-                    <span className="opacity-30">|</span>
-                    <span>Prisma</span>
-                    <span className="opacity-30">|</span>
-                    <span className="font-mono">Alt+Arrow Nav</span>
+                  <div className="w-px h-4 bg-border/30" />
+                  {/* Version badge */}
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-600/10 border border-emerald-500/15 shadow-sm">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-[10px] font-mono text-emerald-400 dark:text-emerald-400">v0.1.0-alpha</span>
+                  </div>
+                  <div className="w-px h-4 bg-border/30" />
+                  {/* Tech stack */}
+                  <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                    <span className="px-1.5 py-0.5 rounded bg-muted/30 font-mono">Next.js 16</span>
+                    <span className="text-border/50">+</span>
+                    <span className="px-1.5 py-0.5 rounded bg-muted/30 font-mono">TypeScript</span>
+                    <span className="text-border/50">+</span>
+                    <span className="px-1.5 py-0.5 rounded bg-muted/30 font-mono">Prisma</span>
                   </div>
                 </div>
               </div>

@@ -24,6 +24,7 @@ import {
   Route,
   BarChart3,
   Star,
+  BookOpen,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
@@ -54,6 +55,7 @@ export const navItems: NavItem[] = [
   { id: "roadmap", label: "Roadmap Timeline", shortLabel: "Roadmap", icon: <Route className="w-4 h-4" /> },
   { id: "theorems", label: "Theorem Explorer", shortLabel: "Theorems", icon: <Sigma className="w-4 h-4" /> },
   { id: "performance", label: "Performance Comparison", shortLabel: "Performance", icon: <BarChart3 className="w-4 h-4" /> },
+  { id: "glossary", label: "Glossary", shortLabel: "Glossary", icon: <BookOpen className="w-4 h-4" /> },
 ];
 
 interface SidebarProps {
@@ -76,7 +78,7 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="px-4 py-5 flex items-center gap-3">
-        <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-md shadow-emerald-500/20">
+        <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-md shadow-emerald-500/20 logo-glow cursor-pointer">
           <Brain className="w-5 h-5 text-white" />
         </div>
         <div>
@@ -115,6 +117,7 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
                     setMobileOpen(false);
                   }}
                   className={`
+                    sidebar-nav-item
                     w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left
                     transition-all duration-200 group relative
                     ${
@@ -127,8 +130,8 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
                   {isActive && (
                     <motion.div
                       layoutId="activeIndicator"
-                      className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-emerald-500 rounded-r"
-                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                      className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-emerald-500 rounded-r"
+                      transition={{ type: "spring", stiffness: 350, damping: 25, mass: 0.8 }}
                     />
                   )}
                   <span
@@ -150,7 +153,8 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
         </div>
       </ScrollArea>
 
-      <Separator className="bg-border/50" />
+      {/* Gradient line above theme toggle */}
+      <div className="mx-3 sidebar-gradient-line" />
 
       {/* Theme toggle */}
       <div className="px-3 py-3">
@@ -209,7 +213,7 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
               initial={{ x: -280 }}
               animate={{ x: 0 }}
               exit={{ x: -280 }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25, mass: 0.8 }}
               className="lg:hidden fixed left-0 top-0 bottom-0 w-[260px] bg-slate-950 border-r border-border/30 z-50"
             >
               {sidebarContent}

@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { BookmarksProvider } from "@/components/acos/bookmarks";
 
 const geistSans = Geist({
@@ -50,6 +51,7 @@ export default function RootLayout({
           <BookmarksProvider>
             {children}
             <Toaster />
+            <SonnerToaster />
           </BookmarksProvider>
         </ThemeProvider>
       </body>

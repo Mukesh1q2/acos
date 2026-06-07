@@ -1,11 +1,16 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, lazy, Suspense } from "react";
 import { motion, useInView } from "framer-motion";
 import { Brain, ShieldCheck, Lightbulb, Zap, AlertCircle, Cpu, Network, RefreshCw, GitBranch, Activity, Database, Users, Layers } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { InteractiveArchitecture } from "@/components/acos/interactive-architecture";
+import { LoadingSkeleton } from "@/components/acos/loading-skeleton";
+
+// Lazy-load the heavy InteractiveArchitecture component
+const InteractiveArchitecture = lazy(() =>
+  import("@/components/acos/interactive-architecture").then((m) => ({ default: m.InteractiveArchitecture }))
+);
 
 /* ------------------------------------------------------------------ */
 /*  Animated Counter Hook                                              */
@@ -323,7 +328,9 @@ export function OverviewSection() {
           <h2 className="text-lg font-semibold text-foreground mb-6 text-center">
             The ACOS Stack
           </h2>
-          <InteractiveArchitecture />
+          <Suspense fallback={<LoadingSkeleton cards={3} showTitle={false} />}>
+            <InteractiveArchitecture />
+          </Suspense>
 
           {/* OS Analogy */}
           <div className="mt-8 grid grid-cols-3 gap-4 text-center max-w-lg mx-auto">
