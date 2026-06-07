@@ -21,6 +21,8 @@ import { RoadmapTimeline } from "@/components/acos/roadmap-timeline";
 import { PerformanceComparison } from "@/components/acos/performance-comparison";
 import { CommandPalette } from "@/components/acos/command-palette";
 import { ChatPanel } from "@/components/acos/chat-panel";
+import { SectionToc } from "@/components/acos/section-toc";
+import { BookmarkButton, BookmarkedSections } from "@/components/acos/bookmarks";
 import { Progress } from "@/components/ui/progress";
 
 const sectionComponents: Record<string, React.ComponentType> = {
@@ -81,6 +83,33 @@ export default function Home() {
       contentRef.current.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, []);
+
+  // Keyboard navigation with Alt+Arrow keys
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Only handle Alt+Arrow for section navigation
+      if (!e.altKey) return;
+      if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+
+      e.preventDefault();
+      const currentIndex = navItems.findIndex((n) => n.id === activeSection);
+      if (currentIndex < 0) return;
+
+      let nextIndex: number;
+      if (e.key === "ArrowDown") {
+        nextIndex = Math.min(currentIndex + 1, navItems.length - 1);
+      } else {
+        nextIndex = Math.max(currentIndex - 1, 0);
+      }
+
+      if (nextIndex !== currentIndex) {
+        handleSectionChange(navItems[nextIndex].id);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [activeSection, handleSectionChange]);
 
   const ActiveComponent = sectionComponents[activeSection] || OverviewSection;
   const activeNav = navItems.find((n) => n.id === activeSection);
@@ -143,10 +172,21 @@ export default function Home() {
                   </button>
                   <span>/</span>
                   <span className="text-foreground">{activeNav.label}</span>
+                  <div className="ml-auto">
+                    <BookmarkButton sectionId={activeSection} />
+                  </div>
                 </div>
               )}
 
-              <ActiveComponent />
+              <div data-section-content>
+                <ActiveComponent />
+                {/* Bookmarked Sections in Overview */}
+                {activeSection === "overview" && (
+                  <div className="mt-10">
+                    <BookmarkedSections onNavigate={handleSectionChange} />
+                  </div>
+                )}
+              </div>
             </motion.div>
           </AnimatePresence>
 
@@ -176,6 +216,8 @@ export default function Home() {
                     <span>TypeScript</span>
                     <span className="opacity-30">|</span>
                     <span>Prisma</span>
+                    <span className="opacity-30">|</span>
+                    <span className="font-mono">Alt+Arrow Nav</span>
                   </div>
                 </div>
               </div>
@@ -200,6 +242,9 @@ export default function Home() {
           </motion.button>
         )}
       </AnimatePresence>
+
+      {/* Section Table of Contents (desktop only) */}
+      <SectionToc />
 
       {/* Command Palette */}
       <CommandPalette onSectionChange={handleSectionChange} />

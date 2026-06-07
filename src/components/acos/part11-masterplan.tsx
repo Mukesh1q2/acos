@@ -238,7 +238,7 @@ export function Part11MasterPlan() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">
+        <h2 id="part11-master-plan" className="text-2xl font-bold text-foreground mb-2">
           Part 11 — Master Plan
         </h2>
         <p className="text-muted-foreground">
@@ -270,7 +270,7 @@ export function Part11MasterPlan() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <Calendar className="w-5 h-5 text-emerald-400" />
-            <CardTitle className="text-lg">6-Month MVP Roadmap</CardTitle>
+            <CardTitle className="text-lg" id="mvp-roadmap">6-Month MVP Roadmap</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
@@ -343,7 +343,7 @@ export function Part11MasterPlan() {
       {/* Probability Radar */}
       <Card className="border-border/30">
         <CardHeader>
-          <CardTitle className="text-lg">Probability of Success Assessment</CardTitle>
+          <CardTitle className="text-lg" id="probability-assessment">Probability of Success Assessment</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-[400px]">
@@ -390,7 +390,7 @@ export function Part11MasterPlan() {
       {/* Commercialization */}
       <Card className="border-border/30">
         <CardHeader>
-          <CardTitle className="text-lg">Commercialization Strategy</CardTitle>
+          <CardTitle className="text-lg" id="commercialization-strategy">Commercialization Strategy</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -435,7 +435,7 @@ export function Part11MasterPlan() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <Target className="w-5 h-5 text-emerald-400" />
-            <CardTitle className="text-lg text-emerald-400">Strategic Path Comparison</CardTitle>
+            <CardTitle className="text-lg text-emerald-400" id="strategic-paths">Strategic Path Comparison</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
@@ -480,7 +480,7 @@ export function Part11MasterPlan() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <Server className="w-5 h-5 text-teal-400" />
-            <CardTitle className="text-lg">Infrastructure Design</CardTitle>
+            <CardTitle className="text-lg" id="infrastructure-design">Infrastructure Design</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
@@ -514,7 +514,7 @@ export function Part11MasterPlan() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-5 h-5 text-amber-400" />
-            <CardTitle className="text-lg">Risk Analysis — Top 5 Risks</CardTitle>
+            <CardTitle className="text-lg" id="risk-analysis">Risk Analysis — Top 5 Risks</CardTitle>
           </div>
         </CardHeader>
         <CardContent>

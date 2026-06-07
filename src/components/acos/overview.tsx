@@ -227,6 +227,23 @@ export function OverviewSection() {
           >
             Not another chatbot. A complete cognitive infrastructure for reasoning, memory, and continuous learning.
           </motion.p>
+          {/* Hero architecture image */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="mt-8 relative max-w-3xl mx-auto rounded-xl overflow-hidden border border-emerald-500/20 shadow-2xl shadow-emerald-500/10"
+          >
+            <img
+              src="/acos-hero.png"
+              alt="ACOS Architecture - Cognitive Operating System Stack Visualization"
+              className="w-full h-auto object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+            <div className="absolute bottom-3 left-4 text-[10px] text-emerald-400/60 font-mono">
+              ACOS Cognitive Stack Architecture
+            </div>
+          </motion.div>
         </motion.div>
 
         {/* Three value propositions */}
@@ -346,6 +363,20 @@ export function OverviewSection() {
           <h2 className="text-lg font-semibold text-foreground mb-6 text-center">
             Key Technical Innovations
           </h2>
+          {/* Brain network visualization */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 1.55 }}
+            className="mb-8 relative max-w-md mx-auto rounded-xl overflow-hidden border border-emerald-500/15 shadow-xl shadow-emerald-500/5"
+          >
+            <img
+              src="/acos-brain.png"
+              alt="Neural network visualization representing ACOS cognitive architecture"
+              className="w-full h-auto object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent" />
+          </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {keyInnovations.map((inn, i) => {
               const colors = innovationColorMap[inn.color];

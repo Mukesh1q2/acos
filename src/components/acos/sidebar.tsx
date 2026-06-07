@@ -23,11 +23,13 @@ import {
   Sigma,
   Route,
   BarChart3,
+  Star,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { useBookmarks } from "@/components/acos/bookmarks";
 
 export interface NavItem {
   id: string;
@@ -62,6 +64,7 @@ interface SidebarProps {
 export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { theme, setTheme } = useTheme();
+  const { isBookmarked } = useBookmarks();
   // Prevent hydration mismatch — only render theme toggle after mount
   const mounted = useSyncExternalStore(
     () => () => {},
@@ -134,6 +137,9 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
                     {item.icon}
                   </span>
                   <span className="text-sm truncate">{item.shortLabel}</span>
+                  {isBookmarked(item.id) && !isActive && (
+                    <Star className="w-3 h-3 ml-1 text-emerald-400 fill-emerald-400 flex-shrink-0 opacity-60" />
+                  )}
                   {isActive && (
                     <ChevronRight className="w-3 h-3 ml-auto text-emerald-500" />
                   )}

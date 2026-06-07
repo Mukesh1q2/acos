@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   ShieldCheck,
@@ -82,13 +82,16 @@ export function Part8Evolution() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">
+        <h2 id="self-evolution" className="text-2xl font-bold text-foreground mb-2">
           Part 8 — Self-Evolution
         </h2>
         <p className="text-muted-foreground">
           Classification of self-evolution capabilities from realistic
           near-term features to speculative long-term possibilities.
         </p>
+        <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-400 border-emerald-500/20 font-mono">
+          SELF-MODIFYING SYSTEM
+        </Badge>
       </div>
 
       {/* Capability Cards */}
@@ -102,7 +105,7 @@ export function Part8Evolution() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
             >
-              <Card className="border-border/30">
+              <Card className={`card-hover-lift ${i === 0 ? "border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10" : "border-border/30"}`}>
                 <CardContent className="p-4">
                   <div className="flex flex-col md:flex-row md:items-center gap-4">
                     <div className={`w-10 h-10 rounded-lg ${colors.bg} ${colors.border} border flex items-center justify-center ${colors.text} flex-shrink-0`}>
@@ -135,9 +138,10 @@ export function Part8Evolution() {
       </div>
 
       {/* Spectrum Chart */}
-      <Card className="border-border/30">
+      <Card className="card-hover-lift border-border/30">
         <CardHeader>
           <CardTitle className="text-lg">Safety-Speculation Spectrum</CardTitle>
+          <CardDescription>Risk classification from safe to speculative</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="relative py-8">
@@ -176,7 +180,7 @@ export function Part8Evolution() {
       </Card>
 
       {/* Key Insight */}
-      <Card className="border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
+      <Card className="card-hover-lift border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
         <CardContent className="p-6">
           <div className="flex items-start gap-3">
             <Target className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
@@ -197,12 +201,13 @@ export function Part8Evolution() {
       </Card>
 
       {/* Reflection & Self-Critique */}
-      <Card className="border-teal-500/20 bg-gradient-to-r from-teal-900/10 to-emerald-900/10">
+      <Card className="card-hover-lift border-teal-500/20 bg-gradient-to-r from-teal-900/10 to-emerald-900/10">
         <CardHeader>
           <div className="flex items-center gap-2">
             <Brain className="w-5 h-5 text-teal-400" />
             <CardTitle className="text-lg text-teal-400">Reflection & Self-Critique</CardTitle>
           </div>
+          <CardDescription className="text-teal-400/70">Self-evaluation and correction mechanisms</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -233,12 +238,13 @@ export function Part8Evolution() {
       </Card>
 
       {/* Agent Evolution */}
-      <Card className="border-green-500/20 bg-gradient-to-r from-green-900/10 to-teal-900/10">
+      <Card className="card-hover-lift border-green-500/20 bg-gradient-to-r from-green-900/10 to-teal-900/10">
         <CardHeader>
           <div className="flex items-center gap-2">
             <Users className="w-5 h-5 text-green-400" />
             <CardTitle className="text-lg text-green-400">Agent Evolution</CardTitle>
           </div>
+          <CardDescription className="text-green-400/70">Dynamic composition and improvement</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">

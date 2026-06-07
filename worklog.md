@@ -302,3 +302,241 @@ Stage Summary:
 - Add lazy-loading for heavy chart components (recharts)
 - Consider adding a "Share" feature for individual sections
 - Add light mode refinements and polish
+
+---
+Task ID: round3-main
+Agent: main
+Task: QA assessment, new features (TOC, Bookmarks, Chat Markdown, Images, Section styling, Keyboard nav)
+
+Work Log:
+- **QA Assessment**: Tested all 15 sections with agent-browser, verified chat, sidebar, mobile responsiveness. No bugs found. App is stable.
+- **Section Table of Contents** (subagent Task 2+3):
+  - Created `/src/components/acos/section-toc.tsx` — floating mini TOC panel on right side (lg+ only)
+  - Uses IntersectionObserver to track current heading, MutationObserver for section changes
+  - Click to scroll to heading, collapsible with chevron toggle
+  - Added 19 heading IDs across part1, part2, and part11 for anchor linking
+  - Added `data-section-content` wrapper to page.tsx for TOC scanning
+- **Bookmarks/Favorites System** (subagent Task 2+3):
+  - Created `/src/components/acos/bookmarks.tsx` with `useBookmarks` hook, `BookmarksProvider`, `BookmarkButton`, `BookmarkedSections`
+  - Uses `useSyncExternalStore` for cross-component reactivity
+  - Persists to localStorage under `acos-bookmarks` key
+  - Bookmark toggle button in breadcrumb area, star indicators in sidebar
+  - Bookmarked Sections card shows on Overview with clickable chips
+  - Integrated into page.tsx, sidebar.tsx, layout.tsx
+- **Chat Markdown Rendering** (subagent Task 4):
+  - Installed `remark-gfm` package
+  - Created `/src/components/acos/chat-markdown.tsx` with custom styled renderers
+  - Code blocks: dark card with language badge, inline code: emerald mono, lists with emerald bullets
+  - Blockquotes with emerald border, GFM tables, proper spacing
+  - Updated chat-panel.tsx to use ChatMarkdown for assistant messages
+  - Added max-h-[400px] overflow for long AI responses
+- **AI Architecture Diagram Images** (image-generation skill):
+  - Generated hero image: "ACOS Cognitive Stack Architecture" (1344x768) → public/acos-hero.png
+  - Generated brain network: "Neural network visualization" (1024x1024) → public/acos-brain.png
+  - Added hero image to Overview title section with gradient overlay and caption
+  - Added brain network image to Key Technical Innovations section
+- **Part 6-10 Styling Enhancement** (subagent Task 6):
+  - Applied `card-hover-lift` to all cards in Part 6-10
+  - Added gradient header cards to key sections
+  - Added h2/h3 id attributes for TOC anchor linking
+  - Added CardDescription to enhance card context
+  - Added summary badges: "3-LEVEL ROUTING", "FULL-STACK VISION", "SELF-MODIFYING SYSTEM", "DUAL-TRACK GTM", "5 CRITICAL RISKS"
+  - Standardized icon container sizing (w-8→w-10 with border)
+- **Keyboard Navigation**:
+  - Added Alt+ArrowDown/Alt+ArrowUp keyboard shortcuts for section navigation
+  - Added "Alt+Arrow Nav" hint to footer
+- **Final QA**:
+  - `bun run lint`: 0 errors, 0 warnings
+  - Dev server compiles successfully
+  - All 15 sections load without errors
+  - Chat with markdown works (code blocks render with language badge)
+  - Bookmark toggle works (saves to localStorage, shows in sidebar and Overview)
+  - Generated images render in Overview section
+  - Keyboard navigation functional
+
+Stage Summary:
+- 6 new features implemented: Section TOC, Bookmarks, Chat Markdown, AI-generated images, Part 6-10 styling, Keyboard navigation
+- 3 new components: section-toc.tsx, bookmarks.tsx, chat-markdown.tsx
+- 2 AI-generated images integrated into Overview section
+- 5 Part sections enhanced with consistent styling patterns
+- Application has 15 navigable sections with comprehensive interactivity
+- Zero lint errors, all features verified via agent-browser
+
+### Current Project Status
+**Status:** Production-ready, major features added, comprehensive interactivity
+
+### Unresolved Issues or Risks
+- Section TOC only visible on lg+ screens (by design, for mobile simplicity)
+- AI-generated images are static and may not match future design iterations
+- Chat markdown rendering depends on react-markdown bundle size (~30KB)
+- Bookmarks are per-device (localStorage), not synced across devices
+
+### Priority Recommendations for Next Phase
+- Add PDF export of the full analysis report (using pdf skill)
+- Add lazy-loading for heavy chart components (recharts) to improve initial load
+- Add "Share" feature for individual sections (URL with hash + copy to clipboard)
+- Add light mode refinements and comprehensive light theme polish
+- Consider adding a "Reading Progress" indicator per section
+- Add search/filter within the command palette for content search
+- Performance audit: lazy-load Part components with React.lazy + Suspense
+
+---
+Task ID: 4
+Agent: full-stack-developer
+Task: Enhance Chat Panel with Markdown Rendering and Code Highlighting
+
+Work Log:
+- Installed remark-gfm package (react-markdown was already in package.json)
+- Created `/src/components/acos/chat-markdown.tsx` — a self-contained Markdown renderer component
+  - Uses react-markdown with remark-gfm for GitHub-Flavored Markdown support
+  - Custom styled renderers for all markdown elements:
+    - **Headers** (h1-h6): Decreasing font sizes, emerald-400 color for h1-h3, foreground for h4-h6
+    - **Bold**: font-bold with foreground color
+    - **Italic**: italic style
+    - **Code blocks** (fenced): Dark slate-900 background card with monospace font, rounded border, horizontal scroll for long lines, language label badge in top-right corner
+    - **Inline code**: bg-muted/30 rounded px-1.5 py-0.5 font-mono text-emerald-400 text-xs
+    - **Links**: emerald-400 hover:underline with underline-offset-2
+    - **Lists** (ul/ol): Properly indented with emerald-500 colored bullet/number markers
+    - **Blockquotes**: Left border with emerald-500/30, bg-emerald-500/5 padding, rounded-r-md
+    - **Tables** (GFM): Compact table with border styling, header row highlight (bg-slate-800/80), hover row highlight
+    - **Paragraphs**: Proper spacing between paragraphs with leading-relaxed
+    - **Horizontal rules**: Thin emerald gradient line (transparent -> emerald-500/40 -> transparent)
+  - Pre component unwraps to pass rendering to code component for proper block code handling
+- Updated `/src/components/acos/chat-panel.tsx`:
+  - Imported ChatMarkdown from ./chat-markdown
+  - Replaced plain-text rendering of assistant messages (split by newline with <br/>) with <ChatMarkdown content={message.content} />
+  - Kept user messages as plain text (no markdown rendering needed)
+  - Added max-h-[400px] overflow-y-auto to assistant message bubbles for long responses
+- Lint check: chat-markdown.tsx and chat-panel.tsx pass with 0 errors
+- Dev server compiles successfully
+
+Stage Summary:
+- ChatMarkdown component created with full Markdown + GFM support (tables, strikethrough, etc.)
+- All markdown elements have custom styled renderers matching the dark emerald/teal ACOS theme
+- Chat panel now renders AI responses as rich Markdown instead of plain text with line breaks
+- Long AI responses capped at 400px height with scroll overflow
+- Zero lint errors on changed files, successful compilation
+
+---
+Task ID: 2+3
+Agent: full-stack-developer
+Task: Create Section Table of Contents and Bookmarks/Favorites System
+
+Work Log:
+
+**Section Table of Contents (section-toc.tsx):**
+- Created `/src/components/acos/section-toc.tsx` — a floating mini Table of Contents component
+- Positioned fixed on the RIGHT side, vertically centered, 180px wide, visible on lg+ screens only
+- Automatically scans for h2/h3 elements with IDs inside `[data-section-content]` wrapper
+- Uses IntersectionObserver to track which heading is currently in view with emerald indicator
+- Current heading highlighted with emerald-400 color and emerald dot indicator using framer-motion layoutId
+- Clicking a heading smoothly scrolls to that element via `scrollIntoView({ behavior: "smooth" })`
+- Shows "On this page" label with List icon at top
+- Collapsible with chevron toggle (ChevronRight/ChevronDown)
+- MutationObserver watches for DOM changes (section switches) and re-scans headings with 300ms delay
+- Initial scan deferred via requestAnimationFrame to avoid react-hooks/set-state-in-effect lint error
+- Headings with level 3 are indented (pl-5) to show hierarchy
+- Max height of 50vh with scroll overflow for long heading lists
+- Glassmorphism styling: bg-card/80 backdrop-blur-md with border and shadow
+
+**Bookmarks/Favorites System (bookmarks.tsx):**
+- Created `/src/components/acos/bookmarks.tsx` with full bookmarks management system
+- **useBookmarks hook**: Uses useSyncExternalStore for cross-component reactivity
+  - `isBookmarked(sectionId)` — check if a section is bookmarked
+  - `toggleBookmark(sectionId)` — add/remove bookmark
+  - `bookmarks` — current array of bookmarked section IDs
+- External store pattern with listeners array for instant cross-component updates
+- localStorage persistence under key `acos-bookmarks` (string[] of section IDs)
+- **BookmarksProvider**: Wraps children, listens for storage events from other tabs/windows
+- **BookmarkButton**: Toggle button for breadcrumb area
+  - Shows filled emerald bookmark icon when active, outline when inactive
+  - Emerald-400 styling when bookmarked, muted when not
+  - whileTap scale animation
+- **BookmarkedSections**: Card for Overview page showing all bookmarked sections
+  - Renders bookmarked nav items as clickable chips with section icons
+  - Remove button (X icon) appears on hover per chip
+  - AnimatePresence for smooth add/remove animations
+  - Star icon header with count badge
+  - Gradient border matching emerald theme
+
+**Heading ID additions:**
+- part1-analysis.tsx: Added 7 IDs — `part1-whitepaper-analysis`, `component-classification`, `implementation-complexity`, `dependency-map`, `mathematical-foundations`, `hbta-crossover-analysis`, `proven-vs-plausible`
+- part2-acos.tsx: Added 5 IDs — `part2-acos-design`, `cognitive-kernel-details`, `inter-thread-communication`, `memory-consolidation`, `knowledge-fabric-sources`
+- part11-masterplan.tsx: Added 7 IDs — `part11-master-plan`, `mvp-roadmap`, `probability-assessment`, `commercialization-strategy`, `strategic-paths`, `infrastructure-design`, `risk-analysis`
+
+**Integration:**
+- page.tsx:
+  - Imported SectionToc, BookmarkButton, BookmarkedSections
+  - Added SectionToc as fixed overlay (visible lg only)
+  - Added BookmarkButton to breadcrumb area (ml-auto position, right-aligned)
+  - Added BookmarkedSections at bottom of Overview section with onNavigate callback
+  - Wrapped ActiveComponent in `<div data-section-content>` for TOC scanning
+- sidebar.tsx:
+  - Imported useBookmarks from bookmarks module
+  - Added Star icon to Lucide imports
+  - Shows small filled emerald Star icon next to bookmarked nav items (when not active)
+- layout.tsx:
+  - Imported BookmarksProvider from bookmarks module
+  - Wrapped children and Toaster with BookmarksProvider inside ThemeProvider
+
+**Lint fixes:**
+- Fixed react-hooks/set-state-in-effect by deferring initial scanHeadings call via requestAnimationFrame
+- Added missing Star import to sidebar.tsx
+
+- `bun run lint`: 0 errors, 0 warnings
+- Dev server compiles successfully
+
+Stage Summary:
+- Section TOC component created with IntersectionObserver tracking, collapsible panel, smooth scroll navigation
+- Bookmarks system created with useSyncExternalStore-based hook, localStorage persistence, and cross-component reactivity
+- 19 heading IDs added across 3 section components for TOC anchor linking
+- All components integrated into page.tsx, sidebar.tsx, and layout.tsx
+- Zero lint errors, successful compilation
+
+---
+Task ID: 6
+Agent: full-stack-developer
+Task: Enhance Part 6-10 sections with better styling
+
+Work Log:
+- Enhanced 5 component files: part6-orchestration.tsx, part7-multimodal.tsx, part8-evolution.tsx, part9-market.tsx, part10-attack.tsx
+- **Added `card-hover-lift` class** to all Card components across all 5 files for consistent hover lift+shadow effect
+- **Added gradient header cards** to first/top Card in each section:
+  - Part 6: First routing level card (Intent Classification) gets gradient border
+  - Part 7: Capability Matrix card gets gradient border
+  - Part 8: First capability card (Prompt Evolution) gets gradient border
+  - Part 9: Competitor Comparison card gets gradient border
+  - Part 10: Risk Heatmap card gets gradient border
+- **Added `id` attributes** to all h2 headings for anchor linking:
+  - Part 6: id="model-orchestration"
+  - Part 7: id="multimodal-platform"
+  - Part 8: id="self-evolution"
+  - Part 9: id="market-strategy"
+  - Part 10: id="attack-analysis"
+- **Added CardDescription** to all cards that only had CardTitle:
+  - Part 6: Routing Flow, Supported Models, Routing Examples, Local + Cloud Execution, Cost Optimization
+  - Part 7: Capability Matrix, Implementation Stack
+  - Part 8: Safety-Speculation Spectrum, Reflection & Self-Critique, Agent Evolution
+  - Part 9: Competitor Comparison, Patent Opportunities, Open Source Strategy
+  - Part 10: Risk Heatmap, Comprehensive Risk Inventory
+- **Standardized icon backgrounds** to w-10 h-10 pattern with border:
+  - Part 6: Cost optimization icons w-8 -> w-10
+  - Part 7: Capability matrix icons w-8 -> w-10 with border added
+  - Part 9: Patent number badges w-8 -> w-10, Open Source strategy icons w-8 -> w-10
+- **Added section summary badges** after description paragraph:
+  - Part 6: "3-LEVEL ROUTING"
+  - Part 7: "FULL-STACK VISION"
+  - Part 8: "SELF-MODIFYING SYSTEM"
+  - Part 9: "DUAL-TRACK GTM"
+  - Part 10: "5 CRITICAL RISKS"
+- **Fixed pre-existing lint error** in section-toc.tsx: replaced synchronous `scanHeadings()` call in useEffect with `queueMicrotask(scanHeadings)` to avoid react-hooks/set-state-in-effect error
+- Imported CardDescription from @/components/ui/card in all 5 files
+- `bun run lint`: 0 errors, 0 warnings
+- Dev server compiles successfully
+
+Stage Summary:
+- All 5 Part section components (6-10) enhanced with consistent visual styling
+- card-hover-lift, gradient headers, id anchors, CardDescriptions, icon backgrounds, and summary badges applied uniformly
+- Section TOC feature can now link to all h2 headings in Parts 6-10 via anchor IDs
+- Pre-existing lint error in section-toc.tsx fixed
+- Zero lint errors, successful compilation

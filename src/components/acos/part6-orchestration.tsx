@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Workflow,
@@ -100,13 +100,16 @@ export function Part6Orchestration() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">
+        <h2 id="model-orchestration" className="text-2xl font-bold text-foreground mb-2">
           Part 6 — Model Orchestration
         </h2>
         <p className="text-muted-foreground">
           Dynamic routing strategy that selects the best model combination for
           each task, with consensus verification and thread allocation.
         </p>
+        <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-400 border-emerald-500/20 font-mono">
+          3-LEVEL ROUTING
+        </Badge>
       </div>
 
       {/* Routing Levels */}
@@ -120,7 +123,7 @@ export function Part6Orchestration() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.15 }}
             >
-              <Card className="border-border/30">
+              <Card className={`card-hover-lift ${i === 0 ? "border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10" : "border-border/30"}`}>
                 <CardContent className="p-4">
                   <div className="flex flex-col md:flex-row md:items-center gap-4">
                     <div className={`w-12 h-12 rounded-xl ${colors.bg} ${colors.border} border flex items-center justify-center ${colors.text} font-bold text-lg flex-shrink-0`}>
@@ -151,9 +154,10 @@ export function Part6Orchestration() {
       </div>
 
       {/* Routing Flow Diagram */}
-      <Card className="border-border/30">
+      <Card className="card-hover-lift border-border/30">
         <CardHeader>
           <CardTitle className="text-lg">Routing Flow</CardTitle>
+          <CardDescription>Step-by-step query processing pipeline</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center gap-3">
@@ -184,9 +188,10 @@ export function Part6Orchestration() {
       </Card>
 
       {/* Supported Models */}
-      <Card className="border-border/30">
+      <Card className="card-hover-lift border-border/30">
         <CardHeader>
           <CardTitle className="text-lg">Supported Models</CardTitle>
+          <CardDescription>Models integrated into the ACOS routing system</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -217,9 +222,10 @@ export function Part6Orchestration() {
       </Card>
 
       {/* Routing Examples */}
-      <Card className="border-border/30">
+      <Card className="card-hover-lift border-border/30">
         <CardHeader>
           <CardTitle className="text-lg">Routing Examples</CardTitle>
+          <CardDescription>How different task types are routed to model combinations</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -256,12 +262,13 @@ export function Part6Orchestration() {
       </Card>
 
       {/* Local + Cloud Execution */}
-      <Card className="border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
+      <Card className="card-hover-lift border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
         <CardHeader>
           <div className="flex items-center gap-2">
             <Cloud className="w-5 h-5 text-emerald-400" />
             <CardTitle className="text-lg text-emerald-400">Local + Cloud Execution</CardTitle>
           </div>
+          <CardDescription className="text-emerald-400/70">Flexible deployment across local, cloud, and hybrid modes</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -296,12 +303,13 @@ export function Part6Orchestration() {
       </Card>
 
       {/* Cost Optimization */}
-      <Card className="border-border/30">
+      <Card className="card-hover-lift border-border/30">
         <CardHeader>
           <div className="flex items-center gap-2">
             <DollarSign className="w-5 h-5 text-emerald-400" />
             <CardTitle className="text-lg">Cost Optimization</CardTitle>
           </div>
+          <CardDescription>Intelligent model selection for cost efficiency</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -314,7 +322,7 @@ export function Part6Orchestration() {
                 className="flex flex-col md:flex-row md:items-center gap-3 p-3 rounded-lg bg-muted/20 border border-border/20"
               >
                 <div className="flex items-center gap-2 min-w-[140px]">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
+                  <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
                     {item.icon}
                   </div>
                   <span className="text-sm font-semibold">{item.query}</span>

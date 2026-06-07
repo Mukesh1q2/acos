@@ -139,7 +139,7 @@ export function Part2ACOS() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">
+        <h2 id="part2-acos-design" className="text-2xl font-bold text-foreground mb-2">
           Part 2 — ACOS Design
         </h2>
         <p className="text-muted-foreground">
@@ -276,7 +276,7 @@ export function Part2ACOS() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <Cpu className="w-5 h-5 text-emerald-400" />
-            <CardTitle className="text-lg text-emerald-400">Cognitive Kernel — Technical Details</CardTitle>
+            <CardTitle className="text-lg text-emerald-400" id="cognitive-kernel-details">Cognitive Kernel — Technical Details</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
@@ -321,7 +321,7 @@ export function Part2ACOS() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <MessageSquare className="w-5 h-5 text-teal-400" />
-            <CardTitle className="text-lg text-teal-400">Inter-Thread Communication</CardTitle>
+            <CardTitle className="text-lg text-teal-400" id="inter-thread-communication">Inter-Thread Communication</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
@@ -353,7 +353,7 @@ export function Part2ACOS() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <Database className="w-5 h-5 text-green-400" />
-            <CardTitle className="text-lg text-green-400">Memory Consolidation</CardTitle>
+            <CardTitle className="text-lg text-green-400" id="memory-consolidation">Memory Consolidation</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
@@ -379,7 +379,7 @@ export function Part2ACOS() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <GitBranch className="w-5 h-5 text-cyan-400" />
-            <CardTitle className="text-lg text-cyan-400">Knowledge Fabric — Data Sources</CardTitle>
+            <CardTitle className="text-lg text-cyan-400" id="knowledge-fabric-sources">Knowledge Fabric — Data Sources</CardTitle>
           </div>
         </CardHeader>
         <CardContent>

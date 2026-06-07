@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -82,18 +82,22 @@ export function Part9Market() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">
+        <h2 id="market-strategy" className="text-2xl font-bold text-foreground mb-2">
           Part 9 — Market Strategy
         </h2>
         <p className="text-muted-foreground">
           Competitive landscape analysis and ACOS differentiation strategy.
         </p>
+        <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-400 border-emerald-500/20 font-mono">
+          DUAL-TRACK GTM
+        </Badge>
       </div>
 
       {/* Competitor Table */}
-      <Card className="border-border/30">
+      <Card className="card-hover-lift border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
         <CardHeader>
           <CardTitle className="text-lg">Competitor Comparison</CardTitle>
+          <CardDescription>How ACOS compares to existing AI platforms</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -139,7 +143,7 @@ export function Part9Market() {
       </Card>
 
       {/* ACOS Differentiation */}
-      <Card className="border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
+      <Card className="card-hover-lift border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
         <CardHeader>
           <div className="flex items-center gap-2">
             <Trophy className="w-5 h-5 text-emerald-400" />
@@ -172,12 +176,13 @@ export function Part9Market() {
       </Card>
 
       {/* Patent Opportunities */}
-      <Card className="border-border/30">
+      <Card className="card-hover-lift border-border/30">
         <CardHeader>
           <div className="flex items-center gap-2">
             <Lock className="w-5 h-5 text-teal-400" />
             <CardTitle className="text-lg">Patent Opportunities</CardTitle>
           </div>
+          <CardDescription className="text-teal-400/70">Key patentable innovations</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -190,7 +195,7 @@ export function Part9Market() {
                 className="p-4 rounded-lg bg-muted/20 border border-border/20"
               >
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-md bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 font-bold text-xs flex-shrink-0">
+                  <div className="w-10 h-10 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 font-bold text-xs flex-shrink-0">
                     #{patent.id}
                   </div>
                   <div>
@@ -215,7 +220,7 @@ export function Part9Market() {
       </Card>
 
       {/* Enterprise Opportunities */}
-      <Card className="border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
+      <Card className="card-hover-lift border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
         <CardHeader>
           <div className="flex items-center gap-2">
             <Building2 className="w-5 h-5 text-emerald-400" />
@@ -241,7 +246,7 @@ export function Part9Market() {
       </Card>
 
       {/* Consumer Opportunities */}
-      <Card className="border-teal-500/20 bg-gradient-to-r from-teal-900/10 to-emerald-900/10">
+      <Card className="card-hover-lift border-teal-500/20 bg-gradient-to-r from-teal-900/10 to-emerald-900/10">
         <CardHeader>
           <div className="flex items-center gap-2">
             <User className="w-5 h-5 text-teal-400" />
@@ -267,12 +272,13 @@ export function Part9Market() {
       </Card>
 
       {/* Open Source Strategy */}
-      <Card className="border-border/30">
+      <Card className="card-hover-lift border-border/30">
         <CardHeader>
           <div className="flex items-center gap-2">
             <Globe className="w-5 h-5 text-green-400" />
             <CardTitle className="text-lg">Open Source Strategy</CardTitle>
           </div>
+          <CardDescription className="text-green-400/70">Licensing approach for each component</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -285,7 +291,7 @@ export function Part9Market() {
                 className="flex flex-col md:flex-row md:items-center gap-3 p-3 rounded-lg bg-muted/20 border border-border/20"
               >
                 <div className="flex items-center gap-2 min-w-[180px]">
-                  <div className="w-8 h-8 rounded-lg bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-400 flex-shrink-0">
+                  <div className="w-10 h-10 rounded-lg bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-400 flex-shrink-0">
                     {item.icon}
                   </div>
                   <span className="text-sm font-semibold">{item.component}</span>

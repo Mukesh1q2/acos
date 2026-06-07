@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   AlertTriangle,
@@ -224,19 +224,23 @@ export function Part10Attack() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">
+        <h2 id="attack-analysis" className="text-2xl font-bold text-foreground mb-2">
           Part 10 — Attack Analysis
         </h2>
         <p className="text-muted-foreground">
           Comprehensive risk analysis: 25 failure points, 25 engineering challenges,
           25 research gaps, 25 assumptions, and 25 scalability bottlenecks.
         </p>
+        <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-400 border-emerald-500/20 font-mono">
+          5 CRITICAL RISKS
+        </Badge>
       </div>
 
       {/* Risk Heatmap */}
-      <Card className="border-border/30">
+      <Card className="card-hover-lift border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
         <CardHeader>
-          <CardTitle className="text-lg">Risk Heatmap (Probability × Impact)</CardTitle>
+          <CardTitle className="text-lg">Risk Heatmap (Probability x Impact)</CardTitle>
+          <CardDescription>Visual mapping of all 25 failure points</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-[350px]">
@@ -287,9 +291,10 @@ export function Part10Attack() {
       </Card>
 
       {/* Tabbed 25-Item Lists */}
-      <Card className="border-border/30">
+      <Card className="card-hover-lift border-border/30">
         <CardHeader>
           <CardTitle className="text-lg">Comprehensive Risk Inventory</CardTitle>
+          <CardDescription>25 items across 5 risk categories</CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="failures" className="w-full">

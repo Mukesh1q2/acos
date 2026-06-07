@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { ChatMarkdown } from "./chat-markdown";
 
 interface Message {
   id: string;
@@ -251,15 +252,14 @@ export function ChatPanel() {
                       className={`max-w-[80%] rounded-xl px-3.5 py-2.5 text-sm leading-relaxed ${
                         message.role === "user"
                           ? "bg-emerald-600 text-white rounded-br-sm"
-                          : "bg-slate-800/80 text-slate-200 border border-border/20 rounded-bl-sm"
+                          : "bg-slate-800/80 text-slate-200 border border-border/20 rounded-bl-sm max-h-[400px] overflow-y-auto"
                       }`}
                     >
-                      {message.content.split("\n").map((line, i) => (
-                        <span key={i}>
-                          {line}
-                          {i < message.content.split("\n").length - 1 && <br />}
-                        </span>
-                      ))}
+                      {message.role === "user" ? (
+                        message.content
+                      ) : (
+                        <ChatMarkdown content={message.content} />
+                      )}
                     </div>
                     {message.role === "user" && (
                       <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-slate-700 flex items-center justify-center mt-0.5">

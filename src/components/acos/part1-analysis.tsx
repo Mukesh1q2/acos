@@ -123,7 +123,7 @@ export function Part1Analysis() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">
+        <h2 id="part1-whitepaper-analysis" className="text-2xl font-bold text-foreground mb-2">
           Part 1 — Whitepaper Analysis
         </h2>
         <p className="text-muted-foreground">
@@ -135,7 +135,7 @@ export function Part1Analysis() {
       {/* Component Classification Table */}
       <Card className="border-border/30">
         <CardHeader>
-          <CardTitle className="text-lg">Component Classification</CardTitle>
+          <CardTitle className="text-lg" id="component-classification">Component Classification</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -176,7 +176,7 @@ export function Part1Analysis() {
       {/* Complexity Comparison Chart */}
       <Card className="border-border/30">
         <CardHeader>
-          <CardTitle className="text-lg">Implementation Complexity</CardTitle>
+          <CardTitle className="text-lg" id="implementation-complexity">Implementation Complexity</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-[300px]">
@@ -220,7 +220,7 @@ export function Part1Analysis() {
       {/* Dependency Map */}
       <Card className="border-border/30">
         <CardHeader>
-          <CardTitle className="text-lg">Dependency Map</CardTitle>
+          <CardTitle className="text-lg" id="dependency-map">Dependency Map</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto pb-2">
@@ -241,7 +241,7 @@ export function Part1Analysis() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <Sigma className="w-5 h-5 text-emerald-400" />
-            <CardTitle className="text-lg">Mathematical Foundations</CardTitle>
+            <CardTitle className="text-lg" id="mathematical-foundations">Mathematical Foundations</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
@@ -314,7 +314,7 @@ export function Part1Analysis() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <TrendingDown className="w-5 h-5 text-amber-400" />
-            <CardTitle className="text-lg">HBTA vs FlashAttention Crossover Analysis</CardTitle>
+            <CardTitle className="text-lg" id="hbta-crossover-analysis">HBTA vs FlashAttention Crossover Analysis</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
@@ -369,7 +369,7 @@ export function Part1Analysis() {
       {/* Proven vs Plausible Inventory */}
       <Card className="border-border/30">
         <CardHeader>
-          <CardTitle className="text-lg">Proven vs Plausible Inventory</CardTitle>
+          <CardTitle className="text-lg" id="proven-vs-plausible">Proven vs Plausible Inventory</CardTitle>
         </CardHeader>
         <CardContent>
           <Accordion type="multiple" className="w-full">

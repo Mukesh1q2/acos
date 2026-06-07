@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   MessageSquare,
@@ -93,19 +93,23 @@ export function Part7Multimodal() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">
+        <h2 id="multimodal-platform" className="text-2xl font-bold text-foreground mb-2">
           Part 7 — Multimodal Platform
         </h2>
         <p className="text-muted-foreground">
           Comprehensive multimodal capabilities across text, voice, vision, code,
           and knowledge workspaces. Feature matrix with implementation status.
         </p>
+        <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-400 border-emerald-500/20 font-mono">
+          FULL-STACK VISION
+        </Badge>
       </div>
 
       {/* Capability Matrix */}
-      <Card className="border-border/30">
+      <Card className="card-hover-lift border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
         <CardHeader>
           <CardTitle className="text-lg">Capability Matrix</CardTitle>
+          <CardDescription>14 capabilities across text, voice, vision, and knowledge</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -123,7 +127,7 @@ export function Part7Multimodal() {
                     cap.priority === "high" ? "ring-1 ring-emerald-500/10" : ""
                   }`}
                 >
-                  <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 flex-shrink-0">
+                  <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
                     <CapIcon className="w-4 h-4" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -161,7 +165,7 @@ export function Part7Multimodal() {
           { label: "Future", count: capabilities.filter((c) => c.status === "future").length, color: "text-slate-400", bg: "bg-slate-500/10" },
           { label: "High Priority", count: capabilities.filter((c) => c.priority === "high").length, color: "text-emerald-400", bg: "bg-emerald-500/10" },
         ].map((stat) => (
-          <Card key={stat.label} className="border-border/30">
+          <Card key={stat.label} className="card-hover-lift border-border/30">
             <CardContent className="p-4 text-center">
               <div className={`text-3xl font-bold ${stat.color}`}>{stat.count}</div>
               <div className="text-xs text-muted-foreground mt-1">{stat.label}</div>
@@ -171,12 +175,13 @@ export function Part7Multimodal() {
       </div>
 
       {/* Implementation Stack */}
-      <Card className="border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
+      <Card className="card-hover-lift border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
         <CardHeader>
           <div className="flex items-center gap-2">
             <Layers className="w-5 h-5 text-emerald-400" />
             <CardTitle className="text-lg text-emerald-400">Implementation Stack</CardTitle>
           </div>
+          <CardDescription className="text-emerald-400/70">Technical stack for each modality</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
