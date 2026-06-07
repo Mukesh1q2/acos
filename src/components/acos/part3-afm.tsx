@@ -54,7 +54,7 @@ const radarData = [
 
 export function Part3AFM() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <SectionHeader
         sectionNumber={3}
         title="AFM Architecture"
@@ -65,7 +65,7 @@ export function Part3AFM() {
       />
 
       {/* Component Evaluation — Gradient Header Card */}
-      <Card className="card-hover-lift border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
+      <Card className="glass-card-premium card-hover-lift border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
         <CardHeader>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
@@ -73,11 +73,12 @@ export function Part3AFM() {
             </div>
             <div>
               <CardTitle className="text-lg">Component Evaluation & Decision</CardTitle>
-              <CardDescription>Core architectural components and their implementation verdicts</CardDescription>
+              <CardDescription className="mb-2">Core architectural components and their implementation verdicts</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent>
+          <div className="gradient-accent-bar" />
           <div className="space-y-4">
             {componentEvals.map((eval_item, i) => (
               <motion.div
@@ -117,7 +118,7 @@ export function Part3AFM() {
       <Card className="card-hover-lift border-border/30">
         <CardHeader>
           <CardTitle className="text-lg">Architecture Comparison</CardTitle>
-          <CardDescription>Side-by-side comparison of leading architectures across key metrics</CardDescription>
+          <CardDescription className="mb-2">Side-by-side comparison of leading architectures across key metrics</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -187,7 +188,7 @@ export function Part3AFM() {
       <Card className="card-hover-lift border-border/30">
         <CardHeader>
           <CardTitle className="text-lg">Architecture Comparison Radar</CardTitle>
-          <CardDescription>Visual comparison of architecture capabilities across five dimensions</CardDescription>
+          <CardDescription className="mb-2">Visual comparison of architecture capabilities across five dimensions</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-[400px]">
@@ -250,7 +251,7 @@ export function Part3AFM() {
             </div>
             <div>
               <CardTitle className="text-lg">Proposed Hybrid: Mamba-OTM</CardTitle>
-              <CardDescription>Combining Mamba speed with OTM thread isolation</CardDescription>
+              <CardDescription className="mb-2">Combining Mamba speed with OTM thread isolation</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -278,7 +279,7 @@ export function Part3AFM() {
       <Card className="card-hover-lift border-border/30">
         <CardHeader>
           <CardTitle className="text-lg">Detailed Component Decisions</CardTitle>
-          <CardDescription>In-depth rationale for each component implementation strategy</CardDescription>
+          <CardDescription className="mb-2">In-depth rationale for each component implementation strategy</CardDescription>
         </CardHeader>
         <CardContent>
           <Accordion type="multiple" className="w-full">
@@ -352,7 +353,7 @@ export function Part3AFM() {
       <Card className="card-hover-lift border-border/30">
         <CardHeader>
           <CardTitle className="text-lg">Extended Architecture Comparison</CardTitle>
-          <CardDescription>Broader landscape of alternative architecture approaches</CardDescription>
+          <CardDescription className="mb-2">Broader landscape of alternative architecture approaches</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -392,7 +393,7 @@ export function Part3AFM() {
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-5 h-5 text-emerald-400" />
             <CardTitle className="text-lg text-emerald-400">Hybrid Verdict: Why Hybrid Outperforms Pure Avadhan</CardTitle>
-            <CardDescription className="text-emerald-400/70">The case for combining architectures</CardDescription>
+            <CardDescription className="text-emerald-400/70 mb-2">The case for combining architectures</CardDescription>
           </div>
         </CardHeader>
         <CardContent>

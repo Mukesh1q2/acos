@@ -63,9 +63,10 @@ export const navItems: NavItem[] = [
 interface SidebarProps {
   activeSection: string;
   onSectionChange: (id: string) => void;
+  hidden?: boolean;
 }
 
-export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
+export function Sidebar({ activeSection, onSectionChange, hidden }: SidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const { isBookmarked } = useBookmarks();
@@ -193,6 +194,8 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
       </div>
     </div>
   );
+
+  if (hidden) return null;
 
   return (
     <>

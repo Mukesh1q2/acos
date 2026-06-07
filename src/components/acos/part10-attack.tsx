@@ -224,7 +224,7 @@ function CustomScatterTooltip({ active, payload }: ScatterTooltipProps) {
 
 export function Part10Attack() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <SectionHeader
         sectionNumber={10}
         title="Attack Analysis"
@@ -235,12 +235,13 @@ export function Part10Attack() {
       />
 
       {/* Risk Heatmap */}
-      <Card className="card-hover-lift border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
+      <Card className="glass-card-premium card-hover-lift border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
         <CardHeader>
           <CardTitle className="text-lg">Risk Heatmap (Probability x Impact)</CardTitle>
-          <CardDescription>Visual mapping of all 25 failure points</CardDescription>
+          <CardDescription className="mb-2">Visual mapping of all 25 failure points</CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="gradient-accent-bar" />
           <div className="h-[350px]">
             <ResponsiveContainer width="100%" height="100%">
               <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
@@ -292,7 +293,7 @@ export function Part10Attack() {
       <Card className="card-hover-lift border-border/30">
         <CardHeader>
           <CardTitle className="text-lg">Comprehensive Risk Inventory</CardTitle>
-          <CardDescription>25 items across 5 risk categories</CardDescription>
+          <CardDescription className="mb-2">25 items across 5 risk categories</CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="failures" className="w-full">

@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ListTodo, X, ListX } from "lucide-react";
 import { navItems } from "@/components/acos/sidebar";
 import { toast } from "sonner";
+import { addNotification } from "@/components/acos/notification-center";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -173,6 +174,13 @@ export function ReadingListButton({ sectionId }: { sectionId: string }) {
       const navItem = navItems.find((n) => n.id === sectionId);
       addToList(sectionId);
       toast.success(`Added "${navItem?.shortLabel ?? sectionId}" to reading list`);
+      // Auto-notification for reading list
+      addNotification({
+        type: "success",
+        title: "Added to Reading List",
+        message: `${navItem?.shortLabel ?? sectionId} has been added to your reading list`,
+        sectionId,
+      });
     }
   };
 

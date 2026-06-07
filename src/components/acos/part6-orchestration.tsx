@@ -99,7 +99,7 @@ const costOptimization = [
 
 export function Part6Orchestration() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <SectionHeader
         sectionNumber={6}
         title="Model Orchestration"
@@ -120,8 +120,9 @@ export function Part6Orchestration() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.15 }}
             >
-              <Card className={`card-hover-lift ${i === 0 ? "border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10" : "border-border/30"}`}>
+              <Card className={`magnetic-hover card-hover-lift ${i === 0 ? "glass-card-premium border-emerald-500/20" : "border-border/30"}`}>
                 <CardContent className="p-4">
+                  {i === 0 && <div className="gradient-accent-bar mb-4" />}
                   <div className="flex flex-col md:flex-row md:items-center gap-4">
                     <div className={`w-12 h-12 rounded-xl ${colors.bg} ${colors.border} border flex items-center justify-center ${colors.text} font-bold text-lg flex-shrink-0`}>
                       L{level.level}
@@ -154,7 +155,7 @@ export function Part6Orchestration() {
       <Card className="card-hover-lift border-border/30">
         <CardHeader>
           <CardTitle className="text-lg">Routing Flow</CardTitle>
-          <CardDescription>Step-by-step query processing pipeline</CardDescription>
+          <CardDescription className="mb-2">Step-by-step query processing pipeline</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center gap-3">
@@ -188,7 +189,7 @@ export function Part6Orchestration() {
       <Card className="card-hover-lift border-border/30">
         <CardHeader>
           <CardTitle className="text-lg">Supported Models</CardTitle>
-          <CardDescription>Models integrated into the ACOS routing system</CardDescription>
+          <CardDescription className="mb-2">Models integrated into the ACOS routing system</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -222,7 +223,7 @@ export function Part6Orchestration() {
       <Card className="card-hover-lift border-border/30">
         <CardHeader>
           <CardTitle className="text-lg">Routing Examples</CardTitle>
-          <CardDescription>How different task types are routed to model combinations</CardDescription>
+          <CardDescription className="mb-2">How different task types are routed to model combinations</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -265,7 +266,7 @@ export function Part6Orchestration() {
             <Cloud className="w-5 h-5 text-emerald-400" />
             <CardTitle className="text-lg text-emerald-400">Local + Cloud Execution</CardTitle>
           </div>
-          <CardDescription className="text-emerald-400/70">Flexible deployment across local, cloud, and hybrid modes</CardDescription>
+          <CardDescription className="text-emerald-400/70 mb-2">Flexible deployment across local, cloud, and hybrid modes</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -306,7 +307,7 @@ export function Part6Orchestration() {
             <DollarSign className="w-5 h-5 text-emerald-400" />
             <CardTitle className="text-lg">Cost Optimization</CardTitle>
           </div>
-          <CardDescription>Intelligent model selection for cost efficiency</CardDescription>
+          <CardDescription className="mb-2">Intelligent model selection for cost efficiency</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">

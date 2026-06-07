@@ -92,7 +92,7 @@ const stackColorMap: Record<string, { bg: string; border: string; text: string; 
 
 export function Part7Multimodal() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <SectionHeader
         sectionNumber={7}
         title="Multimodal Platform"
@@ -103,12 +103,13 @@ export function Part7Multimodal() {
       />
 
       {/* Capability Matrix */}
-      <Card className="card-hover-lift border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
+      <Card className="glass-card-premium card-hover-lift border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
         <CardHeader>
           <CardTitle className="text-lg">Capability Matrix</CardTitle>
-          <CardDescription>14 capabilities across text, voice, vision, and knowledge</CardDescription>
+          <CardDescription className="mb-2">14 capabilities across text, voice, vision, and knowledge</CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="gradient-accent-bar" />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {capabilities.map((cap, i) => {
               const status = statusConfig[cap.status];
@@ -162,7 +163,7 @@ export function Part7Multimodal() {
           { label: "Future", count: capabilities.filter((c) => c.status === "future").length, color: "text-slate-400", bg: "bg-slate-500/10" },
           { label: "High Priority", count: capabilities.filter((c) => c.priority === "high").length, color: "text-emerald-400", bg: "bg-emerald-500/10" },
         ].map((stat) => (
-          <Card key={stat.label} className="card-hover-lift border-border/30">
+          <Card key={stat.label} className="magnetic-hover card-hover-lift border-border/30">
             <CardContent className="p-4 text-center">
               <div className={`text-3xl font-bold ${stat.color}`}>{stat.count}</div>
               <div className="text-xs text-muted-foreground mt-1">{stat.label}</div>
@@ -178,7 +179,7 @@ export function Part7Multimodal() {
             <Layers className="w-5 h-5 text-emerald-400" />
             <CardTitle className="text-lg text-emerald-400">Implementation Stack</CardTitle>
           </div>
-          <CardDescription className="text-emerald-400/70">Technical stack for each modality</CardDescription>
+          <CardDescription className="text-emerald-400/70 mb-2">Technical stack for each modality</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

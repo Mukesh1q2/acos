@@ -138,7 +138,7 @@ const osAnalogyItems = [
 
 export function Part2ACOS() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <SectionHeader
         sectionNumber={2}
         title="ACOS Design"
@@ -149,8 +149,9 @@ export function Part2ACOS() {
       />
 
       {/* OS Analogy */}
-      <Card className="border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
+      <Card className="glass-card-premium border-emerald-500/20">
         <CardContent className="p-6">
+          <div className="gradient-accent-bar mb-4" />
           <div className="flex flex-col md:flex-row items-center justify-center gap-8 text-center">
             {osAnalogyItems.map((item, i) => {
               const IconComp = item.IconComponent;
@@ -191,7 +192,7 @@ export function Part2ACOS() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: i * 0.1 }}
             >
-              <Card className={`border-border/30 hover:${colors.border} transition-colors duration-300 card-hover-lift`}>
+              <Card className={`magnetic-hover border-border/30 hover:${colors.border} transition-colors duration-300 card-hover-lift`}>
                 <CardHeader>
                   <div className="flex items-center gap-3">
                     <div className={`w-10 h-10 rounded-lg ${colors.bg} ${colors.border} border flex items-center justify-center ${colors.icon}`}>
@@ -288,7 +289,7 @@ export function Part2ACOS() {
               className="p-4 rounded-lg bg-card/50 border border-emerald-500/15"
             >
               <div className="text-sm font-semibold text-emerald-400 mb-2">Lyapunov-Guided Scheduling</div>
-              <code className="text-xs font-mono text-foreground block bg-card/50 p-3 rounded-md border border-border/10 mb-2">
+              <code className="prose-code-block text-xs font-mono text-foreground block mb-2">
                 V(h,a) = -R(S,a) + u/2*||a||^2 + v/2*||h||^2
               </code>
               <p className="text-xs text-muted-foreground">
@@ -305,7 +306,7 @@ export function Part2ACOS() {
               <p className="text-xs text-muted-foreground mb-2">
                 Resources are allocated to the thread with the highest gradient of value:
               </p>
-              <code className="text-xs font-mono text-foreground block bg-card/50 p-3 rounded-md border border-border/10">
+              <code className="prose-code-block text-xs font-mono text-foreground block">
                 k* = argmax_k ||grad_(&#123;S_k&#125;) V(h,a)||
               </code>
               <p className="text-xs text-muted-foreground mt-2">
@@ -339,7 +340,7 @@ export function Part2ACOS() {
               <ShieldCheck className="w-4 h-4 text-teal-400 flex-shrink-0 mt-0.5" />
               <div>
                 <div className="text-sm font-semibold">Thread Isolation Guarantee</div>
-                <code className="text-xs font-mono text-foreground block bg-card/50 p-2 rounded-md border border-border/10 mt-1">
+                <code className="prose-code-block text-xs font-mono text-foreground block mt-1">
                   S_i^T . S_j = 0 (proven) -&gt; Contamination-free by construction
                 </code>
               </div>

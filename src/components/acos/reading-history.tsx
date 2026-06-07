@@ -24,6 +24,7 @@ interface HistoryEntry {
 /* ------------------------------------------------------------------ */
 
 const STORAGE_KEY = "acos-reading-history";
+const VISITED_SECTIONS_KEY = "acos-visited-sections";
 const MAX_HISTORY = 10;
 
 function readHistory(): HistoryEntry[] {
@@ -76,6 +77,85 @@ function subscribe(listener: () => void): () => void {
   listeners = [...listeners, listener];
   return () => {
     listeners = listeners.filter((l) => l !== listener);
+  };
+}
+
+/* ------------------------------------------------------------------ */
+/*  Unique visited sections tracker (for achievement notifications)    */
+/* ------------------------------------------------------------------ */
+
+let visitedListeners: Array<() => void> = [];
+let cachedVisited: string[] | null = null;
+
+function readVisitedSections(): string[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(VISITED_SECTIONS_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeVisitedSections(sections: string[]) {
+  try {
+    localStorage.setItem(VISITED_SECTIONS_KEY, JSON.stringify(sections));
+  } catch {
+    // Silently fail
+  }
+}
+
+function getVisitedSnapshot(): string[] {
+  if (cachedVisited === null) {
+    cachedVisited = readVisitedSections();
+  }
+  return cachedVisited;
+}
+
+const EMPTY_VISITED: string[] = [];
+
+function getVisitedServerSnapshot(): string[] {
+  return EMPTY_VISITED;
+}
+
+function setVisitedState(newVisited: string[]) {
+  cachedVisited = newVisited;
+  writeVisitedSections(newVisited);
+  visitedListeners.forEach((l) => l());
+}
+
+function subscribeVisited(listener: () => void): () => void {
+  visitedListeners = [...visitedListeners, listener];
+  return () => {
+    visitedListeners = visitedListeners.filter((l) => l !== listener);
+  };
+}
+
+function addVisitedSection(sectionId: string): string[] {
+  const current = getVisitedSnapshot();
+  if (current.includes(sectionId)) return current;
+  const updated = [...current, sectionId];
+  setVisitedState(updated);
+  return updated;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Hook: useVisitCount                                                */
+/* ------------------------------------------------------------------ */
+
+export function useVisitCount() {
+  const visitedSections = useSyncExternalStore(
+    subscribeVisited,
+    getVisitedSnapshot,
+    getVisitedServerSnapshot
+  );
+
+  return {
+    visitCount: visitedSections.length,
+    visitedSections,
+    addVisitedSection,
   };
 }
 

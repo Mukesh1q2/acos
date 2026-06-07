@@ -122,7 +122,7 @@ const openItems = [
 
 export function Part1Analysis() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <SectionHeader
         sectionNumber={1}
         title="Whitepaper Analysis"
@@ -133,11 +133,12 @@ export function Part1Analysis() {
       />
 
       {/* Component Classification Table */}
-      <Card className="border-border/30">
+      <Card className="glass-card-premium">
         <CardHeader>
           <CardTitle className="text-lg" id="component-classification">Component Classification</CardTitle>
         </CardHeader>
         <CardContent>
+          <div className="gradient-accent-bar" />
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
@@ -253,7 +254,7 @@ export function Part1Analysis() {
               className="p-4 rounded-lg bg-muted/20 border border-border/20 card-hover-lift"
             >
               <div className="text-sm font-semibold text-emerald-400 mb-2">HBTA Complexity</div>
-              <code className="text-xs font-mono text-foreground block bg-card/50 p-3 rounded-md border border-border/10">
+              <code className="prose-code-block text-xs font-mono text-foreground block">
                 C_HBTA = O(Nd^2*logN)
               </code>
               <div className="mt-2 text-xs text-muted-foreground">
@@ -268,7 +269,7 @@ export function Part1Analysis() {
               className="p-4 rounded-lg bg-muted/20 border border-border/20 card-hover-lift"
             >
               <div className="text-sm font-semibold text-teal-400 mb-2">OTM Cayley Retraction</div>
-              <code className="text-xs font-mono text-foreground block bg-card/50 p-3 rounded-md border border-border/10">
+              <code className="prose-code-block text-xs font-mono text-foreground block">
                 S_{'{t+1}'} = (I + A)^(-1)(I - A)S_t, where A = eta*W/2, W = dS^T - S*d^T
               </code>
               <div className="mt-2 text-xs text-muted-foreground">
@@ -283,7 +284,7 @@ export function Part1Analysis() {
               className="p-4 rounded-lg bg-muted/20 border border-border/20 card-hover-lift"
             >
               <div className="text-sm font-semibold text-green-400 mb-2">Stiefel Gradient</div>
-              <code className="text-xs font-mono text-foreground block bg-card/50 p-3 rounded-md border border-border/10">
+              <code className="prose-code-block text-xs font-mono text-foreground block">
                 grad_R F(S) = grad_S F - S*sym(S^T * grad_S F)
               </code>
               <div className="mt-2 text-xs text-muted-foreground">
@@ -298,7 +299,7 @@ export function Part1Analysis() {
               className="p-4 rounded-lg bg-muted/20 border border-border/20 card-hover-lift"
             >
               <div className="text-sm font-semibold text-cyan-400 mb-2">Gated-Sum Broadcast</div>
-              <code className="text-xs font-mono text-foreground block bg-card/50 p-3 rounded-md border border-border/10">
+              <code className="prose-code-block text-xs font-mono text-foreground block">
                 ctx_i = Sum_k G_k(W_k * anc_k(i)), ctx in R^d
               </code>
               <div className="mt-2 text-xs text-muted-foreground">

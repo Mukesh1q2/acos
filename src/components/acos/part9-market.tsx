@@ -82,7 +82,7 @@ const openSourceStrategy = [
 
 export function Part9Market() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <SectionHeader
         sectionNumber={9}
         title="Market Strategy"
@@ -93,12 +93,13 @@ export function Part9Market() {
       />
 
       {/* Competitor Table */}
-      <Card className="card-hover-lift border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
+      <Card className="glass-card-premium card-hover-lift border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
         <CardHeader>
           <CardTitle className="text-lg">Competitor Comparison</CardTitle>
-          <CardDescription>How ACOS compares to existing AI platforms</CardDescription>
+          <CardDescription className="mb-2">How ACOS compares to existing AI platforms</CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="gradient-accent-bar" />
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
@@ -181,7 +182,7 @@ export function Part9Market() {
             <Lock className="w-5 h-5 text-teal-400" />
             <CardTitle className="text-lg">Patent Opportunities</CardTitle>
           </div>
-          <CardDescription className="text-teal-400/70">Key patentable innovations</CardDescription>
+          <CardDescription className="text-teal-400/70 mb-2">Key patentable innovations</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -277,7 +278,7 @@ export function Part9Market() {
             <Globe className="w-5 h-5 text-green-400" />
             <CardTitle className="text-lg">Open Source Strategy</CardTitle>
           </div>
-          <CardDescription className="text-green-400/70">Licensing approach for each component</CardDescription>
+          <CardDescription className="text-green-400/70 mb-2">Licensing approach for each component</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">

@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatMarkdown } from "./chat-markdown";
 import { toast } from "sonner";
+import { addNotification } from "@/components/acos/notification-center";
 
 interface Message {
   id: string;
@@ -94,6 +95,12 @@ export function ChatPanel() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const isOpenRef = useRef(false);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    isOpenRef.current = isOpen;
+  }, [isOpen]);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -154,6 +161,14 @@ export function ChatPanel() {
             timestamp: Date.now(),
           };
           setMessages((prev) => [...prev, assistantMessage]);
+          // Notify if chat panel was closed while waiting
+          if (!isOpenRef.current) {
+            addNotification({
+              type: "info",
+              title: "AI responded",
+              message: "The ACOS Assistant has replied to your question",
+            });
+          }
         } else {
           const errorMessage: Message = {
             id: crypto.randomUUID(),

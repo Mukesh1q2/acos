@@ -81,7 +81,7 @@ const spectrumPositions = [
 
 export function Part8Evolution() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <SectionHeader
         sectionNumber={8}
         title="Self-Evolution"
@@ -102,8 +102,9 @@ export function Part8Evolution() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
             >
-              <Card className={`card-hover-lift ${i === 0 ? "border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10" : "border-border/30"}`}>
+              <Card className={`magnetic-hover card-hover-lift ${i === 0 ? "glass-card-premium border-emerald-500/20" : "border-border/30"}`}>
                 <CardContent className="p-4">
+                  {i === 0 && <div className="gradient-accent-bar mb-4" />}
                   <div className="flex flex-col md:flex-row md:items-center gap-4">
                     <div className={`w-10 h-10 rounded-lg ${colors.bg} ${colors.border} border flex items-center justify-center ${colors.text} flex-shrink-0`}>
                       {cap.icon}
@@ -138,7 +139,7 @@ export function Part8Evolution() {
       <Card className="card-hover-lift border-border/30">
         <CardHeader>
           <CardTitle className="text-lg">Safety-Speculation Spectrum</CardTitle>
-          <CardDescription>Risk classification from safe to speculative</CardDescription>
+          <CardDescription className="mb-2">Risk classification from safe to speculative</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="relative py-8">
@@ -204,7 +205,7 @@ export function Part8Evolution() {
             <Brain className="w-5 h-5 text-teal-400" />
             <CardTitle className="text-lg text-teal-400">Reflection & Self-Critique</CardTitle>
           </div>
-          <CardDescription className="text-teal-400/70">Self-evaluation and correction mechanisms</CardDescription>
+          <CardDescription className="text-teal-400/70 mb-2">Self-evaluation and correction mechanisms</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -213,7 +214,7 @@ export function Part8Evolution() {
               <p className="text-xs text-muted-foreground mb-2">
                 ACOS can evaluate its own outputs via the Nyaya Verifier energy function:
               </p>
-              <code className="text-xs font-mono text-foreground block bg-card/50 p-3 rounded-md border border-border/10">
+              <code className="prose-code-block text-xs font-mono text-foreground block">
                 E(h) = -1/d_v * 1^T log V(h) &gt;= 0
               </code>
               <p className="text-xs text-muted-foreground mt-2">
@@ -223,7 +224,7 @@ export function Part8Evolution() {
 
             <div className="p-4 rounded-lg bg-card/50 border border-teal-500/15">
               <div className="text-sm font-semibold text-teal-400 mb-2">Smooth Rejection Sampling</div>
-              <code className="text-xs font-mono text-foreground block bg-card/50 p-3 rounded-md border border-border/10">
+              <code className="prose-code-block text-xs font-mono text-foreground block">
                 h_tilde = h_hat - eta_r * sigma((E(h_hat)-tau)/beta_r) * grad_h E(h_hat)
               </code>
               <p className="text-xs text-muted-foreground mt-2">
@@ -241,7 +242,7 @@ export function Part8Evolution() {
             <Users className="w-5 h-5 text-green-400" />
             <CardTitle className="text-lg text-green-400">Agent Evolution</CardTitle>
           </div>
-          <CardDescription className="text-green-400/70">Dynamic composition and improvement</CardDescription>
+          <CardDescription className="text-green-400/70 mb-2">Dynamic composition and improvement</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">

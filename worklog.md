@@ -1552,3 +1552,364 @@ Stage Summary:
 - Add voice navigation support (speech-to-text for section navigation)
 - Performance audit: consider React.memo on heavy chart components
 - Add lazy-loading for chat markdown rendering
+
+---
+Task ID: 3
+Agent: full-stack-developer
+Task: Comprehensive styling overhaul across all Part section components (part1-part11)
+
+Work Log:
+
+**Enhancement 1: Glass Morphism Cards (globals.css + all Part sections)**
+- Added `.glass-card-premium` CSS class with multi-stop gradient background (135deg), backdrop-filter blur(12px), emerald-tinted border, and dual box-shadow with inset glow
+- Added light mode variant (`:root .glass-card-premium`) with lighter glass effect
+- Added dark mode variant (`.dark .glass-card-premium`) with deeper glass effect
+- Applied `glass-card-premium` to the first Card in each Part section:
+  - Part 1: Component Classification card
+  - Part 2: OS Analogy card
+  - Part 3: Component Evaluation card
+  - Part 4: Path C (emerald) pathway card
+  - Part 5: Learning Modes card
+  - Part 6: First routing level (Intent Classification) card
+  - Part 7: Capability Matrix card
+  - Part 8: First capability (Prompt Evolution) card
+  - Part 9: Competitor Comparison card
+  - Part 10: Risk Heatmap card
+  - Part 11: Verdict card
+
+**Enhancement 2: Gradient Accent Bars (globals.css + all Part sections)**
+- Added `.gradient-accent-bar` CSS class: 3px height, emerald-to-teal-to-emerald gradient, rounded top corners
+- Added `<div className="gradient-accent-bar" />` as first child inside first Card's CardContent in all 11 Part sections
+
+**Enhancement 3: Enhanced Code Blocks (globals.css + multiple Part sections)**
+- Added `.prose-code-block` CSS class: dark background, emerald-tinted border, rounded 8px, monospace font, relative positioning
+- Added `.prose-code-block::before` pseudo-element: 2px gradient top line (emerald to teal)
+- Replaced all `bg-card/50 p-3 rounded-md border border-border/10` code blocks with `prose-code-block` class in:
+  - Part 1: 4 code blocks (HBTA Complexity, Cayley Retraction, Stiefel Gradient, Gated-Sum Broadcast)
+  - Part 2: 3 code blocks (Lyapunov Scheduling, Thread Allocation, Thread Isolation Guarantee)
+  - Part 5: 1 code block (Orthogonal Gradient Projection)
+  - Part 8: 2 code blocks (Nyaya Self-Evaluation, Smooth Rejection Sampling)
+
+**Enhancement 4: Icon Badge Gradient Border (section-header.tsx)**
+- Added `animate-gradient-border` class to the icon container div (w-12 h-12 rounded-xl)
+- This creates a subtle animated rotating conic-gradient border around section header icons
+
+**Enhancement 5: Section Content Spacing (all 11 Part sections)**
+- Changed `space-y-8` to `space-y-10` in all Part section root divs for more breathing room
+- Added `mb-2` between CardTitle and CardDescription where CardDescription exists across all Part sections:
+  - Part 3: 7 CardDescription elements
+  - Part 4: 2 CardDescription elements
+  - Part 5: 4 CardDescription elements
+  - Part 6: 5 CardDescription elements
+  - Part 7: 2 CardDescription elements
+  - Part 8: 3 CardDescription elements
+  - Part 9: 3 CardDescription elements
+  - Part 10: 2 CardDescription elements
+
+**Enhancement 6: Magnetic Hover on Interactive Cards (multiple Part sections)**
+- Applied `magnetic-hover` CSS class to clickable/interactive cards:
+  - Part 2: All 5 Core Component cards
+  - Part 4: All 3 Pathway cards
+  - Part 6: All 3 Routing Level cards
+  - Part 7: 3 Summary stat cards
+  - Part 8: All 5 Capability cards
+
+**Files Modified:**
+- `/src/app/globals.css` — Added glass-card-premium, gradient-accent-bar, prose-code-block CSS classes with light/dark mode variants
+- `/src/components/acos/section-header.tsx` — Added animate-gradient-border to icon container
+- `/src/components/acos/part1-analysis.tsx` — glass-card-premium, gradient-accent-bar, prose-code-block, space-y-10
+- `/src/components/acos/part2-acos.tsx` — glass-card-premium, gradient-accent-bar, prose-code-block, magnetic-hover, space-y-10
+- `/src/components/acos/part3-afm.tsx` — glass-card-premium, gradient-accent-bar, mb-2 on CardDescription, space-y-10
+- `/src/components/acos/part4-training.tsx` — glass-card-premium, gradient-accent-bar, magnetic-hover, mb-2 on CardDescription, space-y-10
+- `/src/components/acos/part5-learning.tsx` — glass-card-premium, gradient-accent-bar, prose-code-block, mb-2 on CardDescription, space-y-10
+- `/src/components/acos/part6-orchestration.tsx` — glass-card-premium, gradient-accent-bar, magnetic-hover, mb-2 on CardDescription, space-y-10
+- `/src/components/acos/part7-multimodal.tsx` — glass-card-premium, gradient-accent-bar, magnetic-hover, mb-2 on CardDescription, space-y-10
+- `/src/components/acos/part8-evolution.tsx` — glass-card-premium, gradient-accent-bar, magnetic-hover, prose-code-block, mb-2 on CardDescription, space-y-10
+- `/src/components/acos/part9-market.tsx` — glass-card-premium, gradient-accent-bar, mb-2 on CardDescription, space-y-10
+- `/src/components/acos/part10-attack.tsx` — glass-card-premium, gradient-accent-bar, mb-2 on CardDescription, space-y-10
+- `/src/components/acos/part11-masterplan.tsx` — glass-card-premium, gradient-accent-bar, space-y-10
+
+**Verification:**
+- `bun run lint`: 0 errors, 0 warnings
+- Dev server compiles successfully
+- All 15 sections load without errors
+
+Stage Summary:
+- 6 major styling enhancements applied across all 11 Part sections and shared components
+- Glass morphism premium cards with gradient accent bars create visual hierarchy
+- Enhanced code blocks with gradient top lines for technical content
+- Animated gradient borders on section header icons
+- Increased spacing (space-y-10) for better breathing room
+- Magnetic hover effects on interactive cards
+- Zero lint errors, successful compilation
+
+---
+Task ID: 2-c + 2-d
+Agent: full-stack-developer
+Task: Create Presentation Mode and Enhanced Overview with Animated Stats Dashboard
+
+Work Log:
+
+**Feature 1: Presentation Mode**
+
+- Created `/src/components/acos/presentation-mode.tsx` with three exported components:
+  - `PresentationMode` — Main wrapper that conditionally renders the floating control bar overlay
+  - `PresentationToggleButton` — Small Monitor icon button for the breadcrumb area
+  - `PresentationControls` — Internal component with the floating bottom control bar containing:
+    - Previous/Next section arrows (ChevronLeft/ChevronRight)
+    - Current section name display
+    - Section number indicator (e.g. "3/16")
+    - Exit presentation button (X icon)
+    - Elapsed timer (Clock icon + MM:SS format)
+    - Left/Right arrow keyboard handlers for section navigation
+    - Smooth framer-motion enter/exit animations (slide up from bottom)
+
+- Added `hidden` prop to `SidebarProps` interface in sidebar.tsx
+  - When `hidden={true}`, the Sidebar component returns null (hides both mobile hamburger, drawer, and desktop sidebar)
+
+- Added presentation mode CSS to `/src/app/globals.css`:
+  - `.presentation-mode` class with `font-size: 1.15rem` (~20% increase)
+  - Overridden font sizes for `.text-xs` through `.text-3xl` to scale up proportionally
+
+- Integrated presentation mode in `/src/app/page.tsx`:
+  - Added `isPresentationMode` state
+  - Added `P` key keyboard shortcut handler (ignores when in input/textarea)
+  - Added `Escape` key handler to exit presentation mode
+  - When `isPresentationMode` is true:
+    - Adds `presentation-mode` CSS class to root div
+    - Hides sidebar via `hidden` prop
+    - Hides: footer, progress bars (both navigation and reading), TOC, mobile bottom nav, scroll-to-top button, command palette hint, chat panel, onboarding tour, keyboard shortcuts
+    - Changes content max-width from `max-w-5xl` to `max-w-7xl`
+    - Simplifies section transition animation (fade-only, no y-shift/blur)
+    - Shows PresentationControls overlay
+    - Hides bookmark/share/reading list buttons in breadcrumb
+  - Added PresentationToggleButton to breadcrumb area (visible on all non-overview sections)
+
+**Feature 2: Enhanced Overview with Animated Stats Dashboard**
+
+- Updated `/src/components/acos/overview.tsx` with two new visualization components:
+
+  **System Architecture Pulse:**
+  - Horizontal bar showing all 6 ACOS stack layers as animated segments
+  - Layers: Kernel (emerald-500), Memory (emerald-400), Reasoning (teal-500), Knowledge (teal-400), Agents (green-500), AFM (cyan-500)
+  - Sequential pulse animation: active segment rotates every 1.2s via setInterval
+  - Active segment: full opacity + emerald box-shadow glow + white pulse overlay
+  - Inactive segments: 35% opacity, no glow
+  - Labels below each segment with emerald highlight on active
+  - Uses framer-motion animate for smooth opacity/glow transitions
+
+  **Key Metrics Ring:**
+  - 4 circular SVG progress rings with animated fill on scroll
+  - Ring 1: 77% fill (77x Attention Speedup) — emerald color
+  - Ring 2: 100% fill (250x Memory Reduction) — teal color
+  - Ring 3: 86% fill (86% Knowledge Retention) — green color
+  - Ring 4: 0% fill (0 Thread Interference) — gray color
+  - SVG parameters: viewBox="0 0 100 100", r=40, cx=50, cy=50
+  - Stroke-dasharray/dashoffset animation with ease-out cubic easing
+  - Staggered start delays: 0ms, 150ms, 300ms, 450ms
+  - Center display value with colored bold text
+  - Label below each ring in mono font
+  - Responsive: 2 rings per row on mobile, 4 on desktop
+
+  **ACOS at a Glance Dashboard Card:**
+  - Dark card background (`bg-card/60`) with subtle emerald border (`border-emerald-500/15`)
+  - Title: "ACOS at a Glance" with Activity icon
+  - Two subsections: "System Architecture Pulse" and "Key Metrics"
+  - Inserted between the Animated Counter Stats and the Key stats row
+  - Wrapped in ScrollReveal for scroll-triggered entrance animation
+
+**Verification:**
+- `bun run lint`: 0 errors, 0 warnings
+- Dev server compiles successfully
+- All existing features remain functional
+
+Stage Summary:
+- Presentation Mode fully implemented with P key toggle, floating control bar, timer, section navigation, and Escape to exit
+- When active: hides sidebar/footer/TOC/mobile nav/chat, widens content to max-w-7xl, increases font sizes ~20%
+- Overview enhanced with "ACOS at a Glance" dashboard containing animated System Architecture Pulse and Key Metrics Rings
+- All changes pass lint with zero errors
+
+---
+Task ID: 2-a + 2-b
+Agent: full-stack-developer
+Task: Create Notification Center and Section Comparison View features
+
+Work Log:
+
+**Feature 1: Notification Center (notification-center.tsx)**
+- Created `/src/components/acos/notification-center.tsx` with full notification system
+- **NotificationStore**: Global store using `useSyncExternalStore` pattern (same as bookmarks/reading-list)
+  - Types: `'info' | 'success' | 'warning' | 'achievement'`
+  - Each notification: `{ id, type, title, message, timestamp, read, sectionId? }`
+  - Functions: `addNotification(notif)`, `markAsRead(id)`, `markAllRead()`, `clearAll()`
+  - `useNotifications` hook exposes `notifications` and `unreadCount`
+  - Auto-dismiss after 10s for info/success types via `setTimeout` + timer cleanup
+  - Max 50 notifications stored (oldest trimmed when exceeded)
+  - localStorage persistence under `acos-notifications` key
+  - `NotificationProvider` component for cross-tab storage event sync
+- **NotificationCenter component**:
+  - Bell icon button (Lucide `Bell`) with animated unread count badge
+  - Badge: emerald-500 rounded pill with count (shows "9+" for 10+)
+  - Uses shadcn/ui `Popover` component for dropdown
+  - Notification list with max-height 80 + overflow-y-auto
+  - Each item: icon by type (Info/CheckCircle/AlertTriangle/Trophy) + title + message + relative time + section link
+  - Unread items: emerald left border + bg-emerald-500/5 + unread dot indicator
+  - Read items: muted opacity-60
+  - "Mark all read" button (CheckCheck icon) and "Clear all" button (Trash2 icon)
+  - Empty state: "No notifications yet" with muted Bell icon
+  - Clicking notification with sectionId navigates to that section
+  - AnimatePresence for smooth item add/remove transitions
+
+**Feature 2: Section Comparison View (section-compare.tsx)**
+- Created `/src/components/acos/section-compare.tsx` with split-screen comparison
+- **SectionCompare component**:
+  - "Compare" button with GitCompare icon in breadcrumb area
+  - Opens a Dialog (shadcn/ui) at 95vw/90vw width and 85vh height
+  - Two Select dropdowns at top to pick Section A and Section B from navItems
+  - Disabled selection of same section in both dropdowns
+  - Swap button (ArrowLeftRight icon) in the middle to swap left/right panels
+  - Split layout: left panel (Section A) and right panel (Section B)
+  - Each panel has: header bar with section name + "View full page" link
+  - Each panel renders the actual section component from sectionComponents map
+  - Both panels scroll independently via ScrollArea
+  - "View full page" link closes dialog and navigates to that section
+  - Suspense fallback with LoadingSkeleton for lazy-loaded components
+  - Empty state with GitCompare icon when no section is selected
+  - Responsive: on mobile, panels stack vertically (flex-col lg:flex-row)
+
+**Auto-notification triggers:**
+- **Bookmark notification**: Added `addNotification` call in `bookmarks.tsx` toggleBookmark when adding a bookmark (type: "success", title: "Section bookmarked")
+- **Reading list notification**: Added `addNotification` call in `reading-list.tsx` ReadingListButton when adding to reading list (type: "success", title: "Added to Reading List")
+- **Chat notification**: Added `addNotification` call in `chat-panel.tsx` sendMessage after AI responds (type: "info", title: "AI responded") — only when chat panel is closed (uses isOpenRef)
+- **Achievement notifications**: Added in `page.tsx` handleSectionChange:
+  - 5 unique sections visited: "Explorer" achievement
+  - 10 unique sections visited: "Scholar" achievement
+  - All 16 sections visited: "Master" achievement
+
+**Visit counter (reading-history.tsx):**
+- Added `VISITED_SECTIONS_KEY = "acos-visited-sections"` localStorage key
+- Added separate external store for unique visited sections tracking
+- Added `useVisitCount` hook with `visitCount`, `visitedSections`, `addVisitedSection`
+- `addVisitedSection` returns the updated array for immediate use
+
+**Integration (page.tsx):**
+- Imported NotificationCenter, NotificationProvider, addNotification, SectionCompare, useVisitCount
+- Added SectionCompare and NotificationCenter to breadcrumb area (before ShareButton)
+- Added `addVisitedSection` call and achievement notification logic in handleSectionChange
+- SectionCompare receives `sectionComponents` map and `handleSectionChange` as props
+
+**Integration (layout.tsx):**
+- Imported NotificationProvider from notification-center
+- Wrapped children + Toasters with NotificationProvider inside ReadingHistoryProvider
+
+**Verification:**
+- `bun run lint`: 0 errors, 0 warnings
+- Dev server compiles successfully
+- All features integrated and functional
+
+Stage Summary:
+- Notification Center created with global store, popover dropdown, auto-dismiss, and achievement system
+- Section Comparison View created with split-screen Dialog, independent scrolling, swap button
+- Auto-notifications wired for bookmarks, reading list, chat responses, and reading achievements
+- Visit counter added to reading-history.tsx for tracking unique section visits
+- Both features integrated into page.tsx breadcrumb area
+- NotificationProvider added to layout.tsx provider chain
+- Zero lint errors, successful compilation
+
+---
+Task ID: round6-main
+Agent: main
+Task: QA assessment, notification center, section comparison, presentation mode, overview dashboard, styling overhaul
+
+Work Log:
+- **QA Assessment**: Tested all 16 sections via agent-browser. Lint passes with 0 errors. No runtime errors. Application is stable.
+- **Notification Center** (subagent Task 2-a):
+  - Created `/src/components/acos/notification-center.tsx` — full notification system
+  - 4 notification types: info, success, warning, achievement
+  - Bell icon with animated unread badge, Popover dropdown with notification list
+  - Auto-dismiss for info/success after 10s, max 50 notifications, localStorage persistence
+  - Auto-notifications wired: bookmark (success), reading list (success), chat response (info)
+  - Achievement notifications: Explorer (5 sections), Scholar (10), Master (16)
+  - Added `useVisitCount` hook to reading-history.tsx for tracking unique visits
+  - Integrated NotificationCenter in page.tsx breadcrumb area
+- **Section Comparison View** (subagent Task 2-b):
+  - Created `/src/components/acos/section-compare.tsx` — split-screen comparison
+  - Dialog with two Select dropdowns to pick sections
+  - Left/right panels render actual section components with independent scrolling
+  - Swap button, responsive stacking on mobile
+  - Integrated Compare button (GitCompare icon) in breadcrumb area
+- **Presentation Mode** (subagent Task 2-c):
+  - Created `/src/components/acos/presentation-mode.tsx` — fullscreen projector view
+  - Toggle via `P` key or Monitor icon button
+  - Hides sidebar, footer, progress bars, TOC, mobile nav when active
+  - Floating control bar: prev/next arrows, section name, timer, exit button
+  - Keyboard: Left/Right for navigation, Escape to exit
+  - CSS `.presentation-mode` class scales font sizes up ~15-20%
+  - Added `hidden` prop to Sidebar component
+- **Enhanced Overview Dashboard** (subagent Task 2-c):
+  - Added "ACOS at a Glance" section between counter stats and key stats
+  - System Architecture Pulse: 6 animated segments pulsing sequentially with emerald glow
+  - Key Metrics Ring: 4 SVG circular progress rings animating on scroll
+  - 77% (77x speedup), 100% (250x memory), 86% (retention), 0% (interference)
+- **Comprehensive Styling Overhaul** (subagent Task 3):
+  - Added `.glass-card-premium` — glass morphism with gradient bg, backdrop blur, emerald border
+  - Applied to first card in all 11 Part sections
+  - Added `.gradient-accent-bar` — 3px emerald gradient bar at top of premium cards
+  - Added `.prose-code-block` — enhanced code block styling with gradient top-line
+  - Replaced old inline code styling across Part 1, 2, 5, 8 with prose-code-block
+  - Enhanced section-header.tsx icon with animate-gradient-border
+  - Changed `space-y-8` to `space-y-10` in all 11 Part sections
+  - Added `mb-2` between CardTitle and CardDescription across 28 instances
+  - Applied `magnetic-hover` to interactive cards in Parts 2, 4, 6, 7, 8
+- **Final QA**:
+  - `bun run lint`: 0 errors, 0 warnings
+  - Dev server compiles successfully
+  - All 16 sections load without errors
+  - Notification bell visible in breadcrumb with unread badge
+  - Compare button opens dialog with section selectors
+  - Presentation mode toggles with P key, hides sidebar, shows controls
+  - Overview "ACOS at a Glance" renders with animated pulse and rings
+  - Glass morphism cards render on first card of each Part
+  - Gradient accent bars visible on premium cards
+  - No console errors
+
+Stage Summary:
+- 4 new components: notification-center.tsx, section-compare.tsx, presentation-mode.tsx, overview dashboard enhancements
+- 5 new features: Notification Center, Section Comparison, Presentation Mode, Architecture Pulse, Key Metrics Rings
+- 5 new CSS utilities: glass-card-premium, gradient-accent-bar, prose-code-block, presentation-mode, magnetic-hover applied
+- All 11 Part sections styled with glass morphism, gradient accents, enhanced spacing
+- Code blocks across Parts 1, 2, 5, 8 upgraded to prose-code-block styling
+- Zero lint errors, all features verified via agent-browser
+
+### Current Project Status
+**Status:** Production-ready, comprehensive feature set, polished visual design
+
+### Completed in This Round
+1. QA assessment — all 16 sections verified stable, no bugs
+2. Notification Center — bell icon, achievement system, auto-notifications
+3. Section Comparison — side-by-side split view with swap
+4. Presentation Mode — fullscreen projector view with keyboard controls
+5. Overview Dashboard — Architecture Pulse animation + Key Metrics Rings
+6. Glass Morphism Cards — premium first-card styling across all Parts
+7. Gradient Accent Bars — 3px emerald gradient on premium cards
+8. Enhanced Code Blocks — prose-code-block with gradient top-line
+9. Section spacing — increased to space-y-10, mb-2 between title/description
+10. Magnetic hover on interactive cards in 5 Part sections
+
+### Unresolved Issues or Risks
+- Presentation mode may need font-size tuning for different screen sizes
+- Notification achievement thresholds (5/10/16) are hardcoded
+- Section comparison renders full components which may be performance-heavy
+- Glass morphism cards require backdrop-filter support (not available in some older browsers)
+- SVG ring animations use useInView which may have slight delay on fast scroll
+
+### Priority Recommendations for Next Phase
+- Add PDF export of the full analysis report (using pdf skill)
+- Add "Dark/Light mode" toggle animation (smooth transition between themes)
+- Add ARIA live regions for screen reader navigation announcements
+- Add lazy-loading for chat markdown rendering
+- Add voice navigation support (speech-to-text for section navigation)
+- Performance audit: consider React.memo on heavy chart components
+- Add "Reading Progress" persistence across sessions (save scroll position)
+- Add Section Comparison diff view (highlight differences between sections)
+- Add more achievement types: "First Chat", "Bookmark 5", "Complete Tour"

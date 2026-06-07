@@ -81,7 +81,7 @@ const sleepCycleSteps = [
 
 export function Part5Learning() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <SectionHeader
         sectionNumber={5}
         title="Continuous Learning"
@@ -92,7 +92,7 @@ export function Part5Learning() {
       />
 
       {/* Learning Modes — Gradient Header Card */}
-      <Card className="card-hover-lift border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
+      <Card className="glass-card-premium card-hover-lift border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
         <CardHeader>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
@@ -100,11 +100,12 @@ export function Part5Learning() {
             </div>
             <div>
               <CardTitle className="text-lg">Learning Modes</CardTitle>
-              <CardDescription>Four distinct modes of continuous knowledge acquisition</CardDescription>
+              <CardDescription className="mb-2">Four distinct modes of continuous knowledge acquisition</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent>
+          <div className="gradient-accent-bar" />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {learningModes.map((mode, i) => (
               <motion.div
@@ -137,7 +138,7 @@ export function Part5Learning() {
       <Card className="card-hover-lift border-border/30">
         <CardHeader>
           <CardTitle className="text-lg">Learning Pipeline</CardTitle>
-          <CardDescription>End-to-end knowledge processing and consolidation workflow</CardDescription>
+          <CardDescription className="mb-2">End-to-end knowledge processing and consolidation workflow</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto pb-2">
@@ -164,7 +165,7 @@ export function Part5Learning() {
       <Card className="card-hover-lift border-border/30">
         <CardHeader>
           <CardTitle className="text-lg">Prevention Mechanisms</CardTitle>
-          <CardDescription>Built-in safeguards against common continuous learning failure modes</CardDescription>
+          <CardDescription className="mb-2">Built-in safeguards against common continuous learning failure modes</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -235,7 +236,7 @@ export function Part5Learning() {
             </div>
             <div>
               <CardTitle className="text-lg text-emerald-400">Orthogonal Gradient Projection — Detailed</CardTitle>
-              <CardDescription className="text-emerald-400/70">Mathematical foundations of zero-forgetting learning</CardDescription>
+              <CardDescription className="text-emerald-400/70 mb-2">Mathematical foundations of zero-forgetting learning</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -263,7 +264,7 @@ export function Part5Learning() {
               <p className="text-xs text-muted-foreground mb-2">
                 When learning task A, compute gradients grad_L_A. Project onto orthogonal complement of important directions for task B:
               </p>
-              <code className="text-xs font-mono text-foreground block bg-card/50 p-3 rounded-md border border-border/10">
+              <code className="prose-code-block text-xs font-mono text-foreground block">
                 grad_tilde_L_A = grad_L_A - S_B * (S_B^T * grad_L_A)
               </code>
               <p className="text-xs text-muted-foreground mt-2">
@@ -295,7 +296,7 @@ export function Part5Learning() {
             </div>
             <div>
               <CardTitle className="text-lg text-teal-400">Sleep Cycle Architecture</CardTitle>
-              <CardDescription className="text-teal-400/70">Idle-time consolidation inspired by human sleep</CardDescription>
+              <CardDescription className="text-teal-400/70 mb-2">Idle-time consolidation inspired by human sleep</CardDescription>
             </div>
           </div>
         </CardHeader>

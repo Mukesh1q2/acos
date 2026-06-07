@@ -56,7 +56,7 @@ export function SectionHeader({
         {icon && (
           <motion.div
             variants={itemVariants}
-            className="w-12 h-12 rounded-xl bg-emerald-600/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0"
+            className="w-12 h-12 rounded-xl bg-emerald-600/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0 animate-gradient-border"
           >
             {icon}
           </motion.div>

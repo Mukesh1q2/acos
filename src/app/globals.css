@@ -756,3 +756,78 @@ pre code {
   border-radius: 50%;
   background: oklch(0.696 0.17 162.48 / 0.4);
 }
+
+/* ------------------------------------------------------------------ */
+/*  Presentation Mode — increased font sizes (~20%)                    */
+/* ------------------------------------------------------------------ */
+
+.presentation-mode {
+  font-size: 1.15rem;
+}
+
+.presentation-mode .text-xs { font-size: 0.875rem; }
+.presentation-mode .text-sm { font-size: 1rem; }
+.presentation-mode .text-base { font-size: 1.15rem; }
+.presentation-mode .text-lg { font-size: 1.3rem; }
+.presentation-mode .text-xl { font-size: 1.5rem; }
+.presentation-mode .text-2xl { font-size: 1.75rem; }
+.presentation-mode .text-3xl { font-size: 2.25rem; }
+
+/* ------------------------------------------------------------------ */
+/*  Glass morphism premium card                                        */
+/* ------------------------------------------------------------------ */
+
+.glass-card-premium {
+  background: linear-gradient(135deg, oklch(0.696 0.17 162.48 / 0.08) 0%, oklch(0.205 0 0 / 0.6) 50%, oklch(0.7 0.15 180 / 0.06) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid oklch(0.696 0.17 162.48 / 0.15);
+  box-shadow: 0 4px 24px oklch(0 0 0 / 0.2), inset 0 1px 0 oklch(0.696 0.17 162.48 / 0.08);
+}
+
+/* Light mode glass-card-premium — lighter glass effect */
+:root .glass-card-premium {
+  background: linear-gradient(135deg, oklch(0.696 0.17 162.48 / 0.06) 0%, oklch(1 0 0 / 0.7) 50%, oklch(0.7 0.15 180 / 0.04) 100%);
+  box-shadow: 0 4px 24px oklch(0 0 0 / 0.08), inset 0 1px 0 oklch(0.696 0.17 162.48 / 0.1);
+}
+
+.dark .glass-card-premium {
+  background: linear-gradient(135deg, oklch(0.696 0.17 162.48 / 0.08) 0%, oklch(0.205 0 0 / 0.6) 50%, oklch(0.7 0.15 180 / 0.06) 100%);
+  box-shadow: 0 4px 24px oklch(0 0 0 / 0.2), inset 0 1px 0 oklch(0.696 0.17 162.48 / 0.08);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Gradient accent bar for section first cards                        */
+/* ------------------------------------------------------------------ */
+
+.gradient-accent-bar {
+  height: 3px;
+  background: linear-gradient(90deg, oklch(0.696 0.17 162.48), oklch(0.7 0.15 180), oklch(0.696 0.17 162.48));
+  border-radius: 3px 3px 0 0;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Enhanced prose code block                                          */
+/* ------------------------------------------------------------------ */
+
+.prose-code-block {
+  background: oklch(0.145 0 0 / 0.8);
+  border: 1px solid oklch(0.696 0.17 162.48 / 0.1);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  overflow-x: auto;
+  position: relative;
+}
+
+.prose-code-block::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, oklch(0.696 0.17 162.48 / 0.3), oklch(0.7 0.15 180 / 0.5), oklch(0.696 0.17 162.48 / 0.3));
+}

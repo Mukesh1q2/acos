@@ -169,6 +169,162 @@ function CounterStat({ stat, delay }: { stat: typeof metricStats[0]; delay: numb
 }
 
 /* ------------------------------------------------------------------ */
+/*  System Architecture Pulse                                          */
+/* ------------------------------------------------------------------ */
+
+const stackLayers = [
+  { label: "Kernel", color: "bg-emerald-500" },
+  { label: "Memory", color: "bg-emerald-400" },
+  { label: "Reasoning", color: "bg-teal-500" },
+  { label: "Knowledge", color: "bg-teal-400" },
+  { label: "Agents", color: "bg-green-500" },
+  { label: "AFM", color: "bg-cyan-500" },
+];
+
+function SystemArchitecturePulse() {
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % stackLayers.length);
+    }, 1200);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="space-y-3">
+      <div className="flex gap-1.5 h-10 rounded-xl overflow-hidden">
+        {stackLayers.map((layer, i) => (
+          <motion.div
+            key={layer.label}
+            className={`flex-1 ${layer.color} relative overflow-hidden rounded-lg`}
+            animate={{
+              opacity: i === activeIndex ? 1 : 0.35,
+              boxShadow: i === activeIndex
+                ? "0 0 20px oklch(0.696 0.17 162.48 / 0.5), 0 0 8px oklch(0.696 0.17 162.48 / 0.3)"
+                : "0 0 0px oklch(0.696 0.17 162.48 / 0)",
+            }}
+            transition={{ duration: 0.5, ease: "easeInOut" }}
+          >
+            {/* Pulse glow overlay */}
+            <motion.div
+              className="absolute inset-0 bg-white/20"
+              initial={{ opacity: 0 }}
+              animate={i === activeIndex ? { opacity: [0, 0.4, 0] } : { opacity: 0 }}
+              transition={i === activeIndex ? { duration: 0.8, ease: "easeInOut" } : {}}
+            />
+          </motion.div>
+        ))}
+      </div>
+      <div className="flex gap-1.5">
+        {stackLayers.map((layer, i) => (
+          <div key={layer.label} className="flex-1 text-center">
+            <motion.span
+              className="text-[10px] font-mono"
+              animate={{
+                color: i === activeIndex ? "oklch(0.696 0.17 162.48)" : "oklch(0.556 0 0)",
+              }}
+              transition={{ duration: 0.5 }}
+            >
+              {layer.label}
+            </motion.span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Key Metrics Ring                                                   */
+/* ------------------------------------------------------------------ */
+
+interface MetricRingProps {
+  value: number; // 0-100 fill percentage
+  label: string;
+  displayValue: string;
+  color: string; // tailwind stroke color class
+  bgColor: string;
+  delay: number;
+}
+
+function MetricRing({ value, label, displayValue, color, bgColor, delay }: MetricRingProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true });
+  const [animatedValue, setAnimatedValue] = useState(0);
+
+  useEffect(() => {
+    if (!isInView) return;
+    const startTime = Date.now();
+    const duration = 1500;
+    const step = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setAnimatedValue(eased * value);
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      }
+    };
+    // Delay start
+    const timeout = setTimeout(() => requestAnimationFrame(step), delay);
+    return () => clearTimeout(timeout);
+  }, [isInView, value, delay]);
+
+  // SVG circle params: viewBox 0 0 100 100, r=40, cx=50, cy=50
+  const radius = 40;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (animatedValue / 100) * circumference;
+
+  return (
+    <div ref={ref} className="flex flex-col items-center gap-2">
+      <div className="relative w-28 h-28 md:w-32 md:h-32">
+        <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+          {/* Background ring */}
+          <circle
+            cx="50"
+            cy="50"
+            r={radius}
+            fill="none"
+            stroke="oklch(1 0 0 / 8%)"
+            strokeWidth="6"
+          />
+          {/* Progress ring */}
+          <motion.circle
+            cx="50"
+            cy="50"
+            r={radius}
+            fill="none"
+            stroke={color}
+            strokeWidth="6"
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={strokeDashoffset}
+            style={{ transition: "stroke-dashoffset 0.1s ease-out" }}
+          />
+        </svg>
+        {/* Center label */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className={`text-xl md:text-2xl font-bold ${bgColor}`}>
+            {displayValue}
+          </span>
+        </div>
+      </div>
+      <span className="text-xs text-muted-foreground font-mono text-center leading-tight">
+        {label}
+      </span>
+    </div>
+  );
+}
+
+const metricRings = [
+  { value: 77, label: "Attention Speedup", displayValue: "77x", color: "oklch(0.696 0.17 162.48)", bgColor: "text-emerald-400", delay: 0 },
+  { value: 100, label: "Memory Reduction", displayValue: "250x", color: "oklch(0.7 0.15 180)", bgColor: "text-teal-400", delay: 150 },
+  { value: 86, label: "Knowledge Retention", displayValue: "86%", color: "oklch(0.727 0.194 142.5)", bgColor: "text-green-400", delay: 300 },
+  { value: 0, label: "Thread Interference", displayValue: "0", color: "oklch(0.556 0 0 / 0.3)", bgColor: "text-muted-foreground", delay: 450 },
+];
+
+/* ------------------------------------------------------------------ */
 /*  Main Component                                                     */
 /* ------------------------------------------------------------------ */
 
@@ -283,11 +439,46 @@ export function OverviewSection() {
         </ScrollReveal>
 
         {/* Animated Counter Stats */}
-        <ScrollReveal direction="up" delay={0.2} className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16"
+        <ScrollReveal direction="up" delay={0.2} className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12"
         >
           {metricStats.map((stat, i) => (
             <CounterStat key={stat.label} stat={stat} delay={0.7 + i * 0.12} />
           ))}
+        </ScrollReveal>
+
+        {/* ACOS at a Glance Dashboard */}
+        <ScrollReveal direction="up" delay={0.2} className="mb-16">
+          <div className="rounded-2xl bg-card/60 border border-emerald-500/15 p-6 md:p-8 space-y-8">
+            {/* Title */}
+            <div className="flex items-center gap-2.5">
+              <Activity className="w-5 h-5 text-emerald-400" />
+              <h2 className="text-lg font-semibold text-foreground">ACOS at a Glance</h2>
+            </div>
+
+            {/* System Architecture Pulse */}
+            <div>
+              <h3 className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-3">System Architecture Pulse</h3>
+              <SystemArchitecturePulse />
+            </div>
+
+            {/* Key Metrics Rings */}
+            <div>
+              <h3 className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-4">Key Metrics</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 justify-items-center">
+                {metricRings.map((ring) => (
+                  <MetricRing
+                    key={ring.label}
+                    value={ring.value}
+                    label={ring.label}
+                    displayValue={ring.displayValue}
+                    color={ring.color}
+                    bgColor={ring.bgColor}
+                    delay={ring.delay}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
         </ScrollReveal>
 
         {/* Section divider */}

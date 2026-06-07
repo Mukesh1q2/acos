@@ -109,7 +109,7 @@ const colorStyles: Record<string, { bg: string; border: string; text: string; ba
 
 export function Part4Training() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <SectionHeader
         sectionNumber={4}
         title="Training Strategy"
@@ -130,14 +130,14 @@ export function Part4Training() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.15 }}
             >
-              <Card className={`card-hover-lift h-full ${path.color === "emerald" ? "border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10 ring-1 ring-emerald-500/30" : "border-border/30"}`}>
+              <Card className={`magnetic-hover card-hover-lift h-full ${path.color === "emerald" ? "glass-card-premium border-emerald-500/20 ring-1 ring-emerald-500/30" : "border-border/30"}`}>
                 <CardHeader>
                   <div className="flex items-center gap-3">
                     <div className={`w-10 h-10 rounded-lg ${colors.bg} ${colors.border} border flex items-center justify-center ${colors.text}`}>
                       {path.icon}
                     </div>
                     <div>
-                      <CardDescription className="text-xs font-mono">
+                      <CardDescription className="text-xs font-mono mb-2">
                         {path.label}
                       </CardDescription>
                       <CardTitle className="text-base">{path.title}</CardTitle>
@@ -256,7 +256,7 @@ export function Part4Training() {
             </div>
             <div>
               <CardTitle className="text-lg text-emerald-400">Phase Dependency Flow</CardTitle>
-              <CardDescription className="text-emerald-400/70">Gated progression with go/no-go decision points</CardDescription>
+              <CardDescription className="text-emerald-400/70 mb-2">Gated progression with go/no-go decision points</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -327,7 +327,7 @@ export function Part4Training() {
             </div>
             <div>
               <CardTitle className="text-lg">Compute Requirements</CardTitle>
-              <CardDescription>Hardware and cost estimates per training phase</CardDescription>
+              <CardDescription className="mb-2">Hardware and cost estimates per training phase</CardDescription>
             </div>
           </div>
         </CardHeader>

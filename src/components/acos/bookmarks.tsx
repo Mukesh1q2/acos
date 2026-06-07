@@ -12,6 +12,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { Bookmark, Star, X } from "lucide-react";
 import { navItems } from "@/components/acos/sidebar";
+import { addNotification } from "@/components/acos/notification-center";
 
 /* ------------------------------------------------------------------ */
 /*  localStorage helpers                                               */
@@ -90,6 +91,14 @@ export function useBookmarks() {
       setBookmarksState(current.filter((id) => id !== sectionId));
     } else {
       setBookmarksState([...current, sectionId]);
+      // Auto-notification for bookmarking
+      const navItem = navItems.find((n) => n.id === sectionId);
+      addNotification({
+        type: "success",
+        title: "Section bookmarked",
+        message: `${navItem?.shortLabel ?? sectionId} has been added to your bookmarks`,
+        sectionId,
+      });
     }
   }, []);
 

@@ -237,7 +237,7 @@ const riskSeverityColors: Record<string, string> = {
 
 export function Part11MasterPlan() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <SectionHeader
         sectionNumber={11}
         title="Master Plan"
@@ -248,8 +248,9 @@ export function Part11MasterPlan() {
       />
 
       {/* Verdict */}
-      <Card className="border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
+      <Card className="glass-card-premium border-emerald-500/20">
         <CardContent className="p-6">
+          <div className="gradient-accent-bar mb-4" />
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
               <Target className="w-6 h-6" />
