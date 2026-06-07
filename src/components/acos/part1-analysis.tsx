@@ -15,8 +15,55 @@ import { FlowChart } from "./flow-chart";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { AlertTriangle, Sigma, TrendingDown, FileText } from "lucide-react";
+import { AlertTriangle, Sigma, TrendingDown, FileText, CheckCircle, Lightbulb } from "lucide-react";
 import { SectionHeader } from "./section-header";
+import { CardDescription } from "@/components/ui/card";
+import { HBTATreeViz } from "./hbta-tree-viz";
+
+const keyFindings = [
+  {
+    number: 1,
+    title: "HBTA achieves O(Nd^2*logN)",
+    description: "Attention complexity breakthrough — 77x speedup at N=16K",
+    icon: <Lightbulb className="w-4 h-4" />,
+    status: "confirmed" as const,
+  },
+  {
+    number: 2,
+    title: "OTM provides proven thread isolation",
+    description: "Zero interference guaranteed by Stiefel Manifold geometry",
+    icon: <CheckCircle className="w-4 h-4" />,
+    status: "confirmed" as const,
+  },
+  {
+    number: 3,
+    title: "Lyapunov stability is only local",
+    description: "Controller stable within projected compact set — not global",
+    icon: <AlertTriangle className="w-4 h-4" />,
+    status: "caveat" as const,
+  },
+  {
+    number: 4,
+    title: "NSK needs LoRA adapter strategy",
+    description: "Naive NSK infeasible for large models — requires efficient adaptation",
+    icon: <Lightbulb className="w-4 h-4" />,
+    status: "confirmed" as const,
+  },
+  {
+    number: 5,
+    title: "v2 corrections are substantive",
+    description: "7 key corrections including HBTA error downgrade and OTM fp16 caveat",
+    icon: <CheckCircle className="w-4 h-4" />,
+    status: "confirmed" as const,
+  },
+  {
+    number: 6,
+    title: "Path C is the only viable strategy",
+    description: "Training from scratch required — fine-tuning paths fail for NSK",
+    icon: <Lightbulb className="w-4 h-4" />,
+    status: "confirmed" as const,
+  },
+];
 
 const componentData = [
   {
@@ -131,6 +178,84 @@ export function Part1Analysis() {
         icon={<FileText className="w-5 h-5" />}
         id="part1-whitepaper-analysis"
       />
+
+      {/* Key Findings Timeline */}
+      <Card className="glass-card-premium card-hover-lift border-emerald-500/20 bg-gradient-to-r from-emerald-900/10 to-teal-900/10">
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 flex-shrink-0">
+              <Lightbulb className="w-5 h-5" />
+            </div>
+            <div>
+              <CardTitle className="text-lg" id="key-findings-timeline">Key Findings Timeline</CardTitle>
+              <CardDescription className="mb-2">Six critical findings from the whitepaper analysis</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="gradient-accent-bar" />
+          <div className="relative ml-5">
+            {/* Vertical timeline line */}
+            <div className="absolute left-[14px] top-2 bottom-2 w-0.5 bg-gradient-to-b from-emerald-500/60 via-teal-500/40 to-emerald-500/10" />
+
+            <div className="space-y-3">
+              {keyFindings.map((finding, i) => (
+                <motion.div
+                  key={finding.number}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.1, duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+                  className="relative flex items-start gap-4 pl-8"
+                >
+                  {/* Timeline dot */}
+                  <div
+                    className={`absolute left-0 top-3 w-[30px] h-[30px] rounded-full flex items-center justify-center text-xs font-bold border-2 z-10 ${
+                      finding.status === "confirmed"
+                        ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-400"
+                        : "bg-amber-500/20 border-amber-500/50 text-amber-400"
+                  }`}
+                  >
+                    {finding.number}
+                  </div>
+
+                  {/* Card */}
+                  <div
+                    className={`flex-1 p-3.5 rounded-lg border transition-all duration-200 card-hover-lift ${
+                      finding.status === "confirmed"
+                        ? "bg-card/50 border-emerald-500/15 hover:border-emerald-500/30"
+                        : "bg-card/50 border-amber-500/15 hover:border-amber-500/30"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className={`text-sm font-bold ${
+                            finding.status === "confirmed" ? "text-foreground" : "text-amber-400"
+                          }`}>
+                            {finding.title}
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {finding.description}
+                        </p>
+                      </div>
+                      <div className={`flex-shrink-0 ${
+                        finding.status === "confirmed" ? "text-emerald-400" : "text-amber-400"
+                      }`}>
+                        {finding.status === "confirmed" ? (
+                          <CheckCircle className="w-4 h-4" />
+                        ) : (
+                          <AlertTriangle className="w-4 h-4" />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Component Classification Table */}
       <Card className="glass-card-premium">
@@ -307,6 +432,26 @@ export function Part1Analysis() {
               </div>
             </motion.div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* HBTA Tree Visualization */}
+      <Card className="border-border/30">
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <h3 className="text-lg font-semibold" id="hbta-tree-visualization">
+              HBTA Tree Visualization
+            </h3>
+            <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 text-[10px]">
+              INTERACTIVE
+            </Badge>
+          </div>
+          <CardDescription>
+            Visualize how Hierarchical Binary Tree Attention achieves O(Nd^2*logN) complexity
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <HBTATreeViz />
         </CardContent>
       </Card>
 

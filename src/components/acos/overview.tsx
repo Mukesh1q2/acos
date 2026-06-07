@@ -405,13 +405,13 @@ export function OverviewSection() {
           </div>
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4">
             <span className="relative inline-block">
-              <span className="bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-300 bg-clip-text text-transparent animate-pulse-glow">
+              <span className="bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-300 bg-clip-text text-transparent animate-pulse-glow text-glow">
                 AVADHAN
               </span>
               <span className="absolute inset-0 bg-gradient-to-r from-emerald-400/20 via-teal-400/20 to-emerald-300/20 blur-xl animate-pulse-glow" aria-hidden="true" />
             </span>
             <br />
-            <span className="text-foreground">COGNITIVE OPERATING SYSTEM</span>
+            <span className="text-foreground text-glow">COGNITIVE OPERATING SYSTEM</span>
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             The Operating System for Cognitive Intelligence

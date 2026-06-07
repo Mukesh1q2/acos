@@ -8,6 +8,7 @@ import { BookmarksProvider } from "@/components/acos/bookmarks";
 import { ReadingHistoryProvider } from "@/components/acos/reading-history";
 import { ReadingListProvider } from "@/components/acos/reading-list";
 import { NotificationProvider } from "@/components/acos/notification-center";
+import { SectionCompletionProvider } from "@/components/acos/section-completion";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -55,9 +56,11 @@ export default function RootLayout({
             <ReadingListProvider>
               <ReadingHistoryProvider>
                 <NotificationProvider>
-                  {children}
-                  <Toaster />
-                  <SonnerToaster />
+                  <SectionCompletionProvider>
+                    {children}
+                    <Toaster />
+                    <SonnerToaster />
+                  </SectionCompletionProvider>
                 </NotificationProvider>
               </ReadingHistoryProvider>
             </ReadingListProvider>

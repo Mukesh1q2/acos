@@ -33,6 +33,7 @@ import { Separator } from "@/components/ui/separator";
 import { useBookmarks } from "@/components/acos/bookmarks";
 import { HistoryIndicator } from "@/components/acos/reading-history";
 import { TourHelpButton } from "@/components/acos/onboarding-tour";
+import { SectionCompletionIndicator } from "@/components/acos/section-completion";
 
 export interface NavItem {
   id: string;
@@ -145,6 +146,9 @@ export function Sidebar({ activeSection, onSectionChange, hidden }: SidebarProps
                   <span className="text-sm truncate">{item.shortLabel}</span>
                   {isBookmarked(item.id) && !isActive && (
                     <Star className="w-3 h-3 ml-1 text-emerald-400 fill-emerald-400 flex-shrink-0 opacity-60" />
+                  )}
+                  {!isActive && (
+                    <SectionCompletionIndicator sectionId={item.id} />
                   )}
                   {!isActive && !isBookmarked(item.id) && (
                     <HistoryIndicator sectionId={item.id} />

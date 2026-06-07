@@ -2164,3 +2164,267 @@ Stage Summary:
 - Performance audit: reduce bundle size with code splitting for heavy chart components
 - Consider adding a global search with full-text indexing across all section content
 - Add PWA support for offline reading capability
+
+---
+Task ID: 4+6
+Agent: full-stack-developer
+Task: Enhance Part 5 with animated Learning Curve SVG AND enhance Part 1 with Key Findings Timeline
+
+Work Log:
+
+**Part 5: Animated Learning Curve SVG Visualization**
+- Enhanced `/src/components/acos/part5-learning.tsx` with a new animated SVG chart card
+- **Two overlaid learning curves** showing knowledge retention over 10 sequential tasks:
+  - **Standard Fine-Tuning** (amber dashed line): Starts at 95%, drops steeply to 18% by task 10
+  - **ACOS Orthogonal Learning** (emerald solid line): Starts at 95%, stays at 86% by task 10
+- **SVG chart features**:
+  - X-axis: "Tasks Learned (1-10)" with task number labels
+  - Y-axis: "Performance on Task 1 (%)" from 0% to 100% with grid lines
+  - Gradient fills below each line (amber gradient for standard, emerald gradient for ACOS)
+  - Data point dots on both curves with contrasting stroke colors
+  - End-point labels (86% for ACOS, 18% for Standard) in styled rect badges
+  - In-chart legend with line style indicators
+- **Animations** using framer-motion:
+  - Both lines animate with `pathLength: 0 -> 1` for left-to-right draw effect (1.2s duration)
+  - Area fills fade in after lines draw
+  - Data point dots fade in with 0.5s delay
+  - End-point labels appear after 1.5s delay
+  - Legend fades in at 1.2s
+  - Critical Insight callout slides up at 1.6s
+- **Toggle button**: Eye/EyeOff button in card header to show/hide Standard Fine-Tuning line for comparison focus
+- **Critical Insight callout**: "ACOS retains 86% vs 18% for standard fine-tuning — a 4.8x improvement" with Zap icon
+- **Heading IDs** added for TOC linking:
+  - `id="catastrophic-forgetting"` on the Learning Curve card title
+  - `id="orthogonal-gradient"` on the Orthogonal Gradient Projection detailed card title
+  - `id="continuous-learning"` was already present on the SectionHeader
+- Added imports: useState, Eye, EyeOff, TrendingDown, Zap from Lucide
+
+**Part 1: Key Findings Timeline**
+- Enhanced `/src/components/acos/part1-analysis.tsx` with a new Key Findings Timeline card at the TOP of the section
+- **6 key findings** displayed as a vertical timeline:
+  1. "HBTA achieves O(Nd^2*logN)" — Attention breakthrough (confirmed, Lightbulb icon)
+  2. "OTM provides proven thread isolation" — Memory innovation (confirmed, CheckCircle icon)
+  3. "Lyapunov stability is only local" — Important caveat (caveat, AlertTriangle icon)
+  4. "NSK needs LoRA adapter strategy" — Implementation approach (confirmed, Lightbulb icon)
+  5. "v2 corrections are substantive" — 7 key corrections (confirmed, CheckCircle icon)
+  6. "Path C is the only viable strategy" — Training decision (confirmed, Lightbulb icon)
+- **Timeline visual design**:
+  - Vertical gradient line (emerald-500/60 -> teal-500/40 -> emerald-500/10) running through all items
+  - Each item has a 30px circular number badge: emerald for confirmed, amber for caveat
+  - Cards with border colors matching status (emerald-500/15 for confirmed, amber-500/15 for caveat)
+  - Status icons: CheckCircle (emerald) for confirmed, AlertTriangle (amber) for caveat
+  - `card-hover-lift` CSS class applied to all timeline cards
+- **Stagger entrance animation**: 0.1s delay per item with ease-out cubic-bezier
+- **Heading ID**: `id="key-findings-timeline"` on card title for TOC linking
+- Added imports: CheckCircle, Lightbulb from Lucide; CardDescription from @/components/ui/card
+
+**Verification:**
+- `bun run lint`: 0 errors, 1 pre-existing warning (section-completion.tsx, not in modified files)
+- Dev server compiles successfully with no errors
+- Both Part 1 and Part 5 sections render correctly with new visualizations
+
+Stage Summary:
+- Part 5 enhanced with animated SVG learning curve visualization showing ACOS vs Standard Fine-Tuning
+- Interactive toggle for Standard FT line visibility
+- Critical Insight callout highlighting 4.8x improvement
+- Part 1 enhanced with 6-item Key Findings Timeline at top of section
+- Vertical timeline with emerald/amber status indicators and stagger animations
+- 3 new heading IDs added for Section TOC linking (catastrophic-forgetting, orthogonal-gradient, key-findings-timeline)
+- Zero lint errors, successful compilation
+
+---
+Task ID: 3
+Agent: full-stack-developer
+Task: Create Section Completion Tracker that tracks which sections users have fully read
+
+Work Log:
+- Created `/src/components/acos/section-completion.tsx` — comprehensive section completion tracking system
+  - **useSectionCompletion hook**: Uses `useSyncExternalStore` for cross-component reactivity
+    - `markCompleted(sectionId)` — marks a section as completed (idempotent)
+    - `isCompleted(sectionId)` — checks if a section is completed
+    - `completionCount` — number of completed sections
+    - `totalSections` — total number of sections (from navItems, 16)
+  - External store pattern with listeners array for instant cross-component updates
+  - Persists to localStorage under key `acos-section-completion` (Record<string, boolean>)
+  - **SectionCompletionProvider**: Wraps children, listens for storage events from other tabs/windows
+  - **SectionCompletionIndicator**: Small emerald filled circle (w-2 h-2) for sidebar, shown next to completed sections
+    - Spring animation on appearance (framer-motion)
+    - Returns null for uncompleted sections (clean look)
+  - **OverallCompletionBadge**: Circular progress ring card for Overview section
+    - SVG progress ring with animated fill (ease-out cubic animation)
+    - Shows "X/16 sections completed" with percentage
+    - Mini gradient progress bar below stats
+    - CheckCircle2 icon with "All sections completed!" message at 100%
+  - **useScrollCompletion hook**: Scroll detection logic
+    - Listens for scroll events on contentRef
+    - When user scrolls within 200px of bottom, calls `markCompleted(activeSection)`
+    - Debounced at 300ms to avoid excessive calls
+  - **Achievement Integration**: Uses existing `addNotification` from notification-center.tsx
+    - First section completed: "First Read! You completed your first section."
+    - 50% complete (8 sections): "Halfway There! You've read 8 sections. Keep going!"
+    - All 16 complete: "Completionist! You've read all 16 sections. Incredible!"
+    - Uses Set to prevent duplicate achievement notifications
+- Updated `/src/components/acos/sidebar.tsx`:
+  - Imported SectionCompletionIndicator from section-completion
+  - Added SectionCompletionIndicator after bookmark star indicator, before chevron
+  - Visible for non-active items only
+- Updated `/src/app/page.tsx`:
+  - Imported OverallCompletionBadge and useScrollCompletion from section-completion
+  - Added `useScrollCompletion(contentRef, activeSection)` call for automatic scroll tracking
+  - Added OverallCompletionBadge as first card in overview-only section area (before BookmarkedSections)
+- Updated `/src/app/layout.tsx`:
+  - Imported SectionCompletionProvider from section-completion
+  - Wrapped children with SectionCompletionProvider (inside NotificationProvider)
+- `bun run lint`: 0 errors, 0 warnings
+- Dev server compiles successfully
+
+Stage Summary:
+- Section Completion Tracker fully implemented with useSyncExternalStore, localStorage persistence, and cross-component reactivity
+- SectionCompletionIndicator added to sidebar (emerald dot next to completed sections)
+- OverallCompletionBadge added to Overview with animated circular progress ring
+- Scroll detection automatically marks sections completed when user scrolls near bottom
+- Achievement notifications integrated for 1st, 50%, and 100% completion milestones
+- Provider added to layout for cross-tab synchronization
+- Zero lint errors, successful compilation
+
+---
+Task ID: 2
+Agent: full-stack-developer
+Task: Create Interactive HBTA (Hierarchical Binary Tree Attention) Visualization component for Part 1 Whitepaper Analysis
+
+Work Log:
+- Created `/src/components/acos/hbta-tree-viz.tsx` — an interactive SVG-based binary tree visualization of HBTA
+- **Tree Structure**: 3-level binary tree with 15 nodes total — 8 leaf tokens (t1-t8), 4 mid-level Gated Sum nodes, 2 upper-level Agg nodes, 1 root Global Context node
+- **SVG Rendering**: Full tree rendered in SVG with viewBox 800x440, responsive width, background grid pattern, radial gradient glow on root
+- **Animated Data Flow**:
+  - "Animate Query" button: selects random leaf, highlights path from leaf to root (O(logN) = 3 hops), shows amber particles traveling upward
+  - "Broadcast Context" button: shows emerald particles flowing from root to all 8 leaves simultaneously
+  - Animated direction indicators on highlighted edges (cx/cy keyframe animation traveling along the edge path)
+- **Node Design**:
+  - Each node has outer colored ring + dark inner circle + label text for contrast
+  - Root: emerald-500 with pulsing glow animation (r oscillates, opacity fades)
+  - Upper nodes: cyan-400
+  - Mid-level nodes: teal-400
+  - Leaf nodes: emerald-400
+  - Selected leaf gets amber selection ring (spring animation)
+  - Path nodes get colored highlight ring (0.6 opacity)
+- **Interactive Features**:
+  - Click any leaf node to trace its query path to root
+  - Hover any node for tooltip with O(logN) path length info (using Radix Tooltip)
+  - Speed control: slow (1200ms), medium (700ms), fast (350ms) per hop
+  - AnimatePresence status bar showing current animation state
+  - Query path display: "t1 -> root | O(logN) = 3 hops"
+- **Comparison Panel**:
+  - Left panel: "Standard Attention O(N^2*d)" with gray all-to-all mesh of 28 connections
+  - Right panel: "HBTA O(N*d^2*logN)" with tree structure showing 14 connections
+  - Responsive grid (1-col mobile, 2-col desktop)
+- **Traveling Particles**: framer-motion keyframe animations for cx/cy/opacity with staggered delays
+- **Module-level constants**: LEAF_IDS, NODES, EDGES, nodeMap for efficient lookups
+- **Framer Motion**: Node entrance spring animations with staggered delays, path highlighting, AnimatePresence status transitions
+- **Integration**:
+  - Imported HBTATreeViz in part1-analysis.tsx
+  - Added Card with "HBTA Tree Visualization" heading, id="hbta-tree-visualization", and INTERACTIVE badge
+  - Placed AFTER Mathematical Foundations card, BEFORE Crossover Analysis card
+- Removed unused Badge import from hbta-tree-viz.tsx (Badge used in parent part1-analysis.tsx)
+- Removed unused `progress` field from ParticleState interface
+- Replaced native SVG `animateMotion` with framer-motion cx/cy keyframe animation for better React compatibility
+- All references to `getLeafNodes()` replaced with module-level `LEAF_IDS` constant
+- `bun run lint`: 0 errors, 0 warnings
+- Dev server compiles successfully
+
+Stage Summary:
+- HBTA Tree Visualization component fully implemented with interactive SVG binary tree
+- 15 nodes (8 leaves + 4 mid + 2 upper + 1 root) with color-coded levels and animated data flow
+- Click leaf to trace query path, Animate Query/Broadcast Context buttons, speed control
+- Comparison panel showing Standard Attention vs HBTA complexity
+- Integrated into Part 1 Whitepaper Analysis after Mathematical Foundations
+- Zero lint errors, successful compilation
+
+---
+Task ID: round6-main
+Agent: main
+Task: Round 6 — QA assessment, HBTA Tree Visualization, Section Completion Tracker, Learning Curve, Key Findings Timeline, CSS enhancements
+
+Work Log:
+- **QA Assessment**: Tested all 16 sections with agent-browser. Zero errors, zero console errors. App is fully stable.
+- **Interactive HBTA Tree Visualization** (subagent Task 2):
+  - Created `/src/components/acos/hbta-tree-viz.tsx` — Interactive SVG binary tree visualization
+  - 15-node tree: 8 leaf tokens (t1-t8), 4 mid-level "Gated Sum" nodes, 2 upper "Agg L/R" nodes, 1 root "Global Context"
+  - Click any leaf to highlight query path to root (O(logN) = 3 hops)
+  - Hover tooltips showing path length info
+  - "Animate Query" button: amber particles traveling leaf→root
+  - "Broadcast Context" button: emerald particles root→all leaves
+  - Speed control (slow/medium/fast: 1200ms/700ms/350ms per hop)
+  - Comparison panel: Standard Attention O(N^2) gray mesh vs HBTA O(N*logN) tree
+  - Pulsing glow on root node, spring entrance animations
+  - Integrated into Part 1 after Mathematical Foundations card with INTERACTIVE badge
+- **Section Completion Tracker** (subagent Task 3):
+  - Created `/src/components/acos/section-completion.tsx`
+  - `useSectionCompletion` hook with useSyncExternalStore + localStorage persistence
+  - `SectionCompletionIndicator`: small emerald filled circle in sidebar for completed sections
+  - `OverallCompletionBadge`: circular progress ring on Overview showing X/16 completion
+  - `useScrollCompletion` hook: 300ms debounced scroll detection, marks section complete within 200px of bottom
+  - Achievement notifications: "First Read!" (1st), "Halfway There!" (8/16), "Completionist!" (16/16)
+  - Integrated into sidebar.tsx, page.tsx, layout.tsx
+- **Part 5 Learning Curve Visualization** (subagent Task 4+6):
+  - Two overlaid SVG curves: ACOS Orthogonal (emerald, 95%→86%) vs Standard Fine-Tuning (amber, 95%→18%)
+  - Animated line drawing with framer-motion pathLength, gradient fills, data point dots
+  - Toggle to show/hide standard line, critical insight callout ("4.8x improvement")
+  - Added heading IDs: catastrophic-forgetting, orthogonal-gradient
+- **Part 1 Key Findings Timeline** (subagent Task 4+6):
+  - 6-item vertical timeline at TOP of Part 1 section
+  - Findings: HBTA O(Nd^2*logN), OTM proven isolation, Lyapunov local only, NSK LoRA strategy, v2 corrections, Path C only viable
+  - Emerald/amber circular badges, CheckCircle/AlertTriangle status icons
+  - Stagger entrance animation (0.1s per item)
+  - Heading ID: key-findings-timeline
+- **CSS Enhancements**:
+  - Added 12+ new CSS utility classes for advanced styling:
+    - `.parallax-slow/medium/fast` — scroll-driven parallax
+    - `.grid-stagger` — staggered grid entrance animation (8 children)
+    - `.card-border-gradient` — hover gradient border effect
+    - `.section-glow` — animated radial background glow
+    - `.badge-animated` — shimmer effect on badges
+    - `.number-transition` — smooth counter hover
+    - `.bg-dots-pattern` — decorative dot pattern
+    - `.text-glow` — text shadow for hero headings (light/dark)
+    - `.progress-ring-animated` — smooth SVG ring transition
+    - `.code-line-highlight` — code block line highlight
+    - `.icon-rotate-hover` — spring rotation on icon hover
+    - `.tooltip-arrow` — decorative tooltip arrow
+  - Applied `text-glow` to AVADHAN title and COGNITIVE OPERATING SYSTEM subtitle in Overview
+- **Final QA**: All sections load correctly, zero lint errors, zero console errors
+
+Stage Summary:
+- 4 new components/features: HBTA Tree Visualization, Section Completion Tracker, Learning Curve SVG, Key Findings Timeline
+- 12+ new CSS utility classes for advanced animations and visual effects
+- Section completion tracking with scroll detection and achievement notifications
+- Interactive binary tree showing how HBTA achieves O(N*logN) vs O(N^2) attention
+- All 16 sections load and function correctly with zero lint errors
+
+### Current Project Status
+**Status:** Production-ready, Round 6 features fully implemented and verified
+
+### Current Goals/Completed Modifications/Verification Results
+- QA tested all 16 sections: all stable, no bugs, no console errors
+- HBTA Tree Visualization renders in Part 1 with interactive query/broadcast animations
+- Section Completion Tracker works: scroll to bottom marks section complete, emerald indicator in sidebar
+- Learning Curve shows ACOS vs Standard fine-tuning with animated SVG curves
+- Key Findings Timeline at top of Part 1 with 6 vertical timeline items
+- 12+ new CSS utility classes added for advanced visual effects
+- `bun run lint`: 0 errors, 0 warnings
+- Dev server compiles successfully
+
+### Unresolved Issues or Risks
+- Minor: HBTA Tree particle animations may impact performance on low-end devices
+- Minor: Section completion detection depends on scroll position which may not work for very short sections
+- CSS @property for gradient-border animation has limited older browser support
+- grid-stagger animation uses opacity:0 initial state which may flash briefly on slow connections
+
+### Priority Recommendations for Next Phase
+- Add PDF export of the full analysis report (using pdf skill)
+- Lazy-load Quick Stats Dashboard and HBTA Tree to improve initial load performance
+- Add comprehensive light mode theme polish (some gradient backgrounds are dark-mode optimized)
+- Add PWA support with service worker for offline reading
+- Add global search with full-text indexing across all section content
+- Performance audit: reduce bundle size with code splitting for heavy chart/tree components
+- Add "Share Deep Link" feature for specific headings within sections

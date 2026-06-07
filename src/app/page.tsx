@@ -32,6 +32,7 @@ import { ReadingListButton, ReadingListPanel } from "@/components/acos/reading-l
 import { PresentationMode, PresentationToggleButton } from "@/components/acos/presentation-mode";
 import { NotificationCenter, NotificationProvider, addNotification } from "@/components/acos/notification-center";
 import { SectionCompare } from "@/components/acos/section-compare";
+import { OverallCompletionBadge, useScrollCompletion } from "@/components/acos/section-completion";
 
 // Lazy-loaded heavy components (charts, diagrams, interactive sections)
 const TheoremExplorer = lazy(() =>
@@ -85,6 +86,9 @@ export default function Home() {
   const { addToHistory } = useReadingHistory();
   const { addVisitedSection } = useVisitCount();
   const { toggleBookmark } = useBookmarks();
+
+  // Track section completion on scroll
+  useScrollCompletion(contentRef, activeSection);
 
   const handleSectionChange = useCallback((id: string) => {
     setActiveSection(id);
@@ -293,6 +297,7 @@ export default function Home() {
                 {/* Bookmarked Sections in Overview — hidden in presentation mode */}
                 {activeSection === "overview" && !isPresentationMode && (
                   <div className="mt-10 space-y-4">
+                    <OverallCompletionBadge />
                     <BookmarkedSections onNavigate={handleSectionChange} />
                     <RecentSections onNavigate={handleSectionChange} />
                     <ReadingListPanel onNavigate={handleSectionChange} />

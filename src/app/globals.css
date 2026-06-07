@@ -967,3 +967,238 @@ button:active:not(:disabled) {
 .orbital-ring-reverse {
   animation: orbital-spin 25s linear infinite reverse;
 }
+
+/* ------------------------------------------------------------------ */
+/*  Scroll-driven parallax for decorative elements                     */
+/* ------------------------------------------------------------------ */
+
+.parallax-slow {
+  will-change: transform;
+  transition: transform 0.1s linear;
+}
+
+.parallax-medium {
+  will-change: transform;
+  transition: transform 0.1s linear;
+}
+
+.parallax-fast {
+  will-change: transform;
+  transition: transform 0.1s linear;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Staggered grid entrance animation                                  */
+/* ------------------------------------------------------------------ */
+
+@keyframes grid-item-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.grid-stagger > * {
+  opacity: 0;
+  animation: grid-item-enter 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.grid-stagger > *:nth-child(1) { animation-delay: 0.05s; }
+.grid-stagger > *:nth-child(2) { animation-delay: 0.1s; }
+.grid-stagger > *:nth-child(3) { animation-delay: 0.15s; }
+.grid-stagger > *:nth-child(4) { animation-delay: 0.2s; }
+.grid-stagger > *:nth-child(5) { animation-delay: 0.25s; }
+.grid-stagger > *:nth-child(6) { animation-delay: 0.3s; }
+.grid-stagger > *:nth-child(7) { animation-delay: 0.35s; }
+.grid-stagger > *:nth-child(8) { animation-delay: 0.4s; }
+
+/* ------------------------------------------------------------------ */
+/*  Smooth card border gradient on hover                                */
+/* ------------------------------------------------------------------ */
+
+.card-border-gradient {
+  position: relative;
+  border: 1px solid transparent;
+  background-clip: padding-box;
+}
+
+.card-border-gradient::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    oklch(0.696 0.17 162.48 / 0.15),
+    oklch(0.7 0.15 180 / 0.05),
+    oklch(0.696 0.17 162.48 / 0.15)
+  );
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.card-border-gradient:hover::before {
+  opacity: 1;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Animated section background glow                                    */
+/* ------------------------------------------------------------------ */
+
+.section-glow {
+  position: relative;
+}
+
+.section-glow::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 80%;
+  height: 60%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    ellipse at center,
+    oklch(0.696 0.17 162.48 / 0.04) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Enhanced badge with animated border                                 */
+/* ------------------------------------------------------------------ */
+
+.badge-animated {
+  position: relative;
+  overflow: hidden;
+}
+
+.badge-animated::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    oklch(1 0 0 / 15%) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Smooth number transition for counters                              */
+/* ------------------------------------------------------------------ */
+
+.number-transition {
+  display: inline-block;
+  transition: transform 0.15s ease;
+}
+
+.number-transition:hover {
+  transform: scale(1.05);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Decorative dot pattern for card backgrounds                        */
+/* ------------------------------------------------------------------ */
+
+.bg-dots-pattern {
+  background-image: radial-gradient(
+    circle,
+    oklch(0.696 0.17 162.48 / 0.08) 1px,
+    transparent 1px
+  );
+  background-size: 16px 16px;
+}
+
+.dark .bg-dots-pattern {
+  background-image: radial-gradient(
+    circle,
+    oklch(0.696 0.17 162.48 / 0.05) 1px,
+    transparent 1px
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Subtle text shadow for headings in hero sections                   */
+/* ------------------------------------------------------------------ */
+
+.text-glow {
+  text-shadow: 0 0 20px oklch(0.696 0.17 162.48 / 0.15);
+}
+
+.dark .text-glow {
+  text-shadow: 0 0 30px oklch(0.696 0.17 162.48 / 0.2),
+               0 0 60px oklch(0.696 0.17 162.48 / 0.1);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Animated progress ring for completion indicators                   */
+/* ------------------------------------------------------------------ */
+
+.progress-ring-animated {
+  transition: stroke-dashoffset 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Enhanced code block with line highlight effect                      */
+/* ------------------------------------------------------------------ */
+
+.code-line-highlight {
+  position: relative;
+}
+
+.code-line-highlight::after {
+  content: "";
+  position: absolute;
+  left: -16px;
+  right: -16px;
+  top: 0;
+  height: 100%;
+  background: oklch(0.696 0.17 162.48 / 0.06);
+  border-left: 2px solid oklch(0.696 0.17 162.48 / 0.3);
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Smooth icon rotation on hover                                       */
+/* ------------------------------------------------------------------ */
+
+.icon-rotate-hover {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.icon-rotate-hover:hover {
+  transform: rotate(15deg) scale(1.1);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Tooltip arrow decoration                                            */
+/* ------------------------------------------------------------------ */
+
+.tooltip-arrow {
+  position: relative;
+}
+
+.tooltip-arrow::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 8px;
+  height: 8px;
+  background: inherit;
+  border-right: 1px solid oklch(1 0 0 / 10%);
+  border-bottom: 1px solid oklch(1 0 0 / 10%);
+}
