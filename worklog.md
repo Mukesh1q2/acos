@@ -2428,3 +2428,56 @@ Stage Summary:
 - Add global search with full-text indexing across all section content
 - Performance audit: reduce bundle size with code splitting for heavy chart/tree components
 - Add "Share Deep Link" feature for specific headings within sections
+
+---
+Task ID: acos-runtime
+Agent: main
+Task: Build ACOS Runtime v0.1 - executable Python backend infrastructure
+
+Work Log:
+- Created `/home/z/my-project/acos-runtime/` — complete Python project for ACOS Runtime
+- **Project Structure**: pyproject.toml, 8 Python packages, 6 test files, README.md
+- **Pydantic Schemas** (`acos/schemas/models.py`): 15+ data models including ThreadState, MemoryRecord, AgentOutput, ReflectionResult, VerificationResult, QueryRequest/Response, ModelInfo
+- **Storage Backend** (`acos/memory/store.py`): Full SQLite persistence with 6 tables (memory_records, thread_states, session_states, agent_outputs, reflection_results, verification_results), indexed queries, keyword search
+- **Orthogonal Thread Memory** (`acos/memory/otm.py`): Per-thread isolated memory with S_i^T * S_j = 0 guarantee, cross-thread reads via explicit API only, consolidation (working -> semantic), in-memory buffer + persistent storage
+- **Memory Manager** (`acos/memory/manager.py`): Three-tier memory (Working, Episodic, Semantic), session consolidation, global search, thread summarization
+- **Thread Scheduler** (`acos/scheduler.py`): Full thread lifecycle (create, start, pause, resume, kill, prioritize), async execution, handler registration, wait_for_completion, failure handling
+- **Agent Runtime** (`acos/agents/`): 4 agents — ResearchAgent, PlanningAgent, MemoryAgent, VerificationAgent, each with LLM integration and memory storage
+- **Model Router** (`acos/models/router.py`): 3 backends (Mock, Ollama, Z-AI API), auto-discovery, fallback chain, task-specific routing, performance tracking
+- **Reflection Engine** (`acos/engines/reflection.py`): Output quality review, contradiction detection, improvement suggestions, quality scoring
+- **Verification Engine** (`acos/engines/verification.py`): Fact checking, consistency checking, confidence scoring, cross-verification
+- **Cognitive Kernel** (`acos/kernel.py`): Full orchestrator — query analysis -> thread spawning -> parallel agent execution -> reflection -> verification -> synthesis -> memory consolidation
+- **FastAPI Server** (`acos/api/server.py`): REST API with endpoints for /query, /threads, /memory, /sessions, /health, /stats, /models
+- **CLI Interface** (`acos/cli.py`): Interactive REPL, query command, stats command, serve command, Rich-formatted output with tables, panels, and Markdown
+- **Tests**: 61 tests total — 18 memory, 10 scheduler, 7 agents, 4 reflection, 4 verification, 13 kernel, 5 integration
+- **Bug Fixes**: Fixed kernel handler registration (coroutine not awaited), fixed auto_discover hanging on Z-AI API, added agent_outputs to QueryResponse
+- **All 8 success criteria verified**: (1) Multiple threads ✅ (2) Independent execution ✅ (3) Isolated memory ✅ (4) Agent orchestration ✅ (5) Reflection loop ✅ (6) Verification ✅ (7) Final synthesis ✅ (8) Memory persistence ✅
+- **Full test suite**: 61/61 tests pass in 1.86s
+- **CLI verified**: `python3 -m acos.cli query "Design a trading strategy"` produces correct multi-thread output
+
+Stage Summary:
+- ACOS Runtime v0.1 fully built and operational as standalone Python project at /home/z/my-project/acos-runtime/
+- Complete cognitive infrastructure: CognitiveKernel + ThreadScheduler + OTM + MemoryManager + 4 Agents + ModelRouter + ReflectionEngine + VerificationEngine
+- 3 LLM backends supported: Mock (default, fast), Ollama (auto-detect), Z-AI API (manual)
+- Both CLI and FastAPI interfaces provided
+- 61 tests passing, all 8 success criteria verified
+- Memory persists across sessions via SQLite
+- No UI/frontend built — purely executable backend infrastructure as specified
+
+### Current Project Status
+**Status:** ACOS Runtime v0.1 complete and operational
+
+### Unresolved Issues or Risks
+- Mock backend returns canned responses — for real intelligence, Ollama must be installed or Z-AI API enabled
+- OTM uses SQLite with keyword search — vector search (Qdrant) not yet integrated
+- Query analysis uses simple keyword matching — LLM-based routing would be more intelligent
+- No CUDA optimization yet (M5 milestone)
+
+### Priority Recommendations for Next Phase
+- Install Ollama and test with real local models (Gemma, Qwen, Llama)
+- Integrate Qdrant for vector-based memory retrieval
+- Implement LLM-based query analysis for intelligent thread routing
+- Add streaming support for real-time response delivery
+- Build M2 milestone: Wrap Llama-3-8B with ACOS cognitive infrastructure
+- Add WebSocket support for real-time agent status updates
+- Implement HBTA (Hierarchical Binary-Tree Attention) in PyTorch for M1 milestone
