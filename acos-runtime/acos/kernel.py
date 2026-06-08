@@ -86,6 +86,7 @@ from acos.cognitive.unified.enhanced_causal import EnhancedCausalReasoner
 from acos.cognitive.unified.self_model import SelfModel
 from acos.cognitive.unified.cognitive_cycle import CognitiveCycle
 from acos.cognitive.unified.evaluation import EvaluationFramework
+from acos.trace_logger import TraceLogger
 
 
 # Mapping of thread types to agent types
@@ -201,6 +202,9 @@ class CognitiveKernel:
         # Agents
         self._agents: dict[AgentType, ResearchAgent | PlanningAgent | MemoryAgent | VerificationAgent] = {}
 
+        # Trace logger
+        self._trace_logger = TraceLogger(self._storage.db_path)
+
         # Session tracking
         self._sessions: dict[str, SessionState] = {}
         self._initialized = False
@@ -258,6 +262,12 @@ class CognitiveKernel:
         await self._self_model.initialize()
         await self._cognitive_cycle.initialize()
         await self._evaluation_framework.initialize()
+
+        # Trace logger initialization
+        try:
+            await self._trace_logger.initialize()
+        except Exception:
+            pass  # Non-blocking
 
         self._initialized = True
 
@@ -356,52 +366,128 @@ class CognitiveKernel:
         if not self._initialized:
             await self.initialize()
 
+        # We need session_id early for tracing; pre-create session for trace context
+        session = SessionState(query=request.query)
+        session_id = session.id
+
+        # Helper for safe tracing
+        async def _trace(phase: str, input_summary: dict, output_summary: dict,
+                         duration_ms: float, success: bool, error: str | None = None,
+                         thread_id: str | None = None, metadata: dict | None = None):
+            try:
+                await self._trace_logger.trace_phase(
+                    session_id=session_id,
+                    phase=phase,
+                    input_summary=input_summary,
+                    output_summary=output_summary,
+                    duration_ms=duration_ms,
+                    success=success,
+                    error=error,
+                    thread_id=thread_id,
+                    metadata=metadata,
+                )
+            except Exception:
+                pass  # Non-blocking: trace failure must not break pipeline
+
         # 1. Load current cognitive state
-        cognitive_state = await self._cognitive_state.get_state()
+        t0 = time.monotonic()
+        try:
+            cognitive_state = await self._cognitive_state.get_state()
+            await _trace("observe", {"query": request.query}, {
+                "cognitive_state_id": cognitive_state.id,
+                "session_count": cognitive_state.session_count,
+                "overall_confidence": cognitive_state.overall_confidence,
+            }, (time.monotonic() - t0) * 1000, True)
+        except Exception as e:
+            await _trace("observe", {"query": request.query}, {}, (time.monotonic() - t0) * 1000, False, str(e))
+            raise
 
         # 2. Begin session tracking
-        await self._cognitive_state.begin_session(request.query)
+        t0 = time.monotonic()
+        try:
+            await self._cognitive_state.begin_session(request.query)
+            await _trace("memory", {"query": request.query}, {
+                "session_started": True,
+            }, (time.monotonic() - t0) * 1000, True)
+        except Exception as e:
+            await _trace("memory", {"query": request.query}, {}, (time.monotonic() - t0) * 1000, False, str(e))
 
         # 3. Analyze query and determine thread types
-        thread_types = self._analyze_query(request.query)
-        if request.thread_types:
-            thread_types = [ThreadType(t) for t in request.thread_types]
+        t0 = time.monotonic()
+        try:
+            thread_types = self._analyze_query(request.query)
+            if request.thread_types:
+                thread_types = [ThreadType(t) for t in request.thread_types]
+            await _trace("attention", {"query": request.query}, {
+                "thread_types": [t.value for t in thread_types],
+            }, (time.monotonic() - t0) * 1000, True)
+        except Exception as e:
+            await _trace("attention", {"query": request.query}, {}, (time.monotonic() - t0) * 1000, False, str(e))
+            raise
 
         # 4. Update Goals — check if query relates to existing goals
+        t0 = time.monotonic()
         beliefs_affected: list[str] = []
         goals_affected: list[str] = []
         knowledge_graph_changes: list[str] = []
 
-        active_goals = await self._goal_manager.get_active_goals()
-        for goal in active_goals:
-            # Check if query is related to this goal
-            goal_terms = set(goal.description.lower().split())
-            query_terms = set(request.query.lower().split())
-            overlap = goal_terms & query_terms
-            if len(overlap) >= 2:
-                # Update goal progress slightly
-                await self._goal_manager.update_progress(goal.id, min(1.0, goal.progress + 0.05))
-                goals_affected.append(goal.id)
+        try:
+            active_goals = await self._goal_manager.get_active_goals()
+            for goal in active_goals:
+                # Check if query is related to this goal
+                goal_terms = set(goal.description.lower().split())
+                query_terms = set(request.query.lower().split())
+                overlap = goal_terms & query_terms
+                if len(overlap) >= 2:
+                    # Update goal progress slightly
+                    await self._goal_manager.update_progress(goal.id, min(1.0, goal.progress + 0.05))
+                    goals_affected.append(goal.id)
+            await _trace("goals", {
+                "query": request.query,
+                "active_goals_count": len(active_goals),
+            }, {
+                "goals_affected": goals_affected,
+                "goals_affected_count": len(goals_affected),
+            }, (time.monotonic() - t0) * 1000, True)
+        except Exception as e:
+            await _trace("goals", {"query": request.query}, {}, (time.monotonic() - t0) * 1000, False, str(e))
 
         # 5. Load relevant beliefs and knowledge for context
-        relevant_beliefs = await self._belief_state.get_active_beliefs()
-        query_concepts = self._knowledge_fabric.extract_concepts(request.query)
+        t0 = time.monotonic()
+        relevant_beliefs = []
+        query_concepts = []
         knowledge_context = ""
-        for concept in query_concepts[:5]:
-            existing = await self._knowledge_fabric.find_concept_by_name(concept.name)
-            if existing:
-                knowledge_context += f"- {existing[0].name}: {existing[0].description}\n"
+        try:
+            relevant_beliefs = await self._belief_state.get_active_beliefs()
+            query_concepts = self._knowledge_fabric.extract_concepts(request.query)
+            knowledge_context = ""
+            for concept in query_concepts[:5]:
+                existing = await self._knowledge_fabric.find_concept_by_name(concept.name)
+                if existing:
+                    knowledge_context += f"- {existing[0].name}: {existing[0].description}\n"
+            await _trace("beliefs", {
+                "query": request.query,
+            }, {
+                "beliefs_count": len(relevant_beliefs),
+                "concepts_count": len(query_concepts),
+                "knowledge_context_length": len(knowledge_context),
+            }, (time.monotonic() - t0) * 1000, True)
+        except Exception as e:
+            await _trace("beliefs", {"query": request.query}, {}, (time.monotonic() - t0) * 1000, False, str(e))
 
         # 6. Create session and spawn threads
-        session = SessionState(query=request.query)
+        t0 = time.monotonic()
         self._sessions[session.id] = session
 
         # Store the query with cognitive context
-        await self._memory.store_working(
-            "__session__",
-            f"User query: {request.query}",
-            {"session_id": session.id, "cognitive_state_id": cognitive_state.id},
-        )
+        try:
+            await self._memory.store_working(
+                "__session__",
+                f"User query: {request.query}",
+                {"session_id": session.id, "cognitive_state_id": cognitive_state.id},
+            )
+        except Exception:
+            pass
 
         # Set active threads in cognitive state
         threads: list[ThreadState] = []
@@ -419,7 +505,17 @@ class CognitiveKernel:
         await self._cognitive_state.set_active_threads([t.id for t in threads])
         session.threads = threads
 
+        await _trace("knowledge", {
+            "query": request.query,
+            "thread_types_requested": [t.value for t in thread_types],
+        }, {
+            "session_id": session.id,
+            "threads_created": len(threads),
+            "thread_ids": [t.id for t in threads],
+        }, (time.monotonic() - t0) * 1000, True)
+
         # 7. Execute agents (all threads in parallel)
+        t0 = time.monotonic()
         agent_outputs: list[AgentOutput] = []
         tasks = []
         for thread in threads:
@@ -435,84 +531,183 @@ class CognitiveKernel:
                     agent_outputs.append(output)
                     session.agent_outputs.append(output)
 
-        # 8. Reflection - review all outputs
-        reflections = []
+        # Per-agent trace
         for thread in threads:
-            thread_outputs = [o for o in agent_outputs if o.thread_id == thread.id]
-            if thread_outputs:
-                reflection = await self._reflection.reflect(thread.id, thread_outputs)
-                reflections.append(reflection)
-                session.reflections.append(reflection)
+            matching = [o for o in agent_outputs if o.thread_id == thread.id]
+            agent_type_val = THREAD_AGENT_MAP.get(thread.type)
+            t_agent_start = time.monotonic()
+            # Approximate: we don't have per-agent start, so trace result
+            await _trace("reasoning", {
+                "thread_id": thread.id,
+                "thread_type": thread.type.value,
+                "agent_type": agent_type_val.value if agent_type_val else None,
+            }, {
+                "thread_id": thread.id,
+                "success": thread.status == ThreadStatus.COMPLETED,
+                "output_length": len(matching[0].content) if matching else 0,
+                "confidence": matching[0].confidence if matching else 0,
+            }, (time.monotonic() - t_agent_start) * 1000, True,
+                thread_id=thread.id,
+                metadata={"agent_type": agent_type_val.value if agent_type_val else None})
 
-        # Cross-thread contradiction detection
-        cross_contradictions = await self._reflection.detect_cross_thread_contradictions(agent_outputs)
-        if cross_contradictions:
-            await self._memory.store_episodic(
-                "__session__",
-                f"Cross-thread contradictions detected: {cross_contradictions}",
-                {"session_id": session.id},
-            )
+        # 8. Reflection - review all outputs
+        t0 = time.monotonic()
+        reflections = []
+        try:
+            for thread in threads:
+                thread_outputs = [o for o in agent_outputs if o.thread_id == thread.id]
+                if thread_outputs:
+                    reflection = await self._reflection.reflect(thread.id, thread_outputs)
+                    reflections.append(reflection)
+                    session.reflections.append(reflection)
 
-        # 9. Verification - check outputs
-        verifications = []
-        for output in agent_outputs:
-            verification = await self._verification.verify(output.thread_id, output.content)
-            verifications.append(verification)
-            session.verifications.append(verification)
-
-        if len(agent_outputs) > 1:
-            cross_verification = await self._verification.cross_verify(agent_outputs)
-            verifications.append(cross_verification)
-            session.verifications.append(cross_verification)
-
-        # 10. Consolidate knowledge (episodic → semantic)
-        consolidation: ConsolidationResult | None = None
-        if request.update_cognitive_state:
-            thread_ids = [t.id for t in threads]
-            consolidation = await self._consolidator.consolidate_session(
-                session_id=session.id,
-                thread_ids=thread_ids,
-                session_summary=f"Query: {request.query[:200]}",
-            )
-            knowledge_graph_changes.append(
-                f"Consolidated: {consolidation.concepts_extracted} concepts, "
-                f"{consolidation.relationships_extracted} relationships, "
-                f"{consolidation.beliefs_created} new beliefs"
-            )
-
-        # 11. Update Cognitive State
-        if request.update_cognitive_state:
-            # Update beliefs in cognitive state
-            all_beliefs = await self._belief_state.get_active_beliefs()
-            await self._cognitive_state.update_beliefs(all_beliefs)
-
-            # Update goals in cognitive state
-            all_goals = await self._goal_manager.get_active_goals()
-            await self._cognitive_state.update_goals(all_goals)
-
-            # Update knowledge graph references
-            fabric_stats = self._knowledge_fabric.get_stats()
-            concept_ids = []
-            try:
-                # Get all concept IDs from fabric
-                for node in self._knowledge_fabric._graph.nodes():
-                    concept_ids.append(str(node))
-            except Exception:
-                pass
-            await self._cognitive_state.set_knowledge_concepts(concept_ids[:500])
-
-            # Update uncertainty based on verification results
-            if verifications:
-                avg_conf = sum(v.confidence_score for v in verifications) / max(len(verifications), 1)
-                await self._cognitive_state.update_uncertainty(
-                    request.query[:50], 1.0 - avg_conf
+            # Cross-thread contradiction detection
+            cross_contradictions = await self._reflection.detect_cross_thread_contradictions(agent_outputs)
+            if cross_contradictions:
+                await self._memory.store_episodic(
+                    "__session__",
+                    f"Cross-thread contradictions detected: {cross_contradictions}",
+                    {"session_id": session.id},
                 )
 
+            avg_quality = sum(r.quality_score for r in reflections) / max(len(reflections), 1) if reflections else 0
+            total_contradictions = sum(len(r.contradictions) for r in reflections)
+            await _trace("reflection", {
+                "num_threads": len(threads),
+                "num_outputs": len(agent_outputs),
+            }, {
+                "reflections_count": len(reflections),
+                "avg_quality_score": round(avg_quality, 3),
+                "total_contradictions": total_contradictions,
+                "cross_contradictions_found": bool(cross_contradictions),
+            }, (time.monotonic() - t0) * 1000, True)
+        except Exception as e:
+            await _trace("reflection", {
+                "num_threads": len(threads),
+            }, {}, (time.monotonic() - t0) * 1000, False, str(e))
+
+        # 9. Verification - check outputs
+        t0 = time.monotonic()
+        verifications = []
+        try:
+            for output in agent_outputs:
+                verification = await self._verification.verify(output.thread_id, output.content)
+                verifications.append(verification)
+                session.verifications.append(verification)
+
+            if len(agent_outputs) > 1:
+                cross_verification = await self._verification.cross_verify(agent_outputs)
+                verifications.append(cross_verification)
+                session.verifications.append(cross_verification)
+
+            passed = sum(1 for v in verifications if v.passed)
+            avg_conf = sum(v.confidence_score for v in verifications) / max(len(verifications), 1) if verifications else 0
+            await _trace("verification", {
+                "num_outputs": len(agent_outputs),
+            }, {
+                "verifications_count": len(verifications),
+                "passed": passed,
+                "failed": len(verifications) - passed,
+                "avg_confidence": round(avg_conf, 3),
+            }, (time.monotonic() - t0) * 1000, True)
+        except Exception as e:
+            await _trace("verification", {
+                "num_outputs": len(agent_outputs),
+            }, {}, (time.monotonic() - t0) * 1000, False, str(e))
+
+        # 10. Consolidate knowledge (episodic → semantic)
+        t0 = time.monotonic()
+        consolidation: ConsolidationResult | None = None
+        if request.update_cognitive_state:
+            try:
+                thread_ids = [t.id for t in threads]
+                consolidation = await self._consolidator.consolidate_session(
+                    session_id=session.id,
+                    thread_ids=thread_ids,
+                    session_summary=f"Query: {request.query[:200]}",
+                )
+                knowledge_graph_changes.append(
+                    f"Consolidated: {consolidation.concepts_extracted} concepts, "
+                    f"{consolidation.relationships_extracted} relationships, "
+                    f"{consolidation.beliefs_created} new beliefs"
+                )
+                await _trace("consolidation", {
+                    "session_id": session.id,
+                    "thread_ids": thread_ids,
+                }, {
+                    "concepts_extracted": consolidation.concepts_extracted,
+                    "relationships_extracted": consolidation.relationships_extracted,
+                    "beliefs_created": consolidation.beliefs_created,
+                }, (time.monotonic() - t0) * 1000, True)
+            except Exception as e:
+                await _trace("consolidation", {
+                    "session_id": session.id,
+                }, {}, (time.monotonic() - t0) * 1000, False, str(e))
+
+        # 11. Update Cognitive State
+        t0 = time.monotonic()
+        if request.update_cognitive_state:
+            try:
+                # Update beliefs in cognitive state
+                all_beliefs = await self._belief_state.get_active_beliefs()
+                await self._cognitive_state.update_beliefs(all_beliefs)
+
+                # Update goals in cognitive state
+                all_goals = await self._goal_manager.get_active_goals()
+                await self._cognitive_state.update_goals(all_goals)
+
+                # Update knowledge graph references
+                fabric_stats = self._knowledge_fabric.get_stats()
+                concept_ids = []
+                try:
+                    # Get all concept IDs from fabric
+                    for node in self._knowledge_fabric._graph.nodes():
+                        concept_ids.append(str(node))
+                except Exception:
+                    pass
+                await self._cognitive_state.set_knowledge_concepts(concept_ids[:500])
+
+                # Update uncertainty based on verification results
+                if verifications:
+                    avg_conf = sum(v.confidence_score for v in verifications) / max(len(verifications), 1)
+                    await self._cognitive_state.update_uncertainty(
+                        request.query[:50], 1.0 - avg_conf
+                    )
+
+                await _trace("uncertainty", {
+                    "session_id": session.id,
+                    "update_cognitive_state": True,
+                }, {
+                    "beliefs_updated": len(all_beliefs),
+                    "goals_updated": len(all_goals),
+                    "concept_ids_updated": len(concept_ids[:500]),
+                    "verifications_count": len(verifications),
+                }, (time.monotonic() - t0) * 1000, True)
+            except Exception as e:
+                await _trace("uncertainty", {
+                    "session_id": session.id,
+                }, {}, (time.monotonic() - t0) * 1000, False, str(e))
+
         # 12. Synthesize final answer with cognitive context
-        synthesis = await self._synthesize_v2(
-            request.query, agent_outputs, reflections, verifications,
-            cognitive_state, relevant_beliefs, knowledge_context,
-        )
+        t0 = time.monotonic()
+        try:
+            synthesis = await self._synthesize_v2(
+                request.query, agent_outputs, reflections, verifications,
+                cognitive_state, relevant_beliefs, knowledge_context,
+            )
+            await _trace("synthesis", {
+                "query": request.query,
+                "num_outputs": len(agent_outputs),
+                "num_reflections": len(reflections),
+                "num_verifications": len(verifications),
+            }, {
+                "synthesis_length": len(synthesis),
+            }, (time.monotonic() - t0) * 1000, True)
+        except Exception as e:
+            await _trace("synthesis", {
+                "query": request.query,
+            }, {}, (time.monotonic() - t0) * 1000, False, str(e))
+            raise
 
         session.final_synthesis = synthesis
         session.completed_at = datetime.now(timezone.utc)
@@ -526,6 +721,7 @@ class CognitiveKernel:
 
         # v0.3: Run cognitive dynamics cycle after session
         if request.update_cognitive_state:
+            t0 = time.monotonic()
             try:
                 all_beliefs = await self._belief_state.get_active_beliefs()
                 all_concepts = []
@@ -546,11 +742,21 @@ class CognitiveKernel:
                     contradictions=contradictions_list,
                     current_query=request.query,
                 )
-            except Exception:
+                await _trace("dynamics", {
+                    "beliefs_count": len(all_beliefs),
+                    "concepts_count": len(all_concepts),
+                    "goals_count": len(all_goals),
+                    "contradictions_count": len(contradictions_list),
+                }, {
+                    "dynamics_completed": True,
+                }, (time.monotonic() - t0) * 1000, True)
+            except Exception as e:
+                await _trace("dynamics", {}, {}, (time.monotonic() - t0) * 1000, False, str(e))
                 pass  # Non-blocking: dynamics failure shouldn't break the pipeline
 
         # v0.4: Run predictive cognition cycle
         if request.update_cognitive_state:
+            t0 = time.monotonic()
             try:
                 # Learn state transitions from the session
                 state_label = f"session_{session.id[:8]}"
@@ -574,8 +780,62 @@ class CognitiveKernel:
                         goals=active_goals,
                         current_state=state_label,
                     )
-            except Exception:
+                await _trace("prediction", {
+                    "session_id": session.id,
+                    "state_label": state_label,
+                    "active_goals_count": len(active_goals) if active_goals else 0,
+                }, {
+                    "prediction_completed": True,
+                    "forecast_ran": bool(active_goals),
+                }, (time.monotonic() - t0) * 1000, True)
+            except Exception as e:
+                await _trace("prediction", {}, {}, (time.monotonic() - t0) * 1000, False, str(e))
                 pass  # Non-blocking: predictive failure shouldn't break the pipeline
+
+        # v0.3 counterfactual trace
+        if request.update_cognitive_state:
+            t0 = time.monotonic()
+            try:
+                # Run a quick counterfactual analysis
+                counterfactual_result = await self._dynamics_engine.counterfactual.what_if(
+                    premise=request.query,
+                )
+                await _trace("counterfactual", {
+                    "query": request.query,
+                }, {
+                    "scenarios_generated": len(counterfactual_result.scenarios) if counterfactual_result and hasattr(counterfactual_result, 'scenarios') else 0,
+                }, (time.monotonic() - t0) * 1000, True)
+            except Exception as e:
+                await _trace("counterfactual", {"query": request.query}, {},
+                             (time.monotonic() - t0) * 1000, False, str(e))
+
+        # v0.3 world_model trace (separate from v0.4 prediction)
+        if request.update_cognitive_state:
+            t0 = time.monotonic()
+            try:
+                world_model_stats = await self._world_model.get_stats()
+                await _trace("world_model", {
+                    "session_id": session.id,
+                }, {
+                    "world_model_stats": world_model_stats,
+                }, (time.monotonic() - t0) * 1000, True)
+            except Exception as e:
+                await _trace("world_model", {"session_id": session.id}, {},
+                             (time.monotonic() - t0) * 1000, False, str(e))
+
+        # v0.3 active_learning trace
+        if request.update_cognitive_state:
+            t0 = time.monotonic()
+            try:
+                learning_stats = await self._active_learning_loop.get_stats()
+                await _trace("active_learning", {
+                    "session_id": session.id,
+                }, {
+                    "learning_stats": learning_stats,
+                }, (time.monotonic() - t0) * 1000, True)
+            except Exception as e:
+                await _trace("active_learning", {"session_id": session.id}, {},
+                             (time.monotonic() - t0) * 1000, False, str(e))
 
         # Also run v0.1 memory consolidation for backward compatibility
         thread_ids = [t.id for t in threads]
@@ -1097,6 +1357,12 @@ Please provide a well-structured final answer that:
         # Save cognitive state
         try:
             await self._cognitive_state.save()
+        except Exception:
+            pass
+
+        # Close trace logger
+        try:
+            await self._trace_logger.close()
         except Exception:
             pass
 

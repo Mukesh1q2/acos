@@ -440,6 +440,34 @@ async def get_semantic_stats():
     return await kernel._semantic_memory.get_stats()
 
 
+# ─── Trace Endpoints ──────────────────────────────────────────────────────────
+
+@app.get("/traces/stats")
+async def get_trace_stats():
+    """Get aggregate trace statistics across all sessions."""
+    kernel = _get_kernel()
+    try:
+        stats = await kernel._trace_logger.get_trace_stats()
+        return stats
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/traces/{session_id}")
+async def get_traces(session_id: str):
+    """Get all traces for a specific session."""
+    kernel = _get_kernel()
+    try:
+        traces = await kernel._trace_logger.get_traces(session_id)
+        if not traces:
+            raise HTTPException(status_code=404, detail="No traces found for this session")
+        return traces
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 def create_app(db_path: str | None = None) -> FastAPI:
     """Create a FastAPI app with custom configuration."""
     if db_path:

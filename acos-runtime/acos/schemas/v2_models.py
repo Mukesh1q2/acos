@@ -49,6 +49,7 @@ class RelationshipType(str, Enum):
     CAUSES = "causes"           # Causation
     IMPLIES = "implies"         # Logical implication
     SIMILAR_TO = "similar_to"   # Similarity
+    HAS_PROPERTY = "has_property"  # Property/attribute relationship
 
 
 class Concept(BaseModel):

@@ -187,6 +187,11 @@ class ZAIAPIBackend(LLMBackend):
     def __init__(self, base_url: str = "http://localhost:3000"):
         self.base_url = base_url
         self._client = httpx.AsyncClient(timeout=120.0)
+        self._call_count = 0
+        self._error_count = 0
+        self._last_error: str | None = None
+        self._cached_available: bool | None = None
+        self._last_availability_check: float = 0.0
 
     async def generate(self, prompt: str, system: str | None = None, **kwargs) -> str:
         messages = []
@@ -194,29 +199,94 @@ class ZAIAPIBackend(LLMBackend):
             messages.append({"role": "system", "content": system})
         messages.append({"role": "user", "content": prompt})
 
-        response = await self._client.post(
-            f"{self.base_url}/api/chat",
-            json={"messages": messages},
-        )
-        response.raise_for_status()
-        data = response.json()
-        return data.get("response", "")
+        self._call_count += 1
+        try:
+            response = await self._client.post(
+                f"{self.base_url}/api/chat",
+                json={"messages": messages},
+            )
+            response.raise_for_status()
+            data = response.json()
+
+            # Handle the response format: {"response": "...", "success": true}
+            if data.get("success") is False:
+                error_msg = data.get("error", "Unknown error from Z-AI API")
+                self._error_count += 1
+                self._last_error = error_msg
+                raise RuntimeError(f"Z-AI API returned error: {error_msg}")
+
+            result = data.get("response", "")
+            if not result:
+                self._error_count += 1
+                self._last_error = "Empty response from Z-AI API"
+                raise RuntimeError("Z-AI API returned empty response")
+
+            self._cached_available = True
+            return result
+
+        except httpx.HTTPStatusError as e:
+            self._error_count += 1
+            self._last_error = f"HTTP {e.response.status_code}: {e.response.text[:200]}"
+            raise
+        except httpx.RequestError as e:
+            self._error_count += 1
+            self._last_error = f"Request error: {e}"
+            self._cached_available = False
+            raise
+        except Exception as e:
+            self._error_count += 1
+            self._last_error = str(e)
+            raise
 
     async def is_available(self) -> bool:
+        """Check if Z-AI API is available with caching (recheck every 60s)."""
+        import time as _time
+        now = _time.monotonic()
+
+        # Use cached result if checked within last 60 seconds
+        if (
+            self._cached_available is not None
+            and (now - self._last_availability_check) < 60.0
+        ):
+            return self._cached_available
+
         try:
-            response = await self._client.get(self.base_url)
-            return response.status_code == 200
+            # Lightweight health check: just verify the server responds
+            response = await self._client.get(
+                self.base_url,
+                timeout=5.0,
+            )
+            if response.status_code == 200:
+                self._cached_available = True
+                self._last_availability_check = now
+                return True
+            else:
+                self._cached_available = False
+                self._last_availability_check = now
+                return False
         except Exception:
+            self._cached_available = False
+            self._last_availability_check = now
             return False
 
     def get_info(self) -> ModelInfo:
         return ModelInfo(
             name="z-ai-api",
             provider="zai-api",
-            capabilities=["generation", "acos-aware"],
+            capabilities=["generation", "acos-aware", "cloud-inference"],
             context_window=8192,
-            is_available=False,  # Will be checked at runtime
+            is_available=self._cached_available or False,
         )
+
+    def get_stats(self) -> dict[str, Any]:
+        """Get backend-specific stats."""
+        return {
+            "call_count": self._call_count,
+            "error_count": self._error_count,
+            "last_error": self._last_error,
+            "is_available": self._cached_available,
+            "base_url": self.base_url,
+        }
 
 
 class ModelRouter:
@@ -243,24 +313,36 @@ class ModelRouter:
 
     async def auto_discover(self) -> None:
         """Discover and register available backends."""
-        # Always register mock backend as default (fast, reliable)
+        # Always register mock backend as fallback (fast, reliable)
         self.register_backend("mock", MockBackend(), is_default=True)
 
-        # Try Ollama
+        # Try Z-AI API backend (cloud LLM via Next.js /api/chat)
+        try:
+            zai = ZAIAPIBackend()
+            # Quick availability check with short timeout
+            zai._client = httpx.AsyncClient(timeout=10.0)
+            if await asyncio.wait_for(zai.is_available(), timeout=10.0):
+                self.register_backend("z-ai-api", zai, is_default=True)
+                print("[ModelRouter] Z-AI API backend registered as DEFAULT (available)")
+            else:
+                # Register anyway but not as default; it might come online later
+                self.register_backend("z-ai-api", zai)
+                print("[ModelRouter] Z-AI API backend registered as FALLBACK (unavailable)")
+        except asyncio.TimeoutError:
+            print("[ModelRouter] Z-AI API availability check timed out, using as fallback")
+            zai = ZAIAPIBackend()
+            self.register_backend("z-ai-api", zai)
+        except Exception as e:
+            print(f"[ModelRouter] Z-AI API backend error during discovery: {e}")
+
+        # Try Ollama (typically unavailable in cloud environments)
         try:
             ollama = OllamaBackend()
-            # Short timeout check
             ollama._client = httpx.AsyncClient(timeout=3.0)
             if await asyncio.wait_for(ollama.is_available(), timeout=5.0):
                 self.register_backend("ollama", ollama)
-                self._default_backend = "ollama"
         except Exception:
             pass
-
-        # Z-AI API: register but don't check availability (too slow)
-        # Users can explicitly enable it via preferred_model="z-ai-api"
-        # zai = ZAIAPIBackend()
-        # self.register_backend("z-ai-api", zai)
 
     async def generate(
         self,
@@ -269,49 +351,64 @@ class ModelRouter:
         preferred_model: str | None = None,
         **kwargs,
     ) -> str:
-        """Generate a response using the best available model."""
+        """Generate a response using the best available model.
+
+        Strategy: Always TRY the preferred/default backend first.
+        If it fails, fall back to mock. Never permanently mark
+        a backend as unavailable — just fall back per-call.
+        """
         backend_name = preferred_model or self._default_backend
         backend = self._backends.get(backend_name)
 
-        # Fallback chain
-        if not backend or not await backend.is_available():
-            for name, b in self._backends.items():
-                if await b.is_available():
-                    backend = b
-                    backend_name = name
-                    break
+        # Always try the preferred backend first (even if previously failed)
+        if backend:
+            start = time.monotonic()
+            try:
+                result = await backend.generate(prompt, system, **kwargs)
+                latency = time.monotonic() - start
+                self._performance.setdefault(backend_name, []).append(latency)
+                # Mark as available on success
+                if hasattr(backend, '_cached_available'):
+                    backend._cached_available = True
+                return result
+            except Exception as e:
+                latency = time.monotonic() - start
+                self._performance.setdefault(f"{backend_name}_failed", []).append(latency)
+                # Don't permanently mark as unavailable — just fall back for this call
 
-        if not backend:
-            raise RuntimeError("No LLM backend available")
+        # Fallback: try other backends, prefer real ones over mock
+        fallback_order = [name for name in self._backends
+                         if name != backend_name and name != "mock"]
+        fallback_order.append("mock")  # Mock is always last resort
 
-        start = time.monotonic()
-        try:
-            result = await backend.generate(prompt, system, **kwargs)
-            latency = time.monotonic() - start
-            self._performance.setdefault(backend_name, []).append(latency)
-            return result
-        except Exception as e:
-            # Try fallback
-            for name, b in self._backends.items():
-                if name != backend_name and await b.is_available():
-                    try:
-                        result = await b.generate(prompt, system, **kwargs)
-                        latency = time.monotonic() - start
-                        self._performance.setdefault(name, []).append(latency)
-                        return result
-                    except Exception:
-                        continue
-            raise RuntimeError(f"All backends failed. Last error: {e}") from e
+        for name in fallback_order:
+            b = self._backends.get(name)
+            if not b:
+                continue
+            start = time.monotonic()
+            try:
+                result = await b.generate(prompt, system, **kwargs)
+                latency = time.monotonic() - start
+                self._performance.setdefault(name, []).append(latency)
+                return result
+            except Exception:
+                continue
+
+        raise RuntimeError(f"All backends failed for prompt: {prompt[:100]}")
 
     def route(self, task_type: str) -> ModelRoutingDecision:
         """Decide which model to use for a task type."""
         # Task-specific routing logic
+        # Z-AI API is preferred for quality-critical tasks
+        # Mock is used for simple/internal tasks
         routing_map = {
-            "research": "ollama",    # Prefer local for research (data privacy)
-            "planning": "z-ai-api",  # Prefer cloud for planning (quality)
-            "memory": "mock",        # Memory tasks are simple
+            "research": "z-ai-api",       # Research needs high quality
+            "planning": "z-ai-api",      # Planning needs quality
+            "memory": "z-ai-api",        # Memory recall benefits from context
             "verification": "z-ai-api",  # Verification needs quality
-            "creative": "ollama",    # Creative can use local
+            "creative": "z-ai-api",      # Creative needs quality
+            "reflection": "z-ai-api",    # Reflection needs deep reasoning
+            "synthesis": "z-ai-api",     # Synthesis needs quality
         }
 
         preferred = routing_map.get(task_type, self._default_backend)
@@ -336,15 +433,25 @@ class ModelRouter:
             models.append(info)
         return models
 
-    def get_performance_stats(self) -> dict[str, dict[str, float]]:
+    def get_performance_stats(self) -> dict[str, dict[str, Any]]:
         """Get performance statistics for all models."""
-        stats = {}
+        stats: dict[str, dict[str, Any]] = {}
         for name, latencies in self._performance.items():
+            entry: dict[str, Any] = {}
             if latencies:
-                stats[name] = {
+                entry = {
                     "avg_latency": sum(latencies) / len(latencies),
                     "min_latency": min(latencies),
                     "max_latency": max(latencies),
                     "call_count": len(latencies),
                 }
+            else:
+                entry = {"call_count": 0}
+
+            # Include backend-specific stats if available
+            backend = self._backends.get(name)
+            if backend and hasattr(backend, "get_stats"):
+                entry["backend_stats"] = backend.get_stats()
+
+            stats[name] = entry
         return stats

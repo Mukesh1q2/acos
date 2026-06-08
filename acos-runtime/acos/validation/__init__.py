@@ -69,6 +69,7 @@ from acos.validation.test_generator import TestCaseGenerator
 from acos.validation.benchmarks import BenchmarkSuite
 from acos.validation.baselines import (
     ACOSSimulated,
+    ACOSReal,
     DirectLLMBaseline,
     MemoryRAGBaseline,
     MultiAgentBaseline,
@@ -217,6 +218,7 @@ __all__ = [
     "TestCaseGenerator",
     "BenchmarkSuite",
     "ACOSSimulated",
+    "ACOSReal",
     "DirectLLMBaseline",
     "MemoryRAGBaseline",
     "MultiAgentBaseline",
