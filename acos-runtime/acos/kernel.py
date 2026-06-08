@@ -1,7 +1,7 @@
 """
-Cognitive Kernel v0.3 — The central orchestrator of ACOS.
+Cognitive Kernel v0.4 — The central orchestrator of ACOS.
 
-Extended pipeline from v0.2:
+Extended pipeline from v0.3:
 
 v0.1 Pipeline:
   Query → Threads → Reflection → Verification → Synthesis
@@ -17,15 +17,20 @@ v0.3 Pipeline:
        → Cognitive Dynamics Cycle (attention, uncertainty, evolution)
        → Updated Cognitive State → Synthesis
 
-New subsystems in v0.3:
-- CognitiveDynamicsEngine: Core orchestrator for belief updates, goal competition,
-  uncertainty propagation, memory reinforcement, attention allocation, state evolution
-- AttentionManager: Track active concepts, goals, beliefs with focus scores
-- UncertaintyEngine: Track unknowns, conflicting beliefs, missing evidence
-- PlanState: Plans, subplans, dependencies, expected/actual outcomes
-- CognitiveGraph: Unified NetworkX graph for concepts, beliefs, goals, memories, plans
-- StateEvolutionEngine: dS/dt = F(S) — reinforce, weaken, promote, suppress
-- CounterfactualReasoner: What-if reasoning, alternatives
+v0.4 Pipeline:
+  Query → Cognitive State → Goals → Beliefs → Knowledge Fabric
+       → Threads → Reflection → Verification → Consolidation
+       → Cognitive Dynamics Cycle (attention, uncertainty, evolution)
+       → Predictive Cognition Cycle (world model, prediction, simulation)
+       → Updated Cognitive State → Synthesis
+
+New subsystems in v0.4:
+- WorldModel: Learn state transitions, predict future states, predict action outcomes
+- StateTransitionGraph: Track observed transitions with frequency, confidence, cost
+- OutcomePredictor: Predict success/failure probabilities, duration, resources
+- SimulationEngine: Future rollouts, scenario comparison, alternative futures
+- CausalReasoner: Causal discovery, intervention analysis, counterfactual causality
+- GoalForecastEngine: Goal achievability, failure prediction, recommended actions
 """
 
 from __future__ import annotations
@@ -69,6 +74,12 @@ from acos.cognitive.dynamics.plan_state import PlanState
 from acos.cognitive.dynamics.cognitive_graph import CognitiveGraph
 from acos.cognitive.dynamics.state_evolution import StateEvolutionEngine
 from acos.cognitive.dynamics.counterfactual import CounterfactualReasoner
+from acos.cognitive.predictive.state_transition_graph import StateTransitionGraph
+from acos.cognitive.predictive.world_model import WorldModel
+from acos.cognitive.predictive.outcome_predictor import OutcomePredictor
+from acos.cognitive.predictive.simulation_engine import SimulationEngine
+from acos.cognitive.predictive.causal_reasoner import CausalReasoner
+from acos.cognitive.predictive.goal_forecast import GoalForecastEngine
 
 
 # Mapping of thread types to agent types
@@ -91,7 +102,7 @@ DEFAULT_THREAD_TYPES = [
 
 class CognitiveKernel:
     """
-    The central orchestrator of the ACOS Runtime v0.3.
+    The central orchestrator of the ACOS Runtime v0.4.
 
     Coordinates all subsystems:
     - v0.1: ThreadScheduler, MemoryManager, ModelRouter, Agents,
@@ -100,6 +111,8 @@ class CognitiveKernel:
             GoalManager, SemanticMemory, KnowledgeConsolidator, ReasoningEngine
     - v0.3: CognitiveDynamicsEngine, AttentionManager, UncertaintyEngine,
             PlanState, CognitiveGraph, StateEvolutionEngine, CounterfactualReasoner
+    - v0.4: WorldModel, StateTransitionGraph, OutcomePredictor,
+            SimulationEngine, CausalReasoner, GoalForecastEngine
     """
 
     def __init__(self, db_path: str | None = None):
@@ -134,6 +147,28 @@ class CognitiveKernel:
             belief_state=self._belief_state,
             goal_manager=self._goal_manager,
             knowledge_fabric=self._knowledge_fabric,
+        )
+
+        # v0.4 predictive subsystems
+        self._state_transition_graph = StateTransitionGraph(self._storage)
+        self._world_model = WorldModel(self._storage)
+        self._outcome_predictor = OutcomePredictor(
+            self._storage,
+            transition_graph=self._world_model.transition_graph,
+        )
+        self._simulation_engine = SimulationEngine(
+            self._storage,
+            transition_graph=self._world_model.transition_graph,
+        )
+        self._causal_reasoner = CausalReasoner(
+            self._storage,
+            transition_graph=self._world_model.transition_graph,
+        )
+        self._goal_forecast_engine = GoalForecastEngine(
+            self._storage,
+            world_model=self._world_model,
+            outcome_predictor=self._outcome_predictor,
+            causal_reasoner=self._causal_reasoner,
         )
 
         # Agents
@@ -178,6 +213,13 @@ class CognitiveKernel:
 
         # v0.3 initialization — dynamics subsystems
         await self._dynamics_engine.initialize()
+
+        # v0.4 initialization — predictive subsystems
+        await self._world_model.initialize()
+        await self._outcome_predictor.initialize()
+        await self._simulation_engine.initialize()
+        await self._causal_reasoner.initialize()
+        await self._goal_forecast_engine.initialize()
 
         self._initialized = True
 
@@ -468,6 +510,34 @@ class CognitiveKernel:
                 )
             except Exception:
                 pass  # Non-blocking: dynamics failure shouldn't break the pipeline
+
+        # v0.4: Run predictive cognition cycle
+        if request.update_cognitive_state:
+            try:
+                # Learn state transitions from the session
+                state_label = f"session_{session.id[:8]}"
+                await self._world_model.observe_transition(
+                    source_state="query_received",
+                    target_state=state_label,
+                    action="process_query",
+                    confidence=0.7,
+                )
+
+                # Predict next state
+                await self._world_model.predict_next_state(
+                    current_state=state_label,
+                    action="next_query",
+                )
+
+                # Forecast active goals
+                active_goals = await self._goal_manager.get_active_goals()
+                if active_goals:
+                    await self._goal_forecast_engine.forecast_all_goals(
+                        goals=active_goals,
+                        current_state=state_label,
+                    )
+            except Exception:
+                pass  # Non-blocking: predictive failure shouldn't break the pipeline
 
         # Also run v0.1 memory consolidation for backward compatibility
         thread_ids = [t.id for t in threads]
@@ -767,6 +837,38 @@ Please provide a well-structured final answer that:
         """Access the Counterfactual Reasoner (v0.3)."""
         return self._dynamics_engine.counterfactual
 
+    # ─── v0.4 Predictive Subsystem Access ──────────────────────────────────────
+
+    @property
+    def world_model(self) -> WorldModel:
+        """Access the World Model (v0.4)."""
+        return self._world_model
+
+    @property
+    def state_transition_graph(self) -> StateTransitionGraph:
+        """Access the State Transition Graph (v0.4)."""
+        return self._state_transition_graph
+
+    @property
+    def outcome_predictor(self) -> OutcomePredictor:
+        """Access the Outcome Predictor (v0.4)."""
+        return self._outcome_predictor
+
+    @property
+    def simulation_engine(self) -> SimulationEngine:
+        """Access the Simulation Engine (v0.4)."""
+        return self._simulation_engine
+
+    @property
+    def causal_reasoner(self) -> CausalReasoner:
+        """Access the Causal Reasoner (v0.4)."""
+        return self._causal_reasoner
+
+    @property
+    def goal_forecast_engine(self) -> GoalForecastEngine:
+        """Access the Goal Forecast Engine (v0.4)."""
+        return self._goal_forecast_engine
+
     # ─── Query Interface ──────────────────────────────────────────────────────
 
     async def get_session(self, session_id: str) -> SessionState | None:
@@ -827,9 +929,22 @@ Please provide a well-structured final answer that:
         except Exception:
             pass
 
+        # v0.4 predictive stats
+        predictive_stats = {}
+        try:
+            predictive_stats = {
+                "world_model": await self._world_model.get_stats(),
+                "outcome_predictor": await self._outcome_predictor.get_stats(),
+                "simulation": await self._simulation_engine.get_stats(),
+                "causal": await self._causal_reasoner.get_stats(),
+                "goal_forecast": await self._goal_forecast_engine.get_stats(),
+            }
+        except Exception:
+            pass
+
         return {
             "initialized": self._initialized,
-            "version": "0.3.0",
+            "version": "0.4.0",
             "active_threads": active_threads,
             "total_sessions": len(self._sessions),
             "memory": memory_stats,
@@ -841,6 +956,7 @@ Please provide a well-structured final answer that:
             "goals": goal_stats,
             "semantic_memory": semantic_stats,
             "dynamics": dynamics_stats,
+            "predictive": predictive_stats,
         }
 
     async def get_cognitive_state(self) -> CognitiveStateResponse:

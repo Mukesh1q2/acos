@@ -2545,3 +2545,36 @@ Stage Summary:
 - Key architecture: CognitiveDynamicsEngine orchestrates AttentionManager, UncertaintyEngine, PlanState, CognitiveGraph, StateEvolutionEngine, CounterfactualReasoner
 - CognitiveKernel pipeline now includes dynamics cycle after each session
 - Evolution time: ~2-5ms per cycle — production-ready performance
+
+---
+Task ID: v0.4-main
+Agent: main
+Task: ACOS Runtime v0.4 — World Model & Predictive Cognition (6 new classes, tests, kernel integration)
+
+Work Log:
+- Explored existing project structure: verified v0.1 (CognitiveKernel, ThreadScheduler, OTM, etc.), v0.2 (KnowledgeFabric, BeliefState, GoalManager, etc.), v0.3 (CognitiveDynamicsEngine, AttentionManager, UncertaintyEngine, etc.) all present and functional
+- Created `acos/schemas/v4_models.py` with 25+ Pydantic models: StateTransition, StateVector, Prediction, OutcomePrediction, SimulationRun, SimulationStep, ScenarioComparison, CausalLink, InterventionResult, CausalDiscoveryResult, GoalForecast, GoalForecastReport, PredictiveCycleResult, and all supporting enums
+- Created `acos/cognitive/predictive/` package with `__init__.py`
+- Implemented **StateTransitionGraph** (Deliverable 2): NetworkX-based graph tracking state transitions with frequency, confidence, cost metrics; supports path finding, transition probability computation, state registration
+- Implemented **WorldModel** (Deliverable 1): Learns from observed transitions, predicts next states, action outcomes, and goal completion probability; supports prediction verification and belief/goal change learning
+- Implemented **OutcomePredictor** (Deliverable 3): Predicts success/failure probabilities, expected duration/resources, risk factors; supports multi-action prediction and action comparison
+- Implemented **SimulationEngine** (Deliverable 4): Forward simulation rollout, alternative scenario comparison, stochastic rollouts, goal achievement checking, scenario ranking
+- Implemented **CausalReasoner** (Deliverable 5): Causal link management, causal discovery from transitions, intervention analysis (do-calculus style), counterfactual causality, causal chain tracing
+- Implemented **GoalForecastEngine** (Deliverable 6): Goal achievability assessment, failure prediction, recommended actions, comprehensive goal forecast reports with feasibility classification
+- Integrated all v0.4 subsystems into CognitiveKernel: constructor initialization, async initialization, predictive cognition cycle in query pipeline, property accessors, stats reporting
+- Updated version to 0.4.0 in __init__.py, pyproject.toml, kernel.py
+- Created comprehensive test suite: `tests/test_predictive.py` with 50 tests across 7 test classes
+- All 208 tests pass (50 new v0.4 + 158 existing v0.1-v0.3)
+- Database schema: 11 new tables for v0.4 (state_transitions, state_vectors, predictions, world_model_state, outcome_predictions, simulation_runs, scenario_comparisons, causal_links, intervention_results, causal_discoveries, goal_forecasts, goal_forecast_reports)
+
+Stage Summary:
+- 6 new classes fully implemented with SQLite persistence and NetworkX graph support
+- All 6 success criteria verified via tests:
+  ✓ Future states predicted (WorldModel.predict_next_state)
+  ✓ Action outcomes predicted (WorldModel.predict_action_outcome + OutcomePredictor)
+  ✓ Causal relationships discovered (CausalReasoner.discover_causes)
+  ✓ Simulation runs (SimulationEngine.simulate with goal checking)
+  ✓ Goal forecasting works (GoalForecastEngine.forecast_goal with feasibility classification)
+  ✓ Planning becomes predictive (full pipeline: learn → predict → simulate → forecast)
+- CognitiveKernel fully integrated with v0.4 predictive cycle running after every query
+- 208/208 tests passing across all versions (v0.1: ~61, v0.2: ~37, v0.3: ~60, v0.4: 50)
