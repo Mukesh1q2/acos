@@ -1,21 +1,15 @@
 """
-Cognitive Kernel v0.4 — The central orchestrator of ACOS.
+Cognitive Kernel v0.5 — The central orchestrator of ACOS.
 
-Extended pipeline from v0.3:
+Unified Cognitive Architecture Pipeline:
 
-v0.1 Pipeline:
-  Query → Threads → Reflection → Verification → Synthesis
+v0.5 Pipeline (complete cognitive loop):
+  Observe → Activate Concepts → Retrieve Memories → Retrieve Beliefs
+  → Activate Goals → Predict Outcomes → Generate Plans → Simulate Alternatives
+  → Select Strategy → Execute Threads → Verify → Reflect → Consolidate
+  → Update World Model → Update Cognitive State → Learn → Evolve
 
-v0.2 Pipeline:
-  Query → Cognitive State → Goals → Beliefs → Knowledge Fabric
-       → Threads → Reflection → Verification → Consolidation
-       → Updated Cognitive State → Synthesis
-
-v0.3 Pipeline:
-  Query → Cognitive State → Goals → Beliefs → Knowledge Fabric
-       → Threads → Reflection → Verification → Consolidation
-       → Cognitive Dynamics Cycle (attention, uncertainty, evolution)
-       → Updated Cognitive State → Synthesis
+Previous pipelines preserved for backward compatibility:
 
 v0.4 Pipeline:
   Query → Cognitive State → Goals → Beliefs → Knowledge Fabric
@@ -24,13 +18,16 @@ v0.4 Pipeline:
        → Predictive Cognition Cycle (world model, prediction, simulation)
        → Updated Cognitive State → Synthesis
 
-New subsystems in v0.4:
-- WorldModel: Learn state transitions, predict future states, predict action outcomes
-- StateTransitionGraph: Track observed transitions with frequency, confidence, cost
-- OutcomePredictor: Predict success/failure probabilities, duration, resources
-- SimulationEngine: Future rollouts, scenario comparison, alternative futures
-- CausalReasoner: Causal discovery, intervention analysis, counterfactual causality
-- GoalForecastEngine: Goal achievability, failure prediction, recommended actions
+New subsystems in v0.5:
+- WorldModelEngine: Enhanced prediction with risk/uncertainty estimation
+- ActiveLearningLoop: Prediction error tracking, belief/confidence/model updates
+- CognitiveStateManifold: Unified latent representation of cognitive state
+- GoalCompetitionEngine: Dynamic goal prioritization
+- AttentionEconomy: Limited cognitive resource allocation with decay
+- EnhancedCausalReasoner: Causal chains, root cause, forecasting
+- SelfModel: Self-awareness of strengths, weaknesses, performance
+- CognitiveCycle: Complete cognitive loop orchestrator
+- EvaluationFramework: Benchmarks and metrics
 """
 
 from __future__ import annotations
@@ -80,6 +77,15 @@ from acos.cognitive.predictive.outcome_predictor import OutcomePredictor
 from acos.cognitive.predictive.simulation_engine import SimulationEngine
 from acos.cognitive.predictive.causal_reasoner import CausalReasoner
 from acos.cognitive.predictive.goal_forecast import GoalForecastEngine
+from acos.cognitive.unified.world_model_engine import WorldModelEngine
+from acos.cognitive.unified.active_learning import ActiveLearningLoop
+from acos.cognitive.unified.cognitive_manifold import CognitiveStateManifold
+from acos.cognitive.unified.goal_competition import GoalCompetitionEngine
+from acos.cognitive.unified.attention_economy import AttentionEconomy
+from acos.cognitive.unified.enhanced_causal import EnhancedCausalReasoner
+from acos.cognitive.unified.self_model import SelfModel
+from acos.cognitive.unified.cognitive_cycle import CognitiveCycle
+from acos.cognitive.unified.evaluation import EvaluationFramework
 
 
 # Mapping of thread types to agent types
@@ -102,7 +108,7 @@ DEFAULT_THREAD_TYPES = [
 
 class CognitiveKernel:
     """
-    The central orchestrator of the ACOS Runtime v0.4.
+    The central orchestrator of the ACOS Runtime v0.5.
 
     Coordinates all subsystems:
     - v0.1: ThreadScheduler, MemoryManager, ModelRouter, Agents,
@@ -113,6 +119,9 @@ class CognitiveKernel:
             PlanState, CognitiveGraph, StateEvolutionEngine, CounterfactualReasoner
     - v0.4: WorldModel, StateTransitionGraph, OutcomePredictor,
             SimulationEngine, CausalReasoner, GoalForecastEngine
+    - v0.5: WorldModelEngine, ActiveLearningLoop, CognitiveStateManifold,
+            GoalCompetitionEngine, AttentionEconomy, EnhancedCausalReasoner,
+            SelfModel, CognitiveCycle, EvaluationFramework
     """
 
     def __init__(self, db_path: str | None = None):
@@ -171,6 +180,24 @@ class CognitiveKernel:
             causal_reasoner=self._causal_reasoner,
         )
 
+        # v0.5 unified cognitive architecture subsystems
+        self._world_model_engine = WorldModelEngine(self._storage, world_model=self._world_model)
+        self._active_learning_loop = ActiveLearningLoop(
+            self._storage,
+            world_model_engine=self._world_model_engine,
+            belief_system=self._belief_state,
+        )
+        self._cognitive_manifold = CognitiveStateManifold(self._storage)
+        self._goal_competition_engine = GoalCompetitionEngine(self._storage)
+        self._attention_economy = AttentionEconomy(self._storage)
+        self._enhanced_causal_reasoner = EnhancedCausalReasoner(
+            self._storage,
+            base_causal_reasoner=self._causal_reasoner,
+        )
+        self._self_model = SelfModel(self._storage)
+        self._cognitive_cycle = CognitiveCycle(self._storage, kernel=self)
+        self._evaluation_framework = EvaluationFramework(self._storage)
+
         # Agents
         self._agents: dict[AgentType, ResearchAgent | PlanningAgent | MemoryAgent | VerificationAgent] = {}
 
@@ -220,6 +247,17 @@ class CognitiveKernel:
         await self._simulation_engine.initialize()
         await self._causal_reasoner.initialize()
         await self._goal_forecast_engine.initialize()
+
+        # v0.5 initialization — unified cognitive architecture
+        await self._world_model_engine.initialize()
+        await self._active_learning_loop.initialize()
+        await self._cognitive_manifold.initialize()
+        await self._goal_competition_engine.initialize()
+        await self._attention_economy.initialize()
+        await self._enhanced_causal_reasoner.initialize()
+        await self._self_model.initialize()
+        await self._cognitive_cycle.initialize()
+        await self._evaluation_framework.initialize()
 
         self._initialized = True
 
@@ -869,6 +907,53 @@ Please provide a well-structured final answer that:
         """Access the Goal Forecast Engine (v0.4)."""
         return self._goal_forecast_engine
 
+    # ─── v0.5 Unified Architecture Subsystem Access ───────────────────────────
+
+    @property
+    def world_model_engine(self) -> WorldModelEngine:
+        """Access the World Model Engine (v0.5)."""
+        return self._world_model_engine
+
+    @property
+    def active_learning_loop(self) -> ActiveLearningLoop:
+        """Access the Active Learning Loop (v0.5)."""
+        return self._active_learning_loop
+
+    @property
+    def cognitive_manifold(self) -> CognitiveStateManifold:
+        """Access the Cognitive State Manifold (v0.5)."""
+        return self._cognitive_manifold
+
+    @property
+    def goal_competition_engine(self) -> GoalCompetitionEngine:
+        """Access the Goal Competition Engine (v0.5)."""
+        return self._goal_competition_engine
+
+    @property
+    def attention_economy(self) -> AttentionEconomy:
+        """Access the Attention Economy (v0.5)."""
+        return self._attention_economy
+
+    @property
+    def enhanced_causal_reasoner(self) -> EnhancedCausalReasoner:
+        """Access the Enhanced Causal Reasoner (v0.5)."""
+        return self._enhanced_causal_reasoner
+
+    @property
+    def self_model(self) -> SelfModel:
+        """Access the Self Model (v0.5)."""
+        return self._self_model
+
+    @property
+    def cognitive_cycle(self) -> CognitiveCycle:
+        """Access the Cognitive Cycle (v0.5)."""
+        return self._cognitive_cycle
+
+    @property
+    def evaluation_framework(self) -> EvaluationFramework:
+        """Access the Evaluation Framework (v0.5)."""
+        return self._evaluation_framework
+
     # ─── Query Interface ──────────────────────────────────────────────────────
 
     async def get_session(self, session_id: str) -> SessionState | None:
@@ -942,9 +1027,26 @@ Please provide a well-structured final answer that:
         except Exception:
             pass
 
+        # v0.5 unified architecture stats
+        unified_stats = {}
+        try:
+            unified_stats = {
+                "world_model_engine": await self._world_model_engine.get_stats(),
+                "active_learning": await self._active_learning_loop.get_stats(),
+                "cognitive_manifold": await self._cognitive_manifold.get_stats(),
+                "goal_competition": await self._goal_competition_engine.get_stats(),
+                "attention_economy": await self._attention_economy.get_stats(),
+                "enhanced_causal": await self._enhanced_causal_reasoner.get_stats(),
+                "self_model": await self._self_model.get_stats(),
+                "cognitive_cycle": await self._cognitive_cycle.get_stats(),
+                "evaluation": await self._evaluation_framework.get_stats(),
+            }
+        except Exception:
+            pass
+
         return {
             "initialized": self._initialized,
-            "version": "0.4.0",
+            "version": "0.5.0",
             "active_threads": active_threads,
             "total_sessions": len(self._sessions),
             "memory": memory_stats,
@@ -957,6 +1059,7 @@ Please provide a well-structured final answer that:
             "semantic_memory": semantic_stats,
             "dynamics": dynamics_stats,
             "predictive": predictive_stats,
+            "unified": unified_stats,
         }
 
     async def get_cognitive_state(self) -> CognitiveStateResponse:
