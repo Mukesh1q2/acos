@@ -33,3 +33,25 @@ Stage Summary:
 - Self-model maintains awareness of strengths, weaknesses, and model preferences
 - Evaluation framework provides 7 benchmarks for measuring cognitive performance
 - All 10 success criteria verified through automated tests
+
+---
+Task ID: 2
+Agent: Main Orchestrator
+Task: Fix preview not working — dev server persistence and cross-origin issues
+
+Work Log:
+- Diagnosed: dev server was not running (no process on port 3000)
+- Root cause 1: Background processes from Bash tool sessions get cleaned up when session ends
+- Root cause 2: Next.js was blocking cross-origin requests from preview panel (preview-chat-*.space-z.ai)
+- Fix 1: Created server-daemon.js that uses `spawn` with `detached: true` and `child.unref()` to keep Next.js server alive independently of shell session
+- Fix 2: Added `allowedDevOrigins: [".space-z.ai"]` to next.config.ts to allow preview panel requests
+- Fix 3: Fixed FORCE_COLOR/NO_COLOR env variable conflict warning
+- Verified: Server starts, stays alive persistently (tested over 5+ minutes), agent-browser can navigate and snapshot pages
+- Verified: All page sections render correctly, no console errors
+- Set up cron job (ID: 192556) for periodic review every 15 minutes
+
+Stage Summary:
+- Preview is now working — dev server runs persistently via server-daemon.js
+- Cross-origin requests from preview panel are now allowed
+- Server PID saved to .dev-server-pid for management
+- Dev log at dev.log for monitoring
