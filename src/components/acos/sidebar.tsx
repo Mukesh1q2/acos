@@ -25,6 +25,7 @@ import {
   BarChart3,
   Star,
   BookOpen,
+  Activity,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
@@ -44,6 +45,7 @@ export interface NavItem {
 
 export const navItems: NavItem[] = [
   { id: "overview", label: "Overview", shortLabel: "Overview", icon: <Brain className="w-4 h-4" /> },
+  { id: "runtime", label: "Runtime", shortLabel: "Runtime", icon: <Activity className="w-4 h-4" /> },
   { id: "part1", label: "Part 1 — Whitepaper Analysis", shortLabel: "Whitepaper", icon: <FileText className="w-4 h-4" /> },
   { id: "part2", label: "Part 2 — ACOS Design", shortLabel: "ACOS Design", icon: <Layers className="w-4 h-4" /> },
   { id: "part3", label: "Part 3 — AFM Architecture", shortLabel: "AFM Arch", icon: <Cpu className="w-4 h-4" /> },

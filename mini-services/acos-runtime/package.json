@@ -1,0 +1,7 @@
+{
+  "name": "acos-runtime-service",
+  "version": "0.2.0",
+  "scripts": {
+    "dev": "bun --hot index.ts"
+  }
+}

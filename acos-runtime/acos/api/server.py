@@ -1,12 +1,13 @@
 """
-FastAPI Server for ACOS Runtime.
+FastAPI Server for ACOS Runtime v0.2.
 
 Provides REST API endpoints for:
-- Processing queries
+- Processing queries (v0.1 + v0.2)
 - Managing threads
 - Managing memory
 - Health checks
 - Session management
+- v0.2 Cognitive subsystems: beliefs, goals, cognitive state, knowledge graph, reasoning
 """
 
 from __future__ import annotations
@@ -15,12 +16,18 @@ import time
 from contextlib import asynccontextmanager
 from typing import Any
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 
 from acos.kernel import CognitiveKernel
 from acos.schemas.models import (
     QueryRequest, QueryResponse, HealthResponse,
     ThreadState, ThreadStatus, MemoryRecord, MemoryType,
+)
+from acos.schemas.v2_models import (
+    QueryRequestV2, QueryResponseV2,
+    Belief, BeliefCreate, Goal, GoalCreate, GoalPriority,
+    CognitiveStateResponse, KnowledgeGraphResponse,
+    Evidence,
 )
 
 
@@ -41,9 +48,9 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="ACOS Runtime",
-    description="Avadhan Cognitive Operating System Runtime v0.1",
-    version="0.1.0",
+    title="ACOS Runtime v0.2",
+    description="Avadhan Cognitive Operating System Runtime — Cognitive State Engine & Knowledge Fabric",
+    version="0.2.0",
     lifespan=lifespan,
 )
 
@@ -58,10 +65,20 @@ def _get_kernel() -> CognitiveKernel:
 
 @app.post("/query", response_model=QueryResponse)
 async def process_query(request: QueryRequest) -> QueryResponse:
-    """Process a query through the full ACOS pipeline."""
+    """Process a query through the full ACOS v0.1 pipeline."""
     kernel = _get_kernel()
     try:
         return await kernel.process_query(request)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/query/v2", response_model=QueryResponseV2)
+async def process_query_v2(request: QueryRequestV2) -> QueryResponseV2:
+    """Process a query through the full ACOS v0.2 cognitive pipeline."""
+    kernel = _get_kernel()
+    try:
+        return await kernel.process_query_v2(request)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -141,7 +158,7 @@ async def health_check():
     uptime = time.monotonic() - _start_time
     return HealthResponse(
         status="healthy" if kernel._initialized else "initializing",
-        version="0.1.0",
+        version="0.2.0",
         uptime_seconds=uptime,
         active_threads=stats.get("active_threads", 0),
         memory_records=stats.get("memory", {}).get("total_records", 0),
@@ -151,7 +168,7 @@ async def health_check():
 
 @app.get("/stats")
 async def get_stats():
-    """Get runtime statistics."""
+    """Get runtime statistics including v0.2 cognitive subsystems."""
     kernel = _get_kernel()
     return await kernel.get_stats()
 
@@ -165,10 +182,267 @@ async def list_models():
     return await kernel._router.get_available_models()
 
 
+# ─── v0.2 Cognitive Subsystem Endpoints ──────────────────────────────────────
+
+@app.get("/cognitive/state", response_model=CognitiveStateResponse)
+async def get_cognitive_state():
+    """Get the current cognitive state snapshot."""
+    kernel = _get_kernel()
+    return await kernel.get_cognitive_state()
+
+
+@app.get("/cognitive/state/full")
+async def get_cognitive_state_full():
+    """Get the complete cognitive state as a dictionary."""
+    kernel = _get_kernel()
+    return await kernel._cognitive_state.get_full_state()
+
+
+@app.get("/cognitive/state/stats")
+async def get_cognitive_state_stats():
+    """Get cognitive state statistics."""
+    kernel = _get_kernel()
+    return await kernel._cognitive_state.get_stats()
+
+
+# ─── Belief Endpoints ─────────────────────────────────────────────────────────
+
+@app.get("/beliefs")
+async def list_beliefs(status: str | None = None):
+    """List all beliefs, optionally filtered by status."""
+    kernel = _get_kernel()
+    if status == "active":
+        return await kernel._belief_state.get_active_beliefs()
+    elif status == "weakened":
+        return await kernel._belief_state.get_weakened_beliefs()
+    # Return all: active + weakened
+    active = await kernel._belief_state.get_active_beliefs()
+    weakened = await kernel._belief_state.get_weakened_beliefs()
+    return active + weakened
+
+
+@app.post("/beliefs")
+async def create_belief(belief: BeliefCreate):
+    """Create a new belief."""
+    kernel = _get_kernel()
+    new_belief = Belief(
+        statement=belief.statement,
+        confidence=belief.confidence,
+    )
+    # Add evidence if provided
+    for ev in belief.evidence_for:
+        new_belief.supporting_evidence.append(
+            Evidence(content=ev, evidence_type="supporting")
+        )
+    for ev in belief.evidence_against:
+        new_belief.contradicting_evidence.append(
+            Evidence(content=ev, evidence_type="contradicting")
+        )
+    result = await kernel._belief_state.add_belief(new_belief)
+    # Also update cognitive state
+    await kernel._cognitive_state.add_belief_to_state(result)
+    return result
+
+
+@app.get("/beliefs/{belief_id}")
+async def get_belief(belief_id: str):
+    """Get a specific belief."""
+    kernel = _get_kernel()
+    belief = await kernel._belief_state.get_belief(belief_id)
+    if not belief:
+        raise HTTPException(status_code=404, detail="Belief not found")
+    return belief
+
+
+@app.post("/beliefs/{belief_id}/contradict")
+async def contradict_belief(belief_id: str, evidence: str = Query(...)):
+    """Add contradicting evidence to a belief."""
+    kernel = _get_kernel()
+    ev = Evidence(content=evidence, evidence_type="contradicting")
+    belief = await kernel._belief_state.add_evidence(belief_id, ev)
+    if not belief:
+        raise HTTPException(status_code=404, detail="Belief not found")
+    return belief
+
+
+@app.get("/beliefs/stats")
+async def get_belief_stats():
+    """Get belief system statistics."""
+    kernel = _get_kernel()
+    return await kernel._belief_state.get_stats()
+
+
+# ─── Goal Endpoints ───────────────────────────────────────────────────────────
+
+@app.get("/goals")
+async def list_goals(status: str | None = None):
+    """List all goals, optionally filtered by status."""
+    kernel = _get_kernel()
+    if status == "active":
+        return await kernel._goal_manager.get_active_goals()
+    elif status == "completed":
+        return await kernel._goal_manager.get_completed_goals()
+    # Return all active + completed
+    active = await kernel._goal_manager.get_active_goals()
+    completed = await kernel._goal_manager.get_completed_goals()
+    return active + completed
+
+
+@app.post("/goals")
+async def create_goal(goal: GoalCreate):
+    """Create a new goal."""
+    kernel = _get_kernel()
+    new_goal = Goal(
+        description=goal.description,
+        priority=goal.priority,
+        parent_goal_id=goal.parent_goal_id,
+    )
+    result = await kernel._goal_manager.create_goal(
+        description=goal.description,
+        priority=goal.priority,
+        parent_goal_id=goal.parent_goal_id,
+    )
+    # Also update cognitive state
+    await kernel._cognitive_state.add_goal_to_state(result)
+    return result
+
+
+@app.get("/goals/{goal_id}")
+async def get_goal(goal_id: str):
+    """Get a specific goal."""
+    kernel = _get_kernel()
+    goal = await kernel._goal_manager.get_goal(goal_id)
+    if not goal:
+        raise HTTPException(status_code=404, detail="Goal not found")
+    return goal
+
+
+@app.post("/goals/{goal_id}/progress")
+async def update_goal_progress(goal_id: str, progress: float = Query(..., ge=0.0, le=1.0)):
+    """Update a goal's progress."""
+    kernel = _get_kernel()
+    goal = await kernel._goal_manager.update_progress(goal_id, progress)
+    if not goal:
+        raise HTTPException(status_code=404, detail="Goal not found")
+    return goal
+
+
+@app.get("/goals/stats")
+async def get_goal_stats():
+    """Get goal system statistics."""
+    kernel = _get_kernel()
+    return await kernel._goal_manager.get_stats()
+
+
+# ─── Knowledge Graph Endpoints ────────────────────────────────────────────────
+
+@app.get("/knowledge/graph", response_model=KnowledgeGraphResponse)
+async def get_knowledge_graph():
+    """Get the full knowledge graph."""
+    kernel = _get_kernel()
+    return await kernel.get_knowledge_graph()
+
+
+@app.get("/knowledge/concepts")
+async def list_concepts():
+    """List all concepts in the knowledge fabric."""
+    kernel = _get_kernel()
+    try:
+        return await kernel._knowledge_fabric.get_all_concepts()
+    except Exception:
+        return []
+
+
+@app.get("/knowledge/concepts/{concept_id}")
+async def get_concept(concept_id: str):
+    """Get a specific concept."""
+    kernel = _get_kernel()
+    concept = await kernel._knowledge_fabric.get_concept(concept_id)
+    if not concept:
+        raise HTTPException(status_code=404, detail="Concept not found")
+    return concept
+
+
+@app.get("/knowledge/search")
+async def search_knowledge(q: str = Query(..., min_length=1), limit: int = Query(10, ge=1, le=50)):
+    """Search the knowledge fabric semantically."""
+    kernel = _get_kernel()
+    results = await kernel._knowledge_fabric.semantic_search(q, limit)
+    return results
+
+
+@app.post("/knowledge/extract")
+async def extract_knowledge(text: str = Query(..., min_length=1)):
+    """Extract concepts, entities, and relationships from text."""
+    kernel = _get_kernel()
+    concepts = kernel._knowledge_fabric.extract_concepts(text)
+    entities = kernel._knowledge_fabric.extract_entities(text)
+    relationships = kernel._knowledge_fabric.extract_relationships(text, concepts)
+    return {
+        "concepts": [c.model_dump(mode="json") for c in concepts],
+        "entities": [e.model_dump(mode="json") for e in entities],
+        "relationships": [r.model_dump(mode="json") for r in relationships],
+    }
+
+
+@app.get("/knowledge/stats")
+async def get_knowledge_stats():
+    """Get knowledge fabric statistics."""
+    kernel = _get_kernel()
+    return kernel._knowledge_fabric.get_stats()
+
+
+# ─── Reasoning Endpoints ──────────────────────────────────────────────────────
+
+@app.post("/reasoning/infer")
+async def infer_relationships(
+    source_concept_id: str = Query(...),
+    target_concept_id: str = Query(...),
+):
+    """Infer relationships between two concepts."""
+    kernel = _get_kernel()
+    results = await kernel._reasoning_engine.infer_relationships(
+        source_concept_id, target_concept_id
+    )
+    return [r.model_dump(mode="json") for r in results]
+
+
+@app.get("/reasoning/contradictions")
+async def find_contradictions():
+    """Find contradictions in the knowledge base."""
+    kernel = _get_kernel()
+    results = await kernel._reasoning_engine.detect_contradictions()
+    return [r.model_dump(mode="json") for r in results]
+
+
+@app.get("/reasoning/gaps")
+async def find_knowledge_gaps():
+    """Discover missing knowledge in the graph."""
+    kernel = _get_kernel()
+    results = await kernel._reasoning_engine.discover_knowledge_gaps()
+    return [g.model_dump(mode="json") for g in results]
+
+
+# ─── Semantic Memory Endpoints ────────────────────────────────────────────────
+
+@app.get("/semantic/search")
+async def search_semantic(q: str = Query(..., min_length=1), limit: int = Query(10, ge=1, le=50)):
+    """Search semantic memory."""
+    kernel = _get_kernel()
+    result = await kernel._semantic_memory.semantic_query(q, limit)
+    return result.model_dump(mode="json")
+
+
+@app.get("/semantic/stats")
+async def get_semantic_stats():
+    """Get semantic memory statistics."""
+    kernel = _get_kernel()
+    return await kernel._semantic_memory.get_stats()
+
+
 def create_app(db_path: str | None = None) -> FastAPI:
     """Create a FastAPI app with custom configuration."""
     if db_path:
-        # Override the kernel creation with custom db_path
         global _kernel
 
         @asynccontextmanager
@@ -180,12 +454,9 @@ def create_app(db_path: str | None = None) -> FastAPI:
             if _kernel:
                 await _kernel.shutdown()
 
-        app = FastAPI(
-            title="ACOS Runtime",
-            version="0.1.0",
+        return FastAPI(
+            title="ACOS Runtime v0.2",
+            version="0.2.0",
             lifespan=custom_lifespan,
         )
-        # Re-register all routes
-        for route in app.routes:
-            pass  # Routes already registered
     return app

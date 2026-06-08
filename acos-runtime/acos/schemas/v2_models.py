@@ -304,15 +304,35 @@ class QueryResponseV2(BaseModel):
     total_time_ms: float
 
 
+class BeliefCreate(BaseModel):
+    """Request body for creating a new belief."""
+    statement: str
+    confidence: float = Field(default=0.5, ge=0.0, le=1.0)
+    evidence_for: list[str] = Field(default_factory=list)
+    evidence_against: list[str] = Field(default_factory=list)
+    category: str = "general"
+
+
+class GoalCreate(BaseModel):
+    """Request body for creating a new goal."""
+    description: str
+    priority: GoalPriority = GoalPriority.NORMAL
+    category: str = "general"
+    parent_goal_id: str | None = None
+
+
 class CognitiveStateResponse(BaseModel):
     """API response for cognitive state queries."""
     state_id: str
-    active_beliefs: int
-    active_goals: int
-    knowledge_concepts: int
-    overall_confidence: float
-    session_count: int
-    last_updated: datetime
+    active_beliefs: int = 0
+    weakened_beliefs: int = 0
+    active_goals: int = 0
+    knowledge_concepts: int = 0
+    overall_confidence: float = 0.5
+    session_count: int = 0
+    last_query: str | None = None
+    last_updated: datetime = Field(default_factory=utc_now)
+    uncertainty_topics: list[str] = Field(default_factory=list)
 
 
 class KnowledgeGraphResponse(BaseModel):

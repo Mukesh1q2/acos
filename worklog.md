@@ -2481,3 +2481,32 @@ Stage Summary:
 - Build M2 milestone: Wrap Llama-3-8B with ACOS cognitive infrastructure
 - Add WebSocket support for real-time agent status updates
 - Implement HBTA (Hierarchical Binary-Tree Attention) in PyTorch for M1 milestone
+
+---
+Task ID: integration-main
+Agent: main
+Task: Integrate ACOS Runtime Python backend with Next.js frontend via Runtime Dashboard
+
+Work Log:
+- Assessed current project state: Frontend (Next.js) fully functional with 16 sections; Python backend (ACOS Runtime v0.2) with 112/112 tests passing but NOT connected to frontend
+- Created `/home/z/my-project/acos-runtime/read_db.py` — Python script that reads ACOS SQLite database and outputs JSON
+- Created `/home/z/my-project/src/app/api/acos-runtime/route.ts` — Next.js API route that calls read_db.py and returns JSON
+- Seeded ACOS database with rich ACOS-specific cognitive data (24 concepts, 30 relationships, 10 entities, 8 beliefs, 6 goals, 1 cognitive state, 12 semantic concepts)
+- Created `/home/z/my-project/src/components/acos/runtime-dashboard.tsx` — Full 4-tab dashboard component
+- Integrated Runtime Dashboard into sidebar navigation and page.tsx routing
+- Updated FastAPI server.py with v0.2 cognitive endpoints (beliefs, goals, cognitive-state, knowledge-graph, reasoning)
+- Added BeliefCreate and GoalCreate models to v2_models.py
+- All lint checks pass (0 errors, 0 warnings)
+- Browser-verified: Runtime Dashboard shows live data from Python backend
+  - Overview tab: confidence gauge, 6 stat cards, cognitive state panel
+  - Knowledge Graph tab: concept/relationship distribution and lists
+  - Beliefs tab: belief cards with evidence and confidence bars
+  - Goals tab: goal cards with priority badges and progress bars
+
+Stage Summary:
+- ACOS Runtime Python backend is now integrated with Next.js frontend via API bridge
+- Runtime Dashboard section shows live cognitive state data
+- 17 total navigable sections (added Runtime)
+- Full data flow: Python SQLite → read_db.py → Next.js API → React Dashboard
+- All 112 Python tests still passing
+- FastAPI server updated with comprehensive v0.2 endpoints
