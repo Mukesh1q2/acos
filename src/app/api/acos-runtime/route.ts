@@ -8,7 +8,8 @@ export async function GET() {
   try {
     const result = execSync(`python3 "${READ_DB_SCRIPT}"`, {
       encoding: "utf-8",
-      timeout: 15000,
+      timeout: 30000,
+      maxBuffer: 5 * 1024 * 1024, // 5MB buffer for large datasets
     });
 
     const data = JSON.parse(result.trim());
@@ -24,8 +25,6 @@ export async function GET() {
         beliefs: [],
         goals: [],
         cognitiveState: null,
-        semanticConcepts: [],
-        semanticRelationships: [],
         stats: {
           totalConcepts: 0,
           totalEntities: 0,

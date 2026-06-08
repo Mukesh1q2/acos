@@ -381,7 +381,8 @@ const priorityColorMap: Record<string, { bg: string; text: string }> = {
 /* ------------------------------------------------------------------ */
 
 function GoalStatusIcon({ status }: { status: string }) {
-  switch (status.toUpperCase()) {
+  const s = typeof status === "string" ? status : String(status);
+  switch (s.toUpperCase()) {
     case "ACTIVE":
       return <Activity className="w-3.5 h-3.5 text-emerald-400" />;
     case "COMPLETED":
@@ -398,7 +399,8 @@ function GoalStatusIcon({ status }: { status: string }) {
 /* ------------------------------------------------------------------ */
 
 function BeliefStatusBadge({ status }: { status: string }) {
-  const isActive = status.toUpperCase() === "ACTIVE";
+  const s = typeof status === "string" ? status : String(status);
+  const isActive = s.toUpperCase() === "ACTIVE";
   return (
     <Badge
       className={`text-[10px] font-mono ${
@@ -407,7 +409,7 @@ function BeliefStatusBadge({ status }: { status: string }) {
           : "bg-amber-500/15 text-amber-400 border-amber-500/25 hover:bg-amber-500/20"
       }`}
     >
-      {status.toUpperCase()}
+      {s.toUpperCase()}
     </Badge>
   );
 }
@@ -417,7 +419,7 @@ function BeliefStatusBadge({ status }: { status: string }) {
 /* ------------------------------------------------------------------ */
 
 function GoalStatusBadge({ status }: { status: string }) {
-  const s = status.toUpperCase();
+  const s = (typeof status === "string" ? status : String(status)).toUpperCase();
   const colorMap: Record<string, string> = {
     ACTIVE: "bg-emerald-500/15 text-emerald-400 border-emerald-500/25",
     COMPLETED: "bg-green-500/15 text-green-400 border-green-500/25",
@@ -775,9 +777,22 @@ function KnowledgeGraphTab({ data }: { data: RuntimeData }) {
 
 function BeliefEvidenceDetails({ belief }: { belief: Belief }) {
   const [expanded, setExpanded] = useState(false);
-  const hasEvidence = (belief.supporting_evidence?.length ?? 0) > 0 || (belief.contradicting_evidence?.length ?? 0) > 0;
+  // Safely count evidence - handle cases where arrays might contain non-object items
+  const safeEvidence = (arr: unknown[]): EvidenceItem[] =>
+    Array.isArray(arr) ? arr.filter((ev): ev is EvidenceItem => ev != null && typeof ev === "object" && "id" in ev) : [];
+  const supportingSafe = safeEvidence(belief.supporting_evidence as unknown[] ?? []);
+  const contradictingSafe = safeEvidence(belief.contradicting_evidence as unknown[] ?? []);
+  const hasEvidence = supportingSafe.length > 0 || contradictingSafe.length > 0;
 
   if (!hasEvidence) return null;
+
+  // Safely render content - convert objects to strings
+  const safeContent = (content: unknown): string => {
+    if (content == null) return "";
+    if (typeof content === "string") return content;
+    if (typeof content === "number" || typeof content === "boolean") return String(content);
+    return JSON.stringify(content);
+  };
 
   return (
     <div className="mt-2">
@@ -798,21 +813,21 @@ function BeliefEvidenceDetails({ belief }: { belief: Belief }) {
             className="overflow-hidden"
           >
             <div className="pt-2 mt-2 border-t border-border/20 space-y-2">
-              {belief.supporting_evidence?.map((ev) => (
+              {supportingSafe.map((ev) => (
                 <div key={ev.id} className="flex items-start gap-2 text-[10px]">
                   <CheckCircle className="w-3 h-3 text-green-400 flex-shrink-0 mt-0.5" />
                   <div>
-                    <span className="text-foreground">{ev.content}</span>
-                    <span className="text-muted-foreground ml-2 font-mono">{Math.round(ev.confidence * 100)}%</span>
+                    <span className="text-foreground">{safeContent(ev.content)}</span>
+                    <span className="text-muted-foreground ml-2 font-mono">{Math.round((ev.confidence ?? 0) * 100)}%</span>
                   </div>
                 </div>
               ))}
-              {belief.contradicting_evidence?.map((ev) => (
+              {contradictingSafe.map((ev) => (
                 <div key={ev.id} className="flex items-start gap-2 text-[10px]">
                   <AlertTriangle className="w-3 h-3 text-red-400 flex-shrink-0 mt-0.5" />
                   <div>
-                    <span className="text-foreground">{ev.content}</span>
-                    <span className="text-muted-foreground ml-2 font-mono">{Math.round(ev.confidence * 100)}%</span>
+                    <span className="text-foreground">{safeContent(ev.content)}</span>
+                    <span className="text-muted-foreground ml-2 font-mono">{Math.round((ev.confidence ?? 0) * 100)}%</span>
                   </div>
                 </div>
               ))}
@@ -996,7 +1011,9 @@ function GoalsTab({ data }: { data: RuntimeData }) {
   const sortedGoals = useCallback(() => {
     const priorityOrder: Record<string, number> = { CRITICAL: 0, HIGH: 1, NORMAL: 2, LOW: 3 };
     const getPriorityKey = (p: string | number) => {
-      const s = typeof p === "number" ? (p >= 15 ? "HIGH" : p >= 10 ? "NORMAL" : "LOW") : String(p).toUpperCase();
+      const s = typeof p === "number"
+        ? (p >= 20 ? "CRITICAL" : p >= 15 ? "HIGH" : p >= 10 ? "NORMAL" : "LOW")
+        : String(p).toUpperCase();
       return s;
     };
     return [...goals].sort((a, b) => {
