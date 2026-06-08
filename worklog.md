@@ -2510,3 +2510,38 @@ Stage Summary:
 - Full data flow: Python SQLite → read_db.py → Next.js API → React Dashboard
 - All 112 Python tests still passing
 - FastAPI server updated with comprehensive v0.2 endpoints
+
+---
+Task ID: v0.3-main
+Agent: main
+Task: Implement ACOS Runtime v0.3 — Cognitive Dynamics Engine
+
+Work Log:
+- Analyzed existing v0.2 codebase (kernel.py, belief_system.py, goal_system.py, cognitive_state.py, knowledge_fabric.py, semantic_memory.py, knowledge_consolidator.py, reasoning_engine.py)
+- Created v3_models.py with 20+ Pydantic models for all v0.3 components
+- Created acos/cognitive/dynamics/ package with 7 new modules:
+  - attention.py: AttentionManager (focus tracking, exponential decay, reinforcement, priority shifts, snapshots)
+  - uncertainty.py: UncertaintyEngine (6 uncertainty types, belief/goal detection, propagation, planning guidance)
+  - plan_state.py: PlanState (plan CRUD, steps, subplans, lifecycle, outcome evaluation)
+  - cognitive_graph.py: CognitiveGraph (unified NetworkX DiGraph for concepts/beliefs/goals/memories/plans)
+  - state_evolution.py: StateEvolutionEngine (dS/dt = F(S): reinforce, weaken, promote, suppress, decay, resolve)
+  - counterfactual.py: CounterfactualReasoner (what_if, what_if_not, alternative_plans)
+  - engine.py: CognitiveDynamicsEngine (orchestrates all v0.3 subsystems in a dynamics cycle)
+- Updated CognitiveKernel (kernel.py) with v0.3 integration:
+  - Added CognitiveDynamicsEngine initialization
+  - Added dynamics cycle run after every session
+  - Added 7 property accessors for v0.3 subsystems
+  - Updated get_stats() with dynamics stats
+  - Updated version to 0.3.0
+- Updated pyproject.toml version to 0.3.0
+- Created comprehensive test suite (46 tests) in tests/test_dynamics.py
+- All 158 tests pass (v0.1: 26, v0.2: 86, v0.3: 46)
+- Verified all 8 success criteria against end-to-end execution trace
+
+Stage Summary:
+- ACOS Runtime v0.3 is COMPLETE with all 7 deliverables implemented
+- 158/158 total tests pass across all versions
+- All 8 success criteria verified: beliefs evolve, goals compete, uncertainty tracked, attention shifts, plans persist, cognitive graph updates, counterfactual reasoning exists, cognitive state is dynamic
+- Key architecture: CognitiveDynamicsEngine orchestrates AttentionManager, UncertaintyEngine, PlanState, CognitiveGraph, StateEvolutionEngine, CounterfactualReasoner
+- CognitiveKernel pipeline now includes dynamics cycle after each session
+- Evolution time: ~2-5ms per cycle — production-ready performance

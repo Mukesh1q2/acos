@@ -1,7 +1,7 @@
 """
-Cognitive Kernel v0.2 — The central orchestrator of ACOS.
+Cognitive Kernel v0.3 — The central orchestrator of ACOS.
 
-Extended pipeline from v0.1:
+Extended pipeline from v0.2:
 
 v0.1 Pipeline:
   Query → Threads → Reflection → Verification → Synthesis
@@ -11,14 +11,21 @@ v0.2 Pipeline:
        → Threads → Reflection → Verification → Consolidation
        → Updated Cognitive State → Synthesis
 
-New subsystems in v0.2:
-- CognitiveStateEngine: Central internal representation, persists across sessions
-- KnowledgeFabric: Concept graph with extraction, traversal, and search
-- BeliefState: Belief management with evidence and confidence evolution
-- GoalManager: Goal tracking with priorities, dependencies, and progress
-- SemanticMemory: Concept-based long-term knowledge with relationships
-- KnowledgeConsolidator: Converts episodic memory into semantic knowledge
-- ReasoningEngine: Inference, contradiction detection, knowledge gap discovery
+v0.3 Pipeline:
+  Query → Cognitive State → Goals → Beliefs → Knowledge Fabric
+       → Threads → Reflection → Verification → Consolidation
+       → Cognitive Dynamics Cycle (attention, uncertainty, evolution)
+       → Updated Cognitive State → Synthesis
+
+New subsystems in v0.3:
+- CognitiveDynamicsEngine: Core orchestrator for belief updates, goal competition,
+  uncertainty propagation, memory reinforcement, attention allocation, state evolution
+- AttentionManager: Track active concepts, goals, beliefs with focus scores
+- UncertaintyEngine: Track unknowns, conflicting beliefs, missing evidence
+- PlanState: Plans, subplans, dependencies, expected/actual outcomes
+- CognitiveGraph: Unified NetworkX graph for concepts, beliefs, goals, memories, plans
+- StateEvolutionEngine: dS/dt = F(S) — reinforce, weaken, promote, suppress
+- CounterfactualReasoner: What-if reasoning, alternatives
 """
 
 from __future__ import annotations
@@ -55,6 +62,13 @@ from acos.cognitive.cognitive_state import CognitiveStateEngine
 from acos.cognitive.semantic_memory import SemanticMemory
 from acos.cognitive.knowledge_consolidator import KnowledgeConsolidator
 from acos.cognitive.reasoning_engine import ReasoningEngine
+from acos.cognitive.dynamics.engine import CognitiveDynamicsEngine
+from acos.cognitive.dynamics.attention import AttentionManager
+from acos.cognitive.dynamics.uncertainty import UncertaintyEngine
+from acos.cognitive.dynamics.plan_state import PlanState
+from acos.cognitive.dynamics.cognitive_graph import CognitiveGraph
+from acos.cognitive.dynamics.state_evolution import StateEvolutionEngine
+from acos.cognitive.dynamics.counterfactual import CounterfactualReasoner
 
 
 # Mapping of thread types to agent types
@@ -77,13 +91,15 @@ DEFAULT_THREAD_TYPES = [
 
 class CognitiveKernel:
     """
-    The central orchestrator of the ACOS Runtime v0.2.
+    The central orchestrator of the ACOS Runtime v0.3.
 
     Coordinates all subsystems:
     - v0.1: ThreadScheduler, MemoryManager, ModelRouter, Agents,
             ReflectionEngine, VerificationEngine
     - v0.2: CognitiveStateEngine, KnowledgeFabric, BeliefState,
             GoalManager, SemanticMemory, KnowledgeConsolidator, ReasoningEngine
+    - v0.3: CognitiveDynamicsEngine, AttentionManager, UncertaintyEngine,
+            PlanState, CognitiveGraph, StateEvolutionEngine, CounterfactualReasoner
     """
 
     def __init__(self, db_path: str | None = None):
@@ -110,6 +126,14 @@ class CognitiveKernel:
         self._reasoning_engine = ReasoningEngine(
             self._knowledge_fabric,
             self._belief_state,
+        )
+
+        # v0.3 dynamics subsystems
+        self._dynamics_engine = CognitiveDynamicsEngine(
+            self._storage,
+            belief_state=self._belief_state,
+            goal_manager=self._goal_manager,
+            knowledge_fabric=self._knowledge_fabric,
         )
 
         # Agents
@@ -151,6 +175,9 @@ class CognitiveKernel:
         await self._cognitive_state.initialize()
         await self._semantic_memory.initialize()
         await self._reasoning_engine.initialize()
+
+        # v0.3 initialization — dynamics subsystems
+        await self._dynamics_engine.initialize()
 
         self._initialized = True
 
@@ -417,6 +444,31 @@ class CognitiveKernel:
             avg_confidence = sum(v.confidence_score for v in verifications) / len(verifications)
         await self._cognitive_state.end_session(synthesis, avg_confidence)
 
+        # v0.3: Run cognitive dynamics cycle after session
+        if request.update_cognitive_state:
+            try:
+                all_beliefs = await self._belief_state.get_active_beliefs()
+                all_concepts = []
+                try:
+                    for node in self._knowledge_fabric._graph.nodes():
+                        concept = self._knowledge_fabric._concepts.get(node)
+                        if concept:
+                            all_concepts.append(concept)
+                except Exception:
+                    pass
+                all_goals = await self._goal_manager.get_active_goals()
+                contradictions_list = await self._belief_state.find_contradictions()
+
+                dynamics_result = await self._dynamics_engine.run_cycle(
+                    beliefs=all_beliefs,
+                    concepts=all_concepts,
+                    goals=all_goals,
+                    contradictions=contradictions_list,
+                    current_query=request.query,
+                )
+            except Exception:
+                pass  # Non-blocking: dynamics failure shouldn't break the pipeline
+
         # Also run v0.1 memory consolidation for backward compatibility
         thread_ids = [t.id for t in threads]
         await self._memory.consolidate_session(
@@ -678,6 +730,43 @@ Please provide a well-structured final answer that:
         """Access the Reasoning Engine subsystem."""
         return self._reasoning_engine
 
+    # ─── v0.3 Dynamics Subsystem Access ───────────────────────────────────────
+
+    @property
+    def dynamics_engine(self) -> CognitiveDynamicsEngine:
+        """Access the Cognitive Dynamics Engine (v0.3)."""
+        return self._dynamics_engine
+
+    @property
+    def attention_manager(self) -> AttentionManager:
+        """Access the Attention Manager (v0.3)."""
+        return self._dynamics_engine.attention
+
+    @property
+    def uncertainty_engine(self) -> UncertaintyEngine:
+        """Access the Uncertainty Engine (v0.3)."""
+        return self._dynamics_engine.uncertainty
+
+    @property
+    def plan_state(self) -> PlanState:
+        """Access the Plan State (v0.3)."""
+        return self._dynamics_engine.plan_state
+
+    @property
+    def cognitive_graph(self) -> CognitiveGraph:
+        """Access the Cognitive Graph (v0.3)."""
+        return self._dynamics_engine.cognitive_graph
+
+    @property
+    def state_evolution(self) -> StateEvolutionEngine:
+        """Access the State Evolution Engine (v0.3)."""
+        return self._dynamics_engine.state_evolution
+
+    @property
+    def counterfactual(self) -> CounterfactualReasoner:
+        """Access the Counterfactual Reasoner (v0.3)."""
+        return self._dynamics_engine.counterfactual
+
     # ─── Query Interface ──────────────────────────────────────────────────────
 
     async def get_session(self, session_id: str) -> SessionState | None:
@@ -731,9 +820,16 @@ Please provide a well-structured final answer that:
         except Exception:
             pass
 
+        # v0.3 dynamics stats
+        dynamics_stats = {}
+        try:
+            dynamics_stats = await self._dynamics_engine.get_comprehensive_stats()
+        except Exception:
+            pass
+
         return {
             "initialized": self._initialized,
-            "version": "0.2.0",
+            "version": "0.3.0",
             "active_threads": active_threads,
             "total_sessions": len(self._sessions),
             "memory": memory_stats,
@@ -744,6 +840,7 @@ Please provide a well-structured final answer that:
             "beliefs": belief_stats,
             "goals": goal_stats,
             "semantic_memory": semantic_stats,
+            "dynamics": dynamics_stats,
         }
 
     async def get_cognitive_state(self) -> CognitiveStateResponse:

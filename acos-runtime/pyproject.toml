@@ -1,7 +1,7 @@
 [project]
 name = "acos-runtime"
-version = "0.2.0"
-description = "Avadhan Cognitive Operating System Runtime v0.2 — Cognitive State Engine & Knowledge Fabric"
+version = "0.3.0"
+description = "Avadhan Cognitive Operating System Runtime v0.3 — Cognitive Dynamics Engine"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
