@@ -1,24 +1,24 @@
 """
-Cognitive Kernel - The central orchestrator of ACOS.
+Cognitive Kernel v0.2 — The central orchestrator of ACOS.
 
-Responsibilities:
-- Accept user requests
-- Spawn reasoning threads based on query analysis
-- Track execution state across all threads
-- Coordinate agents (Research, Planning, Memory, Verification)
-- Merge results from all threads
-- Coordinate reflection and verification
-- Synthesize final answer
+Extended pipeline from v0.1:
 
-Workflow:
-1. User submits a query
-2. Kernel analyzes the query to determine required thread types
-3. ThreadScheduler creates and manages threads
-4. Agents execute within their assigned threads
-5. ReflectionEngine reviews all outputs
-6. VerificationEngine checks for accuracy and consistency
-7. Kernel synthesizes the final answer from all verified results
-8. Memory persists across sessions via MemoryManager
+v0.1 Pipeline:
+  Query → Threads → Reflection → Verification → Synthesis
+
+v0.2 Pipeline:
+  Query → Cognitive State → Goals → Beliefs → Knowledge Fabric
+       → Threads → Reflection → Verification → Consolidation
+       → Updated Cognitive State → Synthesis
+
+New subsystems in v0.2:
+- CognitiveStateEngine: Central internal representation, persists across sessions
+- KnowledgeFabric: Concept graph with extraction, traversal, and search
+- BeliefState: Belief management with evidence and confidence evolution
+- GoalManager: Goal tracking with priorities, dependencies, and progress
+- SemanticMemory: Concept-based long-term knowledge with relationships
+- KnowledgeConsolidator: Converts episodic memory into semantic knowledge
+- ReasoningEngine: Inference, contradiction detection, knowledge gap discovery
 """
 
 from __future__ import annotations
@@ -33,6 +33,11 @@ from acos.schemas.models import (
     ThreadPriority, AgentType, AgentOutput, Message,
     ReflectionResult, VerificationResult, QueryRequest, QueryResponse,
 )
+from acos.schemas.v2_models import (
+    ConsolidationResult, Belief, Goal, Concept,
+    QueryResponseV2, QueryRequestV2, CognitiveStateResponse,
+    KnowledgeGraphResponse,
+)
 from acos.memory.store import StorageBackend
 from acos.memory.manager import MemoryManager
 from acos.scheduler import ThreadScheduler
@@ -43,6 +48,13 @@ from acos.agents.memory import MemoryAgent
 from acos.agents.verification import VerificationAgent
 from acos.engines.reflection import ReflectionEngine
 from acos.engines.verification import VerificationEngine
+from acos.cognitive.knowledge_fabric import KnowledgeFabric
+from acos.cognitive.belief_system import BeliefState
+from acos.cognitive.goal_system import GoalManager
+from acos.cognitive.cognitive_state import CognitiveStateEngine
+from acos.cognitive.semantic_memory import SemanticMemory
+from acos.cognitive.knowledge_consolidator import KnowledgeConsolidator
+from acos.cognitive.reasoning_engine import ReasoningEngine
 
 
 # Mapping of thread types to agent types
@@ -51,7 +63,7 @@ THREAD_AGENT_MAP: dict[ThreadType, AgentType] = {
     ThreadType.PLANNING: AgentType.PLANNING,
     ThreadType.MEMORY: AgentType.MEMORY,
     ThreadType.VERIFICATION: AgentType.VERIFICATION,
-    ThreadType.CREATIVE: AgentType.RESEARCH,  # Creative uses research agent
+    ThreadType.CREATIVE: AgentType.RESEARCH,
 }
 
 # Default thread types spawned for a complex query
@@ -65,19 +77,17 @@ DEFAULT_THREAD_TYPES = [
 
 class CognitiveKernel:
     """
-    The central orchestrator of the ACOS Runtime.
+    The central orchestrator of the ACOS Runtime v0.2.
 
     Coordinates all subsystems:
-    - ThreadScheduler for thread management
-    - MemoryManager for memory operations
-    - ModelRouter for LLM routing
-    - Agents for reasoning
-    - ReflectionEngine for quality review
-    - VerificationEngine for accuracy checking
+    - v0.1: ThreadScheduler, MemoryManager, ModelRouter, Agents,
+            ReflectionEngine, VerificationEngine
+    - v0.2: CognitiveStateEngine, KnowledgeFabric, BeliefState,
+            GoalManager, SemanticMemory, KnowledgeConsolidator, ReasoningEngine
     """
 
     def __init__(self, db_path: str | None = None):
-        # Initialize subsystems
+        # v0.1 subsystems
         self._storage = StorageBackend(db_path)
         self._memory = MemoryManager(self._storage)
         self._scheduler = ThreadScheduler()
@@ -85,7 +95,24 @@ class CognitiveKernel:
         self._reflection = ReflectionEngine(self._router)
         self._verification = VerificationEngine(self._router)
 
-        # Initialize agents
+        # v0.2 cognitive subsystems
+        self._knowledge_fabric = KnowledgeFabric(self._storage)
+        self._belief_state = BeliefState(self._storage)
+        self._goal_manager = GoalManager(self._storage)
+        self._cognitive_state = CognitiveStateEngine(self._storage)
+        self._semantic_memory = SemanticMemory(self._storage)
+        self._consolidator = KnowledgeConsolidator(
+            self._knowledge_fabric,
+            self._belief_state,
+            self._semantic_memory,
+            self._memory,
+        )
+        self._reasoning_engine = ReasoningEngine(
+            self._knowledge_fabric,
+            self._belief_state,
+        )
+
+        # Agents
         self._agents: dict[AgentType, ResearchAgent | PlanningAgent | MemoryAgent | VerificationAgent] = {}
 
         # Session tracking
@@ -93,14 +120,12 @@ class CognitiveKernel:
         self._initialized = False
 
     async def initialize(self) -> None:
-        """Initialize all subsystems."""
+        """Initialize all subsystems (v0.1 + v0.2)."""
         if self._initialized:
             return
 
-        # Initialize storage
+        # v0.1 initialization
         await self._storage.initialize()
-
-        # Auto-discover LLM backends
         await self._router.auto_discover()
 
         # Initialize agents
@@ -114,11 +139,18 @@ class CognitiveKernel:
         # Register thread handlers
         for thread_type, agent_type in THREAD_AGENT_MAP.items():
             agent = self._agents[agent_type]
-            # Create a proper async handler closure for each agent
             self._scheduler.register_handler(
                 thread_type,
                 self._make_handler(agent),
             )
+
+        # v0.2 initialization — cognitive subsystems
+        await self._knowledge_fabric.initialize()
+        await self._belief_state.initialize()
+        await self._goal_manager.initialize()
+        await self._cognitive_state.initialize()
+        await self._semantic_memory.initialize()
+        await self._reasoning_engine.initialize()
 
         self._initialized = True
 
@@ -126,7 +158,6 @@ class CognitiveKernel:
         """Create an async handler function for a given agent."""
         async def handler(thread: ThreadState) -> str:
             output = await agent.execute(thread)
-            # Store the output as a message in the thread
             msg = Message(
                 role="assistant",
                 content=output.content,
@@ -139,70 +170,149 @@ class CognitiveKernel:
             return output.content
         return handler
 
-    async def _run_agent(self, agent: Any, thread: ThreadState) -> str:
-        """Run an agent and return its output content."""
-        output = await agent.execute(thread)
-        # Store the output as a message in the thread
-        msg = Message(
-            role="assistant",
-            content=output.content,
-            thread_id=thread.id,
-            agent_type=output.agent_type,
-            metadata={"confidence": output.confidence},
-        )
-        thread.messages.append(msg)
-        thread.result = output.content
-        return output.content
+    # ─── v0.2 Enhanced Pipeline ──────────────────────────────────────────────
 
     async def process_query(self, request: QueryRequest) -> QueryResponse:
         """
-        Process a user query through the full ACOS pipeline.
+        Process a user query through the full ACOS v0.1 pipeline.
+        
+        Maintained for backward compatibility.
+        """
+        v2_request = QueryRequestV2(
+            query=request.query,
+            thread_types=[t.value for t in request.thread_types] if request.thread_types else None,
+            priority=request.priority.value,
+            metadata=request.metadata,
+        )
+        v2_response = await self.process_query_v2(v2_request)
+
+        # Convert v0.2 response to v0.1 format
+        threads = []
+        for t_dict in v2_response.threads:
+            try:
+                threads.append(ThreadState(**t_dict))
+            except Exception:
+                pass
+
+        agent_outputs = []
+        for a_dict in v2_response.agent_outputs:
+            try:
+                agent_outputs.append(AgentOutput(**a_dict))
+            except Exception:
+                pass
+
+        reflections = []
+        for r_dict in v2_response.reflections:
+            try:
+                reflections.append(ReflectionResult(**r_dict))
+            except Exception:
+                pass
+
+        verifications = []
+        for v_dict in v2_response.verifications:
+            try:
+                verifications.append(VerificationResult(**v_dict))
+            except Exception:
+                pass
+
+        return QueryResponse(
+            session_id=v2_response.session_id,
+            query=v2_response.query,
+            final_synthesis=v2_response.final_synthesis,
+            threads=threads,
+            agent_outputs=agent_outputs,
+            reflections=reflections,
+            verifications=verifications,
+            total_time_ms=v2_response.total_time_ms,
+        )
+
+    async def process_query_v2(self, request: QueryRequestV2) -> QueryResponseV2:
+        """
+        Process a user query through the full ACOS v0.2 pipeline.
 
         Pipeline:
-        1. Analyze query → determine thread types
-        2. Create session
-        3. Spawn threads
-        4. Execute agents
-        5. Reflect on outputs
-        6. Verify outputs
-        7. Synthesize final answer
-        8. Persist session
+        1. Load Cognitive State
+        2. Update session tracking
+        3. Analyze query → determine thread types
+        4. Update Goals (check if query relates to existing goals)
+        5. Load relevant Beliefs and Knowledge
+        6. Spawn threads with cognitive context
+        7. Execute agents (parallel)
+        8. Reflect on outputs
+        9. Verify outputs
+        10. Consolidate knowledge (episodic → semantic)
+        11. Update Cognitive State
+        12. Synthesize final answer with cognitive context
         """
         start_time = time.monotonic()
 
         if not self._initialized:
             await self.initialize()
 
-        # 1. Analyze query and determine thread types
-        thread_types = request.thread_types or self._analyze_query(request.query)
+        # 1. Load current cognitive state
+        cognitive_state = await self._cognitive_state.get_state()
 
-        # 2. Create session
+        # 2. Begin session tracking
+        await self._cognitive_state.begin_session(request.query)
+
+        # 3. Analyze query and determine thread types
+        thread_types = self._analyze_query(request.query)
+        if request.thread_types:
+            thread_types = [ThreadType(t) for t in request.thread_types]
+
+        # 4. Update Goals — check if query relates to existing goals
+        beliefs_affected: list[str] = []
+        goals_affected: list[str] = []
+        knowledge_graph_changes: list[str] = []
+
+        active_goals = await self._goal_manager.get_active_goals()
+        for goal in active_goals:
+            # Check if query is related to this goal
+            goal_terms = set(goal.description.lower().split())
+            query_terms = set(request.query.lower().split())
+            overlap = goal_terms & query_terms
+            if len(overlap) >= 2:
+                # Update goal progress slightly
+                await self._goal_manager.update_progress(goal.id, min(1.0, goal.progress + 0.05))
+                goals_affected.append(goal.id)
+
+        # 5. Load relevant beliefs and knowledge for context
+        relevant_beliefs = await self._belief_state.get_active_beliefs()
+        query_concepts = self._knowledge_fabric.extract_concepts(request.query)
+        knowledge_context = ""
+        for concept in query_concepts[:5]:
+            existing = await self._knowledge_fabric.find_concept_by_name(concept.name)
+            if existing:
+                knowledge_context += f"- {existing[0].name}: {existing[0].description}\n"
+
+        # 6. Create session and spawn threads
         session = SessionState(query=request.query)
         self._sessions[session.id] = session
 
-        # Store the query in session memory
+        # Store the query with cognitive context
         await self._memory.store_working(
             "__session__",
             f"User query: {request.query}",
-            {"session_id": session.id},
+            {"session_id": session.id, "cognitive_state_id": cognitive_state.id},
         )
 
-        # 3. Spawn threads
+        # Set active threads in cognitive state
         threads: list[ThreadState] = []
         for thread_type in thread_types:
             agent_type = THREAD_AGENT_MAP.get(thread_type)
             thread = await self._scheduler.create_thread(
                 query=request.query,
                 thread_type=thread_type,
-                priority=request.priority,
+                priority=ThreadPriority(request.priority),
                 agent_type=agent_type,
                 parent_session_id=session.id,
             )
             threads.append(thread)
 
+        await self._cognitive_state.set_active_threads([t.id for t in threads])
         session.threads = threads
 
-        # 4. Execute agents (all threads in parallel)
+        # 7. Execute agents (all threads in parallel)
         agent_outputs: list[AgentOutput] = []
         tasks = []
         for thread in threads:
@@ -211,18 +321,14 @@ class CognitiveKernel:
                 agent = self._agents[agent_type]
                 tasks.append(self._execute_agent_in_thread(agent, thread))
 
-        # Run all agents concurrently
         if tasks:
             outputs = await asyncio.gather(*tasks, return_exceptions=True)
             for output in outputs:
                 if isinstance(output, AgentOutput):
                     agent_outputs.append(output)
                     session.agent_outputs.append(output)
-                elif isinstance(output, Exception):
-                    # Log error but continue
-                    pass
 
-        # 5. Reflection - review all outputs
+        # 8. Reflection - review all outputs
         reflections = []
         for thread in threads:
             thread_outputs = [o for o in agent_outputs if o.thread_id == thread.id]
@@ -240,30 +346,78 @@ class CognitiveKernel:
                 {"session_id": session.id},
             )
 
-        # 6. Verification - check outputs
+        # 9. Verification - check outputs
         verifications = []
         for output in agent_outputs:
             verification = await self._verification.verify(output.thread_id, output.content)
             verifications.append(verification)
             session.verifications.append(verification)
 
-        # Cross-verification
         if len(agent_outputs) > 1:
             cross_verification = await self._verification.cross_verify(agent_outputs)
             verifications.append(cross_verification)
             session.verifications.append(cross_verification)
 
-        # 7. Synthesize final answer
-        synthesis = await self._synthesize(
-            request.query, agent_outputs, reflections, verifications
-        )
-        session.final_synthesis = synthesis
+        # 10. Consolidate knowledge (episodic → semantic)
+        consolidation: ConsolidationResult | None = None
+        if request.update_cognitive_state:
+            thread_ids = [t.id for t in threads]
+            consolidation = await self._consolidator.consolidate_session(
+                session_id=session.id,
+                thread_ids=thread_ids,
+                session_summary=f"Query: {request.query[:200]}",
+            )
+            knowledge_graph_changes.append(
+                f"Consolidated: {consolidation.concepts_extracted} concepts, "
+                f"{consolidation.relationships_extracted} relationships, "
+                f"{consolidation.beliefs_created} new beliefs"
+            )
 
-        # 8. Persist session
+        # 11. Update Cognitive State
+        if request.update_cognitive_state:
+            # Update beliefs in cognitive state
+            all_beliefs = await self._belief_state.get_active_beliefs()
+            await self._cognitive_state.update_beliefs(all_beliefs)
+
+            # Update goals in cognitive state
+            all_goals = await self._goal_manager.get_active_goals()
+            await self._cognitive_state.update_goals(all_goals)
+
+            # Update knowledge graph references
+            fabric_stats = self._knowledge_fabric.get_stats()
+            concept_ids = []
+            try:
+                # Get all concept IDs from fabric
+                for node in self._knowledge_fabric._graph.nodes():
+                    concept_ids.append(str(node))
+            except Exception:
+                pass
+            await self._cognitive_state.set_knowledge_concepts(concept_ids[:500])
+
+            # Update uncertainty based on verification results
+            if verifications:
+                avg_conf = sum(v.confidence_score for v in verifications) / max(len(verifications), 1)
+                await self._cognitive_state.update_uncertainty(
+                    request.query[:50], 1.0 - avg_conf
+                )
+
+        # 12. Synthesize final answer with cognitive context
+        synthesis = await self._synthesize_v2(
+            request.query, agent_outputs, reflections, verifications,
+            cognitive_state, relevant_beliefs, knowledge_context,
+        )
+
+        session.final_synthesis = synthesis
         session.completed_at = datetime.now(timezone.utc)
         await self._storage.save_session(session)
 
-        # Consolidate session memories
+        # End session in cognitive state
+        avg_confidence = 0.5
+        if verifications:
+            avg_confidence = sum(v.confidence_score for v in verifications) / len(verifications)
+        await self._cognitive_state.end_session(synthesis, avg_confidence)
+
+        # Also run v0.1 memory consolidation for backward compatibility
         thread_ids = [t.id for t in threads]
         await self._memory.consolidate_session(
             thread_ids,
@@ -272,14 +426,22 @@ class CognitiveKernel:
 
         total_time = (time.monotonic() - start_time) * 1000
 
-        return QueryResponse(
+        # Build v0.2 response
+        cognitive_snapshot = await self._cognitive_state.get_snapshot()
+
+        return QueryResponseV2(
             session_id=session.id,
             query=request.query,
             final_synthesis=synthesis,
-            threads=threads,
-            agent_outputs=agent_outputs,
-            reflections=reflections,
-            verifications=verifications,
+            threads=[t.model_dump(mode="json") for t in threads],
+            agent_outputs=[o.model_dump(mode="json") for o in agent_outputs],
+            reflections=[r.model_dump(mode="json") for r in reflections],
+            verifications=[v.model_dump(mode="json") for v in verifications],
+            consolidation=consolidation,
+            cognitive_state_snapshot=cognitive_snapshot,
+            beliefs_affected=beliefs_affected,
+            goals_affected=goals_affected,
+            knowledge_graph_changes=knowledge_graph_changes,
             total_time_ms=total_time,
         )
 
@@ -287,18 +449,14 @@ class CognitiveKernel:
         self, agent: Any, thread: ThreadState
     ) -> AgentOutput:
         """Execute an agent within a thread context."""
-        # Start the thread
         await self._scheduler.start_thread(thread.id)
 
-        # Execute the agent
         try:
             output = await agent.execute(thread)
-            # Update thread state
             thread.status = ThreadStatus.COMPLETED
             thread.result = output.content
             thread.completed_at = datetime.now(timezone.utc)
 
-            # Add message to thread
             msg = Message(
                 role="assistant",
                 content=output.content,
@@ -313,6 +471,90 @@ class CognitiveKernel:
             thread.error = str(e)
             raise
 
+    async def _synthesize_v2(
+        self,
+        query: str,
+        outputs: list[AgentOutput],
+        reflections: list[ReflectionResult],
+        verifications: list[VerificationResult],
+        cognitive_state: Any,
+        beliefs: list[Belief],
+        knowledge_context: str,
+    ) -> str:
+        """Synthesize a final answer with v0.2 cognitive context."""
+        if not outputs:
+            return "No results were produced from the reasoning threads."
+
+        # Build synthesis prompt with cognitive context
+        outputs_summary = "\n\n".join(
+            f"## {o.agent_type.value.title()} Thread (confidence: {o.confidence:.2f})\n{o.content}"
+            for o in outputs
+        )
+
+        reflection_summary = ""
+        if reflections:
+            reflection_summary = "\n\n### Reflection Summary\n" + "\n".join(
+                f"- Quality score: {r.quality_score:.2f}, "
+                f"Issues: {len(r.issues_found)}, "
+                f"Contradictions: {len(r.contradictions)}, "
+                f"Improvements: {len(r.improvements)}"
+                for r in reflections
+            )
+
+        verification_summary = ""
+        if verifications:
+            passed = sum(1 for v in verifications if v.passed)
+            verification_summary = (
+                f"\n\n### Verification Summary\n"
+                f"Passed: {passed}/{len(verifications)}, "
+                f"Avg confidence: {sum(v.confidence_score for v in verifications) / len(verifications):.2f}"
+            )
+
+        # v0.2: Add cognitive context
+        belief_context = ""
+        if beliefs:
+            belief_context = "\n\n### Current Beliefs\n" + "\n".join(
+                f"- [{b.confidence:.0%}] {b.statement}"
+                for b in beliefs[:10]
+            )
+
+        knowledge_section = ""
+        if knowledge_context:
+            knowledge_section = f"\n\n### Knowledge Graph Context\n{knowledge_context}"
+
+        cognitive_context = (
+            f"\n\n### Cognitive State\n"
+            f"Sessions: {cognitive_state.session_count}, "
+            f"Confidence: {cognitive_state.overall_confidence:.2f}, "
+            f"Active beliefs: {len(cognitive_state.beliefs)}, "
+            f"Active goals: {len(cognitive_state.goals)}"
+        )
+
+        prompt = f"""Synthesize a comprehensive final answer for the following query.
+
+Original Query: {query}
+
+## Thread Outputs:
+{outputs_summary}
+{reflection_summary}
+{verification_summary}
+{belief_context}
+{knowledge_section}
+{cognitive_context}
+
+Please provide a well-structured final answer that:
+1. Directly addresses the original query
+2. Incorporates insights from all reasoning threads
+3. Acknowledges any contradictions or uncertainties found
+4. Reflects the confidence levels of the underlying analysis
+5. Considers existing beliefs and knowledge when forming the answer
+6. Provides actionable next steps if appropriate"""
+
+        return await self._router.generate(
+            prompt,
+            system="You are the ACOS v0.2 Synthesis Engine. Combine multiple reasoning thread outputs into a coherent, comprehensive final answer. Consider existing beliefs, goals, and knowledge graph context when synthesizing.",
+        )
+
     async def _synthesize(
         self,
         query: str,
@@ -320,11 +562,10 @@ class CognitiveKernel:
         reflections: list[ReflectionResult],
         verifications: list[VerificationResult],
     ) -> str:
-        """Synthesize a final answer from all thread results."""
+        """Synthesize a final answer from all thread results (v0.1 compatibility)."""
         if not outputs:
             return "No results were produced from the reasoning threads."
 
-        # Build synthesis prompt
         outputs_summary = "\n\n".join(
             f"## {o.agent_type.value.title()} Thread (confidence: {o.confidence:.2f})\n{o.content}"
             for o in outputs
@@ -368,49 +609,74 @@ Please provide a well-structured final answer that:
         return await self._router.generate(prompt, system="You are the ACOS Synthesis Engine. Combine multiple reasoning thread outputs into a coherent, comprehensive final answer.")
 
     def _analyze_query(self, query: str) -> list[ThreadType]:
-        """
-        Analyze a query to determine which thread types to spawn.
-
-        Uses simple heuristic rules. In production, this would use
-        an LLM for intelligent query routing.
-        """
+        """Analyze a query to determine which thread types to spawn."""
         query_lower = query.lower()
         thread_types = []
 
-        # Planning indicators
         planning_keywords = ["plan", "strategy", "how to", "roadmap", "approach", "design", "build", "create", "implement", "develop", "architect"]
         if any(kw in query_lower for kw in planning_keywords):
             thread_types.append(ThreadType.PLANNING)
 
-        # Research/Analysis indicators
         research_keywords = ["analyze", "research", "investigate", "compare", "evaluate", "what is", "explain", "understand", "study", "analyze", "explore", "examine", "trading", "algorithm"]
         if any(kw in query_lower for kw in research_keywords):
             thread_types.append(ThreadType.ANALYSIS)
 
-        # Verification indicators
         verify_keywords = ["verify", "check", "validate", "confirm", "test", "prove", "correct", "ensure", "guarantee"]
         if any(kw in query_lower for kw in verify_keywords):
             thread_types.append(ThreadType.VERIFICATION)
 
-        # Memory indicators
         memory_keywords = ["remember", "recall", "history", "previous", "past", "context"]
         if any(kw in query_lower for kw in memory_keywords):
             thread_types.append(ThreadType.MEMORY)
 
-        # Creative indicators
         creative_keywords = ["imagine", "create", "invent", "brainstorm", "ideate", "novel", "innovative"]
         if any(kw in query_lower for kw in creative_keywords):
             thread_types.append(ThreadType.CREATIVE)
 
-        # If no specific types matched, use default (all types)
         if not thread_types:
             thread_types = list(DEFAULT_THREAD_TYPES)
 
-        # Always include memory thread for context building
         if ThreadType.MEMORY not in thread_types:
             thread_types.append(ThreadType.MEMORY)
 
         return thread_types
+
+    # ─── v0.2 Cognitive Subsystem Access ─────────────────────────────────────
+
+    @property
+    def knowledge_fabric(self) -> KnowledgeFabric:
+        """Access the Knowledge Fabric subsystem."""
+        return self._knowledge_fabric
+
+    @property
+    def belief_state(self) -> BeliefState:
+        """Access the Belief State subsystem."""
+        return self._belief_state
+
+    @property
+    def goal_manager(self) -> GoalManager:
+        """Access the Goal Manager subsystem."""
+        return self._goal_manager
+
+    @property
+    def cognitive_state_engine(self) -> CognitiveStateEngine:
+        """Access the Cognitive State Engine subsystem."""
+        return self._cognitive_state
+
+    @property
+    def semantic_memory(self) -> SemanticMemory:
+        """Access the Semantic Memory subsystem."""
+        return self._semantic_memory
+
+    @property
+    def consolidator(self) -> KnowledgeConsolidator:
+        """Access the Knowledge Consolidator subsystem."""
+        return self._consolidator
+
+    @property
+    def reasoning_engine(self) -> ReasoningEngine:
+        """Access the Reasoning Engine subsystem."""
+        return self._reasoning_engine
 
     # ─── Query Interface ──────────────────────────────────────────────────────
 
@@ -429,21 +695,94 @@ Please provide a well-structured final answer that:
         return await self._scheduler.get_thread(thread_id)
 
     async def get_stats(self) -> dict[str, Any]:
-        """Get runtime statistics."""
+        """Get runtime statistics including v0.2 cognitive subsystems."""
         memory_stats = await self._memory.get_stats()
         model_stats = self._router.get_performance_stats()
         active_threads = await self._scheduler.get_active_count()
 
+        # v0.2 cognitive stats
+        cognitive_stats = {}
+        try:
+            cognitive_stats = await self._cognitive_state.get_stats()
+        except Exception:
+            pass
+
+        fabric_stats = {}
+        try:
+            fabric_stats = self._knowledge_fabric.get_stats()
+        except Exception:
+            pass
+
+        belief_stats = {}
+        try:
+            belief_stats = await self._belief_state.get_stats()
+        except Exception:
+            pass
+
+        goal_stats = {}
+        try:
+            goal_stats = await self._goal_manager.get_stats()
+        except Exception:
+            pass
+
+        semantic_stats = {}
+        try:
+            semantic_stats = await self._semantic_memory.get_stats()
+        except Exception:
+            pass
+
         return {
             "initialized": self._initialized,
+            "version": "0.2.0",
             "active_threads": active_threads,
             "total_sessions": len(self._sessions),
             "memory": memory_stats,
             "models": model_stats,
             "available_models": [m.name for m in await self._router.get_available_models()],
+            "cognitive_state": cognitive_stats,
+            "knowledge_fabric": fabric_stats,
+            "beliefs": belief_stats,
+            "goals": goal_stats,
+            "semantic_memory": semantic_stats,
         }
+
+    async def get_cognitive_state(self) -> CognitiveStateResponse:
+        """Get cognitive state information for API responses."""
+        snapshot = await self._cognitive_state.get_snapshot()
+        return CognitiveStateResponse(**snapshot)
+
+    async def get_knowledge_graph(self) -> KnowledgeGraphResponse:
+        """Get the full knowledge graph for API responses."""
+        try:
+            concepts = await self._knowledge_fabric.get_all_concepts()
+        except Exception:
+            concepts = []
+
+        try:
+            relationships = await self._knowledge_fabric.get_all_relationships()
+        except Exception:
+            relationships = []
+
+        try:
+            entities = await self._knowledge_fabric.get_all_entities()
+        except Exception:
+            entities = []
+
+        return KnowledgeGraphResponse(
+            concepts=concepts,
+            relationships=relationships,
+            entities=entities,
+            total_concepts=len(concepts),
+            total_relationships=len(relationships),
+        )
 
     async def shutdown(self) -> None:
         """Gracefully shut down the kernel."""
+        # Save cognitive state
+        try:
+            await self._cognitive_state.save()
+        except Exception:
+            pass
+
         await self._scheduler.shutdown()
         await self._storage.close()

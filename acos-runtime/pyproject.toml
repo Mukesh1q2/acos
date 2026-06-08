@@ -1,7 +1,7 @@
 [project]
 name = "acos-runtime"
-version = "0.1.0"
-description = "Avadhan Cognitive Operating System Runtime v0.1"
+version = "0.2.0"
+description = "Avadhan Cognitive Operating System Runtime v0.2 — Cognitive State Engine & Knowledge Fabric"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
@@ -14,6 +14,7 @@ dependencies = [
     "rich>=13.9.0",
     "click>=8.1.0",
     "pydantic-settings>=2.7.0",
+    "networkx>=3.2.0",
 ]
 
 [project.optional-dependencies]
