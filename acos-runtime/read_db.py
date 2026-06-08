@@ -43,7 +43,7 @@ def main():
         if not r.get("target_name"):
             r["target_name"] = concept_map.get(r["target_concept_id"], "Unknown")
 
-    # Parse JSON fields in beliefs
+    # Parse JSON fields in beliefs and compute counts
     for b in beliefs:
         for field in ["supporting_evidence", "contradicting_evidence", "related_concept_ids"]:
             if field in b and isinstance(b[field], str):
@@ -51,8 +51,17 @@ def main():
                     b[field] = json.loads(b[field])
                 except:
                     b[field] = []
+        # Add count fields for the frontend
+        supp = b.get("supporting_evidence", [])
+        contra = b.get("contradicting_evidence", [])
+        b["supporting_evidence_count"] = len(supp) if isinstance(supp, list) else 0
+        b["contradicting_evidence_count"] = len(contra) if isinstance(contra, list) else 0
+        # Extract category from metadata or default
+        if "category" not in b or not b["category"]:
+            b["category"] = "general"
 
-    # Parse JSON fields in goals
+    # Parse JSON fields in goals and convert priority to label
+    priority_labels = {20: "CRITICAL", 15: "HIGH", 10: "NORMAL", 5: "LOW"}
     for g in goals:
         for field in ["subgoal_ids", "dependency_ids", "related_concept_ids", "related_belief_ids", "metadata"]:
             if field in g and isinstance(g[field], str):
@@ -60,6 +69,15 @@ def main():
                     g[field] = json.loads(g[field])
                 except:
                     g[field] = [] if field != "metadata" else {}
+        # Convert integer priority to string label
+        p = g.get("priority", 5)
+        if isinstance(p, int):
+            # Find the closest priority label
+            closest = min(priority_labels.keys(), key=lambda k: abs(k - p)) if p not in priority_labels else p
+            g["priority"] = priority_labels.get(closest, "NORMAL")
+        elif isinstance(p, str) and p.isdigit():
+            closest = min(priority_labels.keys(), key=lambda k: abs(k - int(p))) if int(p) not in priority_labels else int(p)
+            g["priority"] = priority_labels.get(closest, "NORMAL")
 
     # Parse JSON fields in cognitive state
     cs = cognitive_states[0] if cognitive_states else None

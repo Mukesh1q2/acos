@@ -62,15 +62,30 @@ interface Relationship {
   description: string;
 }
 
+interface EvidenceItem {
+  id: string;
+  content: string;
+  evidence_type: string;
+  source_id: string | null;
+  confidence: number;
+  created_at: string;
+}
+
 interface Belief {
   id: string;
   statement: string;
   confidence: number;
   status: string;
-  supporting_evidence: number;
-  contradicting_evidence: number;
+  supporting_evidence: EvidenceItem[];
+  contradicting_evidence: EvidenceItem[];
+  supporting_evidence_count: number;
+  contradicting_evidence_count: number;
+  related_concept_ids: string[];
+  parent_belief_id: string | null;
   version: number;
   category: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface Goal {
@@ -79,9 +94,15 @@ interface Goal {
   status: string;
   priority: string;
   progress: number;
+  parent_goal_id: string | null;
   subgoal_ids: string[];
   dependency_ids: string[];
-  metadata: string;
+  related_concept_ids: string[];
+  related_belief_ids: string[];
+  metadata: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+  completed_at: string | null;
 }
 
 interface CognitiveState {
@@ -413,11 +434,14 @@ function GoalStatusBadge({ status }: { status: string }) {
 /*  Priority Badge                                                     */
 /* ------------------------------------------------------------------ */
 
-function PriorityBadge({ priority }: { priority: string }) {
-  const colors = priorityColorMap[priority.toUpperCase()] || priorityColorMap.NORMAL;
+function PriorityBadge({ priority }: { priority: string | number }) {
+  const label = typeof priority === "number"
+    ? (priority >= 20 ? "CRITICAL" : priority >= 15 ? "HIGH" : priority >= 10 ? "NORMAL" : "LOW")
+    : String(priority).toUpperCase();
+  const colors = priorityColorMap[label] || priorityColorMap.NORMAL;
   return (
     <Badge className={`text-[10px] font-mono ${colors.bg} ${colors.text} border-transparent`}>
-      {priority.toUpperCase()}
+      {label}
     </Badge>
   );
 }
@@ -746,6 +770,61 @@ function KnowledgeGraphTab({ data }: { data: RuntimeData }) {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Belief Evidence Details (Expandable)                                */
+/* ------------------------------------------------------------------ */
+
+function BeliefEvidenceDetails({ belief }: { belief: Belief }) {
+  const [expanded, setExpanded] = useState(false);
+  const hasEvidence = (belief.supporting_evidence?.length ?? 0) > 0 || (belief.contradicting_evidence?.length ?? 0) > 0;
+
+  if (!hasEvidence) return null;
+
+  return (
+    <div className="mt-2">
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <ChevronDown className={`w-3 h-3 transition-transform ${expanded ? "rotate-180" : ""}`} />
+        {expanded ? "Hide" : "Show"} evidence details
+      </button>
+      <AnimatePresence>
+        {expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="pt-2 mt-2 border-t border-border/20 space-y-2">
+              {belief.supporting_evidence?.map((ev) => (
+                <div key={ev.id} className="flex items-start gap-2 text-[10px]">
+                  <CheckCircle className="w-3 h-3 text-green-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <span className="text-foreground">{ev.content}</span>
+                    <span className="text-muted-foreground ml-2 font-mono">{Math.round(ev.confidence * 100)}%</span>
+                  </div>
+                </div>
+              ))}
+              {belief.contradicting_evidence?.map((ev) => (
+                <div key={ev.id} className="flex items-start gap-2 text-[10px]">
+                  <AlertTriangle className="w-3 h-3 text-red-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <span className="text-foreground">{ev.content}</span>
+                    <span className="text-muted-foreground ml-2 font-mono">{Math.round(ev.confidence * 100)}%</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /*  Tab: Beliefs                                                       */
 /* ------------------------------------------------------------------ */
 
@@ -874,12 +953,12 @@ function BeliefsTab({ data }: { data: RuntimeData }) {
                     <div className="flex items-center gap-4 text-[10px]">
                       <span className="flex items-center gap-1 text-green-400">
                         <CheckCircle className="w-3 h-3" />
-                        {belief.supporting_evidence} supporting
+                        {belief.supporting_evidence_count} supporting
                       </span>
-                      {belief.contradicting_evidence > 0 && (
+                      {belief.contradicting_evidence_count > 0 && (
                         <span className="flex items-center gap-1 text-red-400">
                           <AlertTriangle className="w-3 h-3" />
-                          {belief.contradicting_evidence} contradicting
+                          {belief.contradicting_evidence_count} contradicting
                         </span>
                       )}
                       <span className="flex items-center gap-1 text-muted-foreground ml-auto">
@@ -892,6 +971,9 @@ function BeliefsTab({ data }: { data: RuntimeData }) {
                         </Badge>
                       )}
                     </div>
+
+                    {/* Expandable Evidence Details */}
+                    <BeliefEvidenceDetails belief={belief} />
                   </CardContent>
                 </Card>
               </motion.div>
@@ -913,9 +995,13 @@ function GoalsTab({ data }: { data: RuntimeData }) {
 
   const sortedGoals = useCallback(() => {
     const priorityOrder: Record<string, number> = { CRITICAL: 0, HIGH: 1, NORMAL: 2, LOW: 3 };
+    const getPriorityKey = (p: string | number) => {
+      const s = typeof p === "number" ? (p >= 15 ? "HIGH" : p >= 10 ? "NORMAL" : "LOW") : String(p).toUpperCase();
+      return s;
+    };
     return [...goals].sort((a, b) => {
       if (sortBy === "priority") {
-        return (priorityOrder[a.priority.toUpperCase()] ?? 99) - (priorityOrder[b.priority.toUpperCase()] ?? 99);
+        return (priorityOrder[getPriorityKey(a.priority)] ?? 99) - (priorityOrder[getPriorityKey(b.priority)] ?? 99);
       }
       return b.progress - a.progress;
     });

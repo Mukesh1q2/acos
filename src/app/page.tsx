@@ -33,6 +33,7 @@ import { PresentationMode, PresentationToggleButton } from "@/components/acos/pr
 import { NotificationCenter, NotificationProvider, addNotification } from "@/components/acos/notification-center";
 import { SectionCompare } from "@/components/acos/section-compare";
 import { RuntimeDashboard } from "@/components/acos/runtime-dashboard";
+import { ValidationLab } from "@/components/acos/validation-lab";
 import { OverallCompletionBadge, useScrollCompletion } from "@/components/acos/section-completion";
 
 // Lazy-loaded heavy components (charts, diagrams, interactive sections)
@@ -52,6 +53,7 @@ const Glossary = lazy(() =>
 const sectionComponents: Record<string, React.ComponentType> = {
   overview: OverviewSection,
   runtime: RuntimeDashboard,
+  validation: ValidationLab,
   part1: Part1Analysis,
   part2: Part2ACOS,
   part3: Part3AFM,
