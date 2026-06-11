@@ -35,6 +35,7 @@ import { SectionCompare } from "@/components/acos/section-compare";
 import { RuntimeDashboard } from "@/components/acos/runtime-dashboard";
 import { ValidationLab } from "@/components/acos/validation-lab";
 import { ScientificValidation } from "@/components/acos/scientific-validation";
+import { AFMResearchPanel } from "@/components/acos/afm-research-panel";
 import { OverallCompletionBadge, useScrollCompletion } from "@/components/acos/section-completion";
 
 // Lazy-loaded heavy components (charts, diagrams, interactive sections)
@@ -56,6 +57,7 @@ const sectionComponents: Record<string, React.ComponentType> = {
   runtime: RuntimeDashboard,
   validation: ValidationLab,
   "scientific-validation": ScientificValidation,
+  "afm-research": AFMResearchPanel,
   part1: Part1Analysis,
   part2: Part2ACOS,
   part3: Part3AFM,

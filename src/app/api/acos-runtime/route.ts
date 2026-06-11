@@ -2,11 +2,12 @@ import { NextResponse } from "next/server";
 import { execSync } from "child_process";
 import path from "path";
 
+const PYTHON_BIN = "/home/z/.venv/bin/python3";
 const READ_DB_SCRIPT = "/home/z/my-project/acos-runtime/read_db.py";
 
 export async function GET() {
   try {
-    const result = execSync(`python3 "${READ_DB_SCRIPT}"`, {
+    const result = execSync(`${PYTHON_BIN} "${READ_DB_SCRIPT}"`, {
       encoding: "utf-8",
       timeout: 30000,
       maxBuffer: 5 * 1024 * 1024, // 5MB buffer for large datasets

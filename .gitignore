@@ -52,3 +52,35 @@ prompt
 server.log
 # Skills directory
 /skills/
+
+# AFM-Lite cached datasets (regenerated from code, too large for GitHub)
+afm-lite/.cache/
+*.pkl
+
+# Runtime databases (too large for GitHub, regenerated)
+acos-runtime/data/*.db
+db/*.db
+
+# Download directory (QA screenshots, not source code)
+/download/
+
+# Python virtual environments
+.venv/
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+# Database files
+*.db
+db/*.db
+
+# Environment files
+.env
+.env.*
+
+# Backup files
+*.bak
+
+# Upload archives
+upload/*.zip

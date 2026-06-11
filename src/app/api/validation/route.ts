@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { execSync } from "child_process";
 import path from "path";
 
+const PYTHON_BIN = "/home/z/.venv/bin/python3";
 const VALIDATION_SCRIPT = "/home/z/my-project/acos-runtime/run_validation.py";
 
 export async function GET(request: Request) {
@@ -10,7 +11,7 @@ export async function GET(request: Request) {
     const quick = searchParams.get("quick") === "true";
     const seed = searchParams.get("seed") || "42";
 
-    const cmd = `python3 "${VALIDATION_SCRIPT}" ${quick ? "--quick" : ""} --seed ${seed}`;
+    const cmd = `${PYTHON_BIN} "${VALIDATION_SCRIPT}" ${quick ? "--quick" : ""} --seed ${seed}`;
 
     const result = execSync(cmd, {
       encoding: "utf-8",
@@ -65,7 +66,7 @@ export async function POST(request: Request) {
       nAbCases,
     } = body;
 
-    let cmd = `python3 "${VALIDATION_SCRIPT}"`;
+    let cmd = `${PYTHON_BIN} "${VALIDATION_SCRIPT}"`;
     if (quick) cmd += " --quick";
     cmd += ` --seed ${seed}`;
     if (nTestCases) cmd += ` --n-test-cases ${nTestCases}`;

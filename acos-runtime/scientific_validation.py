@@ -1433,8 +1433,9 @@ class ValidationDB:
     def get_latest_run_id(self) -> Optional[str]:
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
+        # Get the run_id with the most results (not just the latest single entry)
         cursor = conn.execute(
-            "SELECT run_id FROM validation_runs ORDER BY created_at DESC LIMIT 1",
+            "SELECT run_id FROM validation_runs GROUP BY run_id ORDER BY COUNT(*) DESC, MAX(created_at) DESC LIMIT 1",
         )
         row = cursor.fetchone()
         conn.close()

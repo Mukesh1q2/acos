@@ -1,0 +1,111 @@
+{
+  "fashion": {
+    "input_dim": 784,
+    "num_classes": 10,
+    "baseline_task": {
+      "accs": [
+        0.7922,
+        0.7815,
+        0.7731,
+        0.7684,
+        0.7749
+      ],
+      "mean": 0.7780199999999999,
+      "std": 0.00921504205090786
+    },
+    "afm_qr": {
+      "accs": [
+        0.6934,
+        0.671,
+        0.743,
+        0.6863,
+        0.7092
+      ],
+      "mean": 0.7005800000000001,
+      "std": 0.027405327949141554
+    },
+    "afm_rib": {
+      "accs": [
+        0.7736,
+        0.7682,
+        0.7738,
+        0.7537,
+        0.7703
+      ],
+      "mean": 0.7679199999999999,
+      "std": 0.008288365339438152
+    }
+  },
+  "kmnist": {
+    "error": "OpenML dataset not found (network issue)"
+  },
+  "cifar10": {
+    "input_dim": 3072,
+    "num_classes": 10,
+    "note": "synthetic high-dim substitute (CIFAR-10 download failed), 3 seeds",
+    "baseline_task": {
+      "accs": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "mean": 1.0,
+      "std": 0.0
+    },
+    "afm_qr": {
+      "accs": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "mean": 1.0,
+      "std": 0.0
+    },
+    "afm_rib": {
+      "accs": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "mean": 1.0,
+      "std": 0.0
+    }
+  },
+  "synthetic": {
+    "input_dim": 784,
+    "num_classes": 10,
+    "baseline_task": {
+      "accs": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "mean": 1.0,
+      "std": 0.0
+    },
+    "afm_qr": {
+      "accs": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "mean": 1.0,
+      "std": 0.0
+    },
+    "afm_rib": {
+      "accs": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "mean": 1.0,
+      "std": 0.0
+    }
+  }
+}

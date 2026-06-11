@@ -5,7 +5,7 @@ const PORT = 3031;
 const ACOS_PATH = "/home/z/my-project/acos-runtime";
 
 // Start the ACOS Runtime FastAPI server using uvicorn
-const uvicorn = spawn("uvicorn", [
+const uvicorn = spawn("/home/z/.venv/bin/uvicorn", [
   "acos.api.server:app",
   "--host", "0.0.0.0",
   "--port", String(PORT),

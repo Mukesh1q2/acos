@@ -1,0 +1,16 @@
+{
+  "fashion_mnist": {
+    "baseline_vs_beta_vae": {
+      "config_1": "baseline",
+      "config_2": "beta_vae",
+      "mean_1": 0.88,
+      "mean_2": 0.85,
+      "diff": 0.030000000000000027,
+      "t_statistic": 3.6742346141747677,
+      "p_value": 0.021311641128756713,
+      "cohens_d": 2.9999999700000006,
+      "significant_005": true,
+      "effect_size": "large"
+    }
+  }
+}
