@@ -306,3 +306,47 @@ Stage Summary:
 - PARTIALLY PROVEN (1): Accuracy improvement (marginal, CIs overlap)
 - FAILED (1): Reduced catastrophic forgetting
 - Recommendation: Freeze AFM research. Do NOT proceed to RSSM.
+
+---
+Task ID: 12
+Agent: Main
+Task: OLP Phase 5 — Orthogonal Latent Projection in RSSM
+
+Work Log:
+- Tagged AFM-Lite-v1-final on existing commit
+- Created new olp-rssm/ directory (independent from AFM)
+- Implemented 4 RSSM conditions: Vanilla, β-VAE, OLP (QR only), OLP+KL
+- Implemented Moving-MNIST dataset (32×32, 10-frame sequences)
+- Implemented 8 metrics: Prediction MSE, rollout error, collapse, active dims, drift, silhouette, stability, runtime
+- Ran all 12 experiments (4 conditions × 3 seeds: 0, 42, 84)
+- PyTorch 2.12.0+cpu available (CPU-only training)
+- Training: ~80s per experiment, total ~15 min
+
+Results Summary:
+| Condition   | Pred MSE | Active Dims | Collapse | Silhouette | Drift  | Stability CV |
+|-------------|----------|-------------|----------|------------|--------|--------------|
+| vanilla     | 0.0404   | 1.000       | 0.0%     | -0.027     | 0.996  | 0.075        |
+| beta_vae    | 0.0396   | 1.000       | 0.0%     | -0.029     | 0.804  | 0.052        |
+| olp         | 0.0888   | 1.000       | 0.0%     | -0.033     | 0.998  | 0.067        |
+| olp_kl      | 0.0370   | 1.000       | 0.0%     | -0.059     | 0.898  | 0.053        |
+
+Key Findings:
+1. OLP alone produces 2.2× WORSE prediction error
+2. No model collapses — RSSM's GRU prevents it naturally
+3. OLP does NOT reduce drift — KL regularization does
+4. OLP does NOT improve silhouette — worsens it
+5. 4 of 5 hypotheses FAILED
+
+5 Reports Generated:
+- OLP_PHASE5_RESULTS.md — Complete results
+- OLP_HYPOTHESIS_REPORT.md — 4 FAILED, 1 PARTIALLY_PROVEN
+- OLP_MECHANISM_REPORT.md — Why OLP fails in RSSM
+- OLP_FAILURE_REPORT.md — Detailed failure documentation
+- OLP_MASTER_REPORT.md — Final verdict
+
+Stage Summary:
+- OLP Phase 5: FAILED
+- None of the 4 success criteria met
+- AFM-Lite's surviving mechanism (QR projection) does not transfer to RSSM
+- Pushed to GitHub with tag: OLP-Phase5-FAILED
+- Verdict: OLP does not deserve to exist as an RSSM component
