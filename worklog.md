@@ -277,11 +277,32 @@ Key Phase 4.5A findings:
 4. Accuracy: AFM slightly better but CIs overlap with baseline
 5. Reports saved: AFM_1M_MULTI_SEED_REPORT.md, multi_seed_results.json
 
-Phase 4.5B: IN PROGRESS (Forgetting Statistics)
-- Baseline seed 0: avg_forgetting=0.2565
+Phase 4.5B: COMPLETE (Forgetting Statistics)
+- CRITICAL NEGATIVE: AFM+RIB increased forgetting by 21.6% vs baseline (0.3129 vs 0.2574)
+- AFM task only: marginal 1.7% reduction
+- v0.1 claim of "80% forgetting reduction" FAILED at 1.33M scale
+
+Phase 4.5C: COMPLETE (Beta Sweep)
+- β-VAE collapses at β ≥ 5e-3
+- AFM_qr and AFM_rib: NO collapse up to β=5e-2 (10× higher threshold)
+- Even at β=5e-2: AFM maintains 88.4-88.6% accuracy with 127-128 active dims
+
+Phase 4.5D: COMPLETE (Latent Geometry Study)
+- (64,2) best for AFM+RIB silhouette (0.5143)
+- Current (32,4) is balanced
+- (32,8)=256: baseline had lower forgetting (0.1034) but AFM had higher
+
+Phase 4.5E: COMPLETE (Dataset Generalization)
+- Collapse resistance holds across ALL 4 datasets (MNIST, Fashion-MNIST, KMNIST, EMNIST)
+- β-VAE collapsed 100% on every dataset
+- AFM slightly outperforms baseline on KMNIST (92.33% vs 91.57%) and MNIST (98.36% vs 98.12%)
+- EMNIST (47 classes): AFM_qr 85.40% vs baseline 85.29%
+
+All pushed to GitHub with tag: phase-4.5-statistical-strengthening
 
 Stage Summary:
-- PyTorch installed and working
-- Phase 4.5A complete with strong statistical evidence for collapse resistance
-- Phase 4.5B running, remaining phases queued
-- All results being saved incrementally (resumable)
+- Phase 4.5 COMPLETE: 5 sub-phases, 134 total runs
+- PROVEN (4): Collapse resistance, structured representations, accuracy maintenance, β-VAE collapse
+- PARTIALLY PROVEN (1): Accuracy improvement (marginal, CIs overlap)
+- FAILED (1): Reduced catastrophic forgetting
+- Recommendation: Freeze AFM research. Do NOT proceed to RSSM.
