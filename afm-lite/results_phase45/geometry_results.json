@@ -1,0 +1,138 @@
+{
+  "(16,8)=128": {
+    "baseline": {
+      "accuracy": 0.889,
+      "silhouette_score": 0.33217737078666687,
+      "active_dims": 128.0,
+      "is_collapsed": false,
+      "avg_forgetting": 0.27275,
+      "reconstruction_loss": 285.09731865234374
+    },
+    "afm_task": {
+      "accuracy": 0.8938,
+      "silhouette_score": 0.4129408597946167,
+      "active_dims": 128.0,
+      "is_collapsed": false,
+      "avg_forgetting": 0.2592500000000001,
+      "reconstruction_loss": 166.6205606689453
+    },
+    "afm_qr": {
+      "accuracy": 0.8896,
+      "silhouette_score": 0.26478081941604614,
+      "active_dims": 128.0,
+      "is_collapsed": false,
+      "avg_forgetting": 0.26487499999999997,
+      "reconstruction_loss": 166.3967276123047
+    },
+    "afm_rib": {
+      "accuracy": 0.8904,
+      "silhouette_score": 0.24913059175014496,
+      "active_dims": 128.0,
+      "is_collapsed": false,
+      "avg_forgetting": 0.268,
+      "reconstruction_loss": 166.7896442993164
+    }
+  },
+  "(64,2)=128": {
+    "baseline": {
+      "accuracy": 0.889,
+      "silhouette_score": 0.33217737078666687,
+      "active_dims": 128.0,
+      "is_collapsed": false,
+      "avg_forgetting": 0.27275,
+      "reconstruction_loss": 285.09731865234374
+    },
+    "afm_task": {
+      "accuracy": 0.8953,
+      "silhouette_score": 0.4571574628353119,
+      "active_dims": 128.0,
+      "is_collapsed": false,
+      "avg_forgetting": 0.28475,
+      "reconstruction_loss": 164.6552204345703
+    },
+    "afm_qr": {
+      "accuracy": 0.8902,
+      "silhouette_score": 0.5253272652626038,
+      "active_dims": 128.0,
+      "is_collapsed": false,
+      "avg_forgetting": 0.24850000000000003,
+      "reconstruction_loss": 164.2933119628906
+    },
+    "afm_rib": {
+      "accuracy": 0.891,
+      "silhouette_score": 0.5143120884895325,
+      "active_dims": 128.0,
+      "is_collapsed": false,
+      "avg_forgetting": 0.3030000000000001,
+      "reconstruction_loss": 164.52028800048828
+    }
+  },
+  "(32,4)=128 [current]": {
+    "baseline": {
+      "accuracy": 0.889,
+      "silhouette_score": 0.33217737078666687,
+      "active_dims": 128.0,
+      "is_collapsed": false,
+      "avg_forgetting": 0.27275,
+      "reconstruction_loss": 285.09731865234374
+    },
+    "afm_task": {
+      "accuracy": 0.8942,
+      "silhouette_score": 0.44122248888015747,
+      "active_dims": 128.0,
+      "is_collapsed": false,
+      "avg_forgetting": 0.27937500000000004,
+      "reconstruction_loss": 165.50846196289064
+    },
+    "afm_qr": {
+      "accuracy": 0.8915,
+      "silhouette_score": 0.4138447046279907,
+      "active_dims": 128.0,
+      "is_collapsed": false,
+      "avg_forgetting": 0.253375,
+      "reconstruction_loss": 165.1087640991211
+    },
+    "afm_rib": {
+      "accuracy": 0.8904,
+      "silhouette_score": 0.3877716064453125,
+      "active_dims": 128.0,
+      "is_collapsed": false,
+      "avg_forgetting": 0.27137500000000003,
+      "reconstruction_loss": 165.46546909179688
+    }
+  },
+  "(32,8)=256": {
+    "baseline": {
+      "accuracy": 0.8904,
+      "silhouette_score": 0.3313797116279602,
+      "active_dims": 256.0,
+      "is_collapsed": false,
+      "avg_forgetting": 0.10337500000000002,
+      "reconstruction_loss": 260.03614501953126
+    },
+    "afm_task": {
+      "accuracy": 0.8897,
+      "silhouette_score": 0.41806089878082275,
+      "active_dims": 256.0,
+      "is_collapsed": false,
+      "avg_forgetting": 0.273625,
+      "reconstruction_loss": 165.0356974609375
+    },
+    "afm_qr": {
+      "accuracy": 0.8908,
+      "silhouette_score": 0.4100967347621918,
+      "active_dims": 256.0,
+      "is_collapsed": false,
+      "avg_forgetting": 0.489625,
+      "reconstruction_loss": 164.59074591064453
+    },
+    "afm_rib": {
+      "accuracy": 0.8885,
+      "silhouette_score": 0.4025668799877167,
+      "active_dims": 256.0,
+      "is_collapsed": false,
+      "avg_forgetting": 0.2955,
+      "reconstruction_loss": 164.67443063964845
+    }
+  }
+}
